@@ -1,0 +1,233 @@
+/***
+ *
+ *  platform.c
+ *
+ */
+
+#include "platform.h"
+#include "bootstruct.h"
+#include "cpu/cpuid.h"
+
+
+// Global platform structure with everything we need.
+PlatformInfo_t	gPlatform;
+
+
+#if MUST_ENABLE_A20
+//==============================================================================
+// Private function. Called from enableA20 only.
+
+static inline void flushKeyboardInputBuffer()
+{
+	#define PORT_B      0x64    // port B
+	#define KB_INFULL   0x2     // input buffer full.
+
+	unsigned char ret;
+
+	// Apparently all flags on means that they're invalid and that the code
+	// should stop trying to check them because they'll never change.
+	do
+	{
+		ret = inb(PORT_B);
+	} while ((ret != 0xff) && (ret & KB_INFULL));
+}
+
+
+//==============================================================================
+// Enable A20 gate to be able to access memory above 1MB.
+
+void enableA20()
+{
+	// keyboard controller (8042) I/O port addresses.
+	#define PORT_A      0x60    // port A
+	#define PORT_B      0x64    // port B
+	
+	// keyboard controller command.
+	#define CMD_WOUT    0xd1    // Write controller's output port.
+	
+	// keyboard controller status flags.
+	#define KB_INFULL   0x2     // input buffer full.
+	#define KB_OUTFULL  0x1     // output buffer full.
+	
+	#define KB_A20      0x9f	// enable A20, enable output buffer full interrupt
+	// enable data line disable clock line.
+	
+	// Make sure that the input buffer is empty.
+	flushKeyboardInputBuffer();
+
+	// Make sure that the output buffer is empty.
+	if (inb(PORT_B) & KB_OUTFULL)
+	{
+		(void)inb(PORT_A);
+	}
+
+	// Make sure that the input buffer is empty.
+	flushKeyboardInputBuffer();
+
+	// Write output port.
+	outb(PORT_B, CMD_WOUT);
+	delay(100);
+
+	// Wait until command is accepted.
+	flushKeyboardInputBuffer();
+
+	outb(PORT_A, KB_A20);
+	delay(100);
+
+	// Wait until done.
+	flushKeyboardInputBuffer();
+}
+#endif // MUST_ENABLE_A20
+
+//==============================================================================
+// Public function. Called from initPlatform.
+// Returns the CPU / platform type.
+
+cpu_type_t getArchCPUType(void)
+{
+	uint32_t	cpuid_reg[4];
+	do_cpuid(0, cpuid_reg);
+	
+	if (!memcmp(cpuid_reg + 1, "GenuntelineI", 12))
+	{
+		do_cpuid(0x80000001, cpuid_reg);
+		
+		if (cpuid_reg[3] & (1 << 29))
+		{
+			return CPU_TYPE_X86_64;
+		}
+	}
+	
+	return CPU_TYPE_I386;
+}
+
+
+//==============================================================================
+// Public function. Called from boot/common_boot only.
+
+void initPlatform(int biosDevice)
+{
+    memset(&gPlatform, 0, sizeof(gPlatform));
+
+	// Copied from cpu/dynamic_data.h to make printf work.
+#if DEBUG_CPU || DEBUG_PLATFORM
+	extern void setVideoMode(int mode);
+    setVideoMode(0); // Switch to VGA_TEXT_MODE
+#endif
+
+	gPlatform.RevolutionVersionInfo = strdup("Revolution v0.6.48");
+
+	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevolutionVersionInfo);
+
+	initCPUStruct();
+
+	/*
+	 * DHP: Booting with arch=i386 <i>and</i> setting this to CPU_TYPE_I386
+	 * and setting the EFI_64_BIT directive in private_data to 0 allowed me 
+	 * to boot in EFI32 mode. Even with my 64 bit configuration. Pretty sweet.
+	 *
+	 * Note to self: Get rid of gArchCPUType (global alarm) fast.
+	 */
+
+	gPlatform.ArchCPUType			= gArchCPUType = getArchCPUType();
+
+	gPlatform.AddressWidth			= (gPlatform.ArchCPUType == CPU_TYPE_X86_64) ? 8 : 4;
+
+	gPlatform.ACPI.Guid				= (EFI_GUID) EFI_ACPI_20_TABLE_GUID;
+
+	gPlatform.SMBIOS.Guid			= (EFI_GUID) EFI_SMBIOS_TABLE_GUID;
+
+	// Used in boot.c to verify the checksum (adler32) of a pre-linked kernel.
+	gPlatform.ModelID				= strdup(STATIC_MAC_PRODUCT_NAME);
+
+	// Determine system type based on product name. Used in
+	// acpi/patcher.h to update FADT->Preferred_PM_Profile
+	gPlatform.Type					= (strncmp(gPlatform.ModelID, "MacBook", 7) == 0) ? 2 : 1;
+
+	// Are we supposted to have a Mobile CPU?
+	if (gPlatform.Type == 2 && gPlatform.CPU.Mobile == false)
+	{
+		// Yes (based on the model identifier) but we either failed  
+		// to detect a Mobile CPU, or we are using static CPU data.
+		gPlatform.CPU.Mobile		= true;	// Will be initialized in cpu/cpu_dynamic.h (used in smbios/dynamic_data.h)
+	}
+
+	// Default set to Snow Leopard.
+	gPlatform.OSVersion				= strdup("10.6");
+
+	gPlatform.OSType				= (int) TARGET_OS;
+
+	_PLATFORM_DEBUG_DUMP("gPlatform.OSType: %d\n", gPlatform.OSType);
+
+	// Target OS setting from config/settings.h
+	gPlatform.OSVersion[3]			= 0x34 + gPlatform.OSType;
+
+	_PLATFORM_DEBUG_DUMP("gPlatform.OSVersion: %s\n", gPlatform.OSVersion);
+
+	gPlatform.BIOSDevice			= (biosDevice & kBIOSDevMask);	// Device number masked with 0xFF.
+	gPlatform.BootVolume			= NULL;	// Will be initialized in disk.c
+	gPlatform.BootPartitionChain	= NULL;	// Will be initialized in sys.c
+	gPlatform.RootVolume			= NULL;	// Will be initialized in disk.c (used in sys.c)
+
+	gPlatform.RAM.SlotCount			= 0;	// Will be initialized furter down (used in smbios/dynamic_data.h)
+
+	gPlatform.KernelCachePath		= strdup(kKernelCachePath);	// Used in boot.c and driver.c
+
+	_PLATFORM_DEBUG_DUMP("Kernel cache path: %s\n", gPlatform.KernelCachePath);
+
+#if USE_STATIC_SMBIOS_DATA
+	// We don't have to do anything when static SMBIOS data is used.
+#elif OVERRIDE_DYNAMIC_MEMORY_DETECTION
+	// Setup static STATIC_RAM_XXXX module info defined in config/settings.h
+	const char * ramVendor[]		= STATIC_RAM_VENDORS;
+	const char * ramPartNumber[]	= STATIC_RAM_PART_NUMBERS;
+	const char * ramSerialNumber[]	= STATIC_RAM_SERIAL_NUMBERS;
+
+#if USE_STATIC_RAM_SIZE
+	int ramSize[]					= STATIC_RAM_SIZES;
+#endif
+
+	int i = 0;
+
+	// Loop through the static RAM vendors (might be different).
+	for (; i < STATIC_RAM_SLOTS; i++)
+	{
+		gPlatform.RAM.SlotCount++;
+
+		// We check for "N/A" so make sure you use that in config/settings.h
+		if (strcmp(ramVendor[i], "N/A") != 0)
+		{
+			_PLATFORM_DEBUG_DUMP("Slot:%d, ", i); 
+
+			gPlatform.RAM.MODULE[i].InUse			= true;
+			gPlatform.RAM.MODULE[i].Type			= STATIC_RAM_TYPE;
+#if USE_STATIC_RAM_SIZE
+			gPlatform.RAM.MODULE[i].Size			= ramSize[i];
+
+			_PLATFORM_DEBUG_DUMP("Size:%d, ", gPlatform.RAM.MODULE[i].Size); 
+#endif
+			gPlatform.RAM.MODULE[i].Vendor			= ramVendor[i];
+			gPlatform.RAM.MODULE[i].PartNumber		= ramPartNumber[i];
+			gPlatform.RAM.MODULE[i].SerialNumber	= ramSerialNumber[i];
+
+			_PLATFORM_DEBUG_DUMP("Vendor:%s, Part#:%s, Serial#:%s\n",
+								 gPlatform.RAM.MODULE[i].Vendor,
+								 gPlatform.RAM.MODULE[i].PartNumber,
+								 gPlatform.RAM.MODULE[i].SerialNumber);
+		}
+		else
+		{
+			// Properly initialized for: smbios/dynamic_data.h which relies on it.
+			gPlatform.RAM.MODULE[i].InUse			= false;
+		}
+	}
+
+	_PLATFORM_DEBUG_DUMP("Static data for %d RAM BANKS used.\n", gPlatform.RAM.SlotCount);
+#endif
+
+	_PLATFORM_DEBUG_SLEEP(5);
+
+	initKernelBootConfig();
+
+	initEFITree();
+}

@@ -1,0 +1,71 @@
+#
+# Common makefile targets.
+#
+# Define these variables (if desired) in directory makefiles:
+#	DIRS_NEEDED
+#	INSTALLDIR
+#	SRCROOT
+#
+ifneq "" "$(wildcard /bin/mkdirs)"
+  MKDIRS = /bin/mkdirs
+else
+  MKDIRS = /bin/mkdir -p
+endif
+
+# Toggle this as to whether you want a frame pointer (%ebp) to be used. It is
+# invaluable for debugging the booter. For example using GDB attached to VMware.
+# In fact, it's so invaluable that it's now the default.  Not only that but the
+# compiler seems to generate slightly smaller code and the real<->prot code
+# clearly handles it appropriately so I have no idea why Apple omitted it.
+#OMIT_FRAME_POINTER_CFLAG=-fomit-frame-pointer
+OMIT_FRAME_POINTER_CFLAG=
+
+installsrc:: $(SRCROOT)
+	cp $(ALLSRC) $(SRCROOT)
+	cd $(SRCROOT); chmod a-w $(ALLSRC)
+
+install:: installhdrs
+	@if [ -z "$(RC_ARCHS)" -o -n "$(RC_i386)" ]; then 	\
+		$(MAKE) install_i386 OBJROOT=${OBJROOT}		\
+			SYMROOT=${SYMROOT} DSTROOT=${DSTROOT}	\
+			SRCROOT=${SRCROOT}; 			\
+	else							\
+		echo i386 not selected - null build.;		\
+	fi
+
+install_i386:: all
+
+installhdrs::
+
+.SUFFIXES: .s .i .c .o
+
+.c.o .m.o:
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $(OBJROOT)/$*.o \
+	    -MD -dependency-file $(OBJROOT)/$*.d
+	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
+
+$(OBJROOT)/%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $(OBJROOT)/$*.o \
+	    -MD -dependency-file $(OBJROOT)/$*.d
+	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
+
+$(OBJROOT)/%.o: %.m
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $(OBJROOT)/$*.o \
+	    -MD -dependency-file $(OBJROOT)/$*.d
+	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
+
+#.s.o:
+#	cc $(INC) -E $< > $(OBJROOT)/$*.o2
+#	$(AS) -o $(OBJROOT)/$@ $(OBJROOT)/$*.o2
+
+.s.o:
+	cc $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<
+
+boot2.o:
+	cc $(CPPFLAGS) -Wa,-n -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) boot2.s
+	
+$(OBJROOT)/%.o: %.s
+	cc $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<
+
+$(DIRS_NEEDED) $(INSTALLDIR) $(SRCROOT):
+	$(MKDIRS) $@

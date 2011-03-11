@@ -1,0 +1,140 @@
+/*
+ * Copyright (c) 2005 Apple Computer, Inc. All rights reserved.
+ *
+ * This file contains Original Code and/or Modifications of Original Code
+ * as defined in and that are subject to the Apple Public Source License
+ * Version 2.0 (the 'License'). You may not use this file except in
+ * compliance with the License. The rights granted to you under the License
+ * may not be used to create, or enable the creation or redistribution of,
+ * unlawful or unlicensed copies of an Apple operating system, or to
+ * circumvent, violate, or enable the circumvention or violation of, any
+ * terms of an Apple operating system software license agreement.
+ * 
+ * Please obtain a copy of the License at
+ * http://www.opensource.apple.com/apsl/ and read it before using this file.
+ * 
+ * The Original Code and all software distributed under the License are
+ * distributed on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER
+ * EXPRESS OR IMPLIED, AND APPLE HEREBY DISCLAIMS ALL SUCH WARRANTIES,
+ * INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT.
+ * Please see the License for the specific language governing rights and
+ * limitations under the License.
+ * 
+ * EFI implementation for Revolution Copyright (c) 2010 by DHP.
+ * All rights reserved.
+ *
+ */
+
+#ifndef _LIBSAIO_EFI_EFI_H
+#define _LIBSAIO_EFI_EFI_H
+
+
+// Set up space for up to 5 tables but we currently only add two.
+#define EFI_MAX_CONFIG_TABLES			5
+
+#define EFI_MAX_BIT						0x80000000
+
+// Set the upper bit to indicate EFI Error.
+#define EFIERR(a)						(EFI_MAX_BIT | (a))
+
+#define EFI_SUCCESS						0
+#define EFI_INVALID_PARAMETER			EFIERR (2)
+#define EFI_UNSUPPORTED					EFIERR (3)
+
+// EFI Revision info.
+//
+#define EFI_SPEC_MAJOR_REVISION			1
+
+#if EFI_64_BIT
+	#define EFI_SPEC_MINOR_REVISION		10
+#else
+	#define EFI_SPEC_MINOR_REVISION		1
+#endif
+
+// EFI System Table.
+//
+#define EFI_SYSTEM_TABLE_SIGNATURE		0x5453595320494249ULL
+#define EFI_SYSTEM_TABLE_REVISION		((EFI_SPEC_MAJOR_REVISION << 16) | (EFI_SPEC_MINOR_REVISION))
+
+// EFI Runtime Services Table.
+//
+#define EFI_RUNTIME_SERVICES_SIGNATURE	0x56524553544e5552ULL
+#define EFI_RUNTIME_SERVICES_REVISION	((EFI_SPEC_MAJOR_REVISION << 16) | (EFI_SPEC_MINOR_REVISION))
+
+
+typedef struct
+{
+	EFI_UINT64				Signature;
+	EFI_UINT32				Revision;
+	EFI_UINT32				HeaderSize;
+	EFI_UINT32				CRC32;
+	EFI_UINT32				Reserved;
+} __attribute__((aligned(8))) EFI_TABLE_HEADER;
+
+
+typedef struct
+{
+	EFI_TABLE_HEADER		Hdr;
+
+	// Time services
+	EFI_PTR					GetTime;
+	EFI_PTR					SetTime;
+	EFI_PTR					GetWakeupTime;
+	EFI_PTR					SetWakeupTime;
+
+	// Virtual memory services
+	EFI_PTR					SetVirtualAddressMap;
+	EFI_PTR					ConvertPointer;
+
+	// Variable services
+	EFI_PTR					GetVariable;
+	EFI_PTR					GetNextVariableName;
+	EFI_PTR					SetVariable;
+
+	// Misc
+	EFI_PTR					GetNextHighMonotonicCount;
+	EFI_PTR					ResetSystem;
+} __attribute__((aligned(8))) EFI_RUNTIME_SERVICES;
+
+
+typedef struct EFI_CONFIGURATION_TABLE
+{
+	EFI_GUID				VendorGuid;
+	EFI_PTR					VendorTable;
+#if EFI_64_BIT
+} __attribute__((aligned(8))) EFI_CONFIGURATION_TABLE;
+#else
+} EFI_CONFIGURATION_TABLE;
+
+#endif
+
+
+typedef struct EFI_SYSTEM_TABLE
+{
+	EFI_TABLE_HEADER		Hdr;
+
+	EFI_PTR					FirmwareVendor;
+	EFI_UINT32				FirmwareRevision;
+
+#if EFI_64_BIT
+	EFI_UINT32				__pad;
+#endif	
+
+	EFI_HANDLE				ConsoleInHandle;
+	EFI_PTR					ConIn;
+
+	EFI_HANDLE				ConsoleOutHandle;
+	EFI_PTR					ConOut;
+
+	EFI_HANDLE				StandardErrorHandle;
+	EFI_PTR					StdErr;
+
+	EFI_PTR					RuntimeServices;
+	EFI_PTR					BootServices;
+
+	EFI_UINT				NumberOfTableEntries;
+	EFI_PTR					ConfigurationTable;
+} __attribute__((aligned(8))) EFI_SYSTEM_TABLE;
+
+#endif /* _LIBSAIO_EFI_EFI_H */
