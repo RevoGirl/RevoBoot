@@ -115,7 +115,7 @@ void initPlatform(int biosDevice)
     setVideoMode(0); // Switch to VGA_TEXT_MODE
 #endif
 
-	gPlatform.RevolutionVersionInfo = strdup("Revolution v0.6.48");
+	gPlatform.RevolutionVersionInfo = strdup("Revolution v1.0.00");
 
 	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevolutionVersionInfo);
 
