@@ -105,6 +105,15 @@ static struct disk_blk0 * gBootSector = NULL;
 	int (*p_get_ramdisk_info)(int biosdev, struct driveInfo *dip) = NULL;
 #endif
 
+
+/* 
+ * Apple specific partition types.
+ * 
+ * Note: The first three dash-delimited fields of a GUID are stored in little 
+ * endian (the least significant byte first), the last two fields (inside {}) 
+ * are not.
+ */
+
 // Apple_HFS
 EFI_GUID const GPT_HFS_GUID				= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
@@ -114,11 +123,21 @@ EFI_GUID const GPT_HFS_GUID				= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x0
 // Apple_RAID
 // EFI_GUID const GPT_RAID_GUID			= { 0x52414944, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
-// 
+// Apple_RAID_Offline
 // EFI_GUID const GPT_RAID_OFFLINE_GUID	= { 0x52414944, 0x5f4f, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
-// EFI
-EFI_GUID const GPT_EFISYS_GUID			= { 0xC12A7328, 0xF81F, 0x11D2, { 0xBA, 0x4B, 0x00, 0xA0, 0xC9, 0x3E, 0xC9, 0x3B } };
+
+/*
+ * The EFI system partition (ESP) is a special (200 MB) partition from which 
+ * boot.efi can load EFI (boot-time) device drivers. The EFI firmware fully 
+ * supports the ESP, although Apple does not currently use it for anything. They
+ * simply create it on disks greater than 2 GB to make things easier in case 
+ * they need to load ESP-based drivers from it.
+ */
+
+#if EFI_SYSTEM_PARTITION_SUPPORT
+    EFI_GUID const GPT_EFISYS_GUID		= { 0xC12A7328, 0xF81F, 0x11D2, { 0xBA, 0x4B, 0x00, 0xA0, 0xC9, 0x3E, 0xC9, 0x3B } };
+#endif
 
 
 //==============================================================================
@@ -562,7 +581,7 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 											
 											bvrFlags = kBVFlagBooter;
 										} */
-#if EFI_BOOT_PARTITION_SUPPORT
+#if EFI_SYSTEM_PARTITION_SUPPORT
 										else if (efi_guid_compare(&GPT_EFISYS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
 											_DISK_DEBUG_DUMP("Matched: GPT_EFISYS_GUID, probing for HFS format...\n");
@@ -608,7 +627,7 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 												map->bvr = bvr;
 												++map->bvrcnt;
 
-												// Don't waste time checking for boot.efi on EFI partitions.
+												// Don't waste time checking for boot.efi on ESP partitions.
 												if ((bvrFlags & kBVFlagEFISystem) == 0)
 												{
 													// Flag System Volumes with kBVFlagSystemVolume.

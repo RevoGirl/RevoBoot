@@ -147,7 +147,7 @@
 #define CPU_VENDOR_ID						CPU_VENDOR_INTEL // CPU_VENDOR_AMD
 
 #define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
-
+                                                // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
 
@@ -194,7 +194,7 @@
 //--------------------------------------------------------------- DISK.C -------------------------------------------------------------------
 
 
-#define EFI_BOOT_PARTITION_SUPPORT			0	// Set to 0 by default. Set this to 1 when your system boots from the hidden EFI partition.
+#define EFI_SYSTEM_PARTITION_SUPPORT		0	// Set to 0 by default. Set this to 1 when your system boots from the hidden EFI partition.
 
 #define LEGACY_BIOS_READ_SUPPORT			0	// Set to 0 by default. Change this to 1 for crappy old BIOSes.
 
