@@ -141,21 +141,22 @@ typedef struct acpi_2_tables
 
 static ACPITables essentialTables[] =
 {
-	{ APIC, APIC_TABLE_SIGNATURE, replaceTable,		kReplaceTable | kAddTable	},
-	{ NONE,	FACP_TABLE_SIGNATURE, patchFACPTable,	kPatchTable					},
-	{ HPET, HPET_TABLE_SIGNATURE, replaceTable,		kReplaceTable				},
-	{ MCFG, MCFG_TABLE_SIGNATURE, NULL,				kReplaceTable				},
-	{ NONE,	RSDT_TABLE_SIGNATURE, NULL,				kDoNothing					},
+	{ APIC, APIC_TABLE_SIGNATURE,	replaceTable,		kReplaceTable | kAddTable	},
+	{ NONE,	FACP_TABLE_SIGNATURE,	patchFACPTable,		kPatchTable					},
+	{ HPET, HPET_TABLE_SIGNATURE,	replaceTable,		kReplaceTable				},
+	{ MCFG, MCFG_TABLE_SIGNATURE,	NULL,				kReplaceTable				},
+	{ NONE,	RSDT_TABLE_SIGNATURE,	NULL,				kDoNothing					},
 #if DROP_SSDT_TABLES
-	{ SSDT, SSDT_TABLE_SIGNATURE, NULL,				kDropTable					},
+	{ SSDT, SSDT_TABLE_SIGNATURE,	NULL,				kDropTable					},
 #elif REPLACE_EXISTING_SSDT_TABLES 
-	{ SSDT, SSDT_TABLE_SIGNATURE, replaceTable,		kReplaceTable				},
+	{ SSDT, SSDT_TABLE_SIGNATURE,	replaceTable,		kReplaceTable				},
 #else
-	{ SSDT, SSDT_TABLE_SIGNATURE, NULL,				kAddTable					},
+	{ SSDT, SSDT_TABLE_SIGNATURE,	NULL,				kAddTable					},
 #endif
-	{ NONE,	XSDT_TABLE_SIGNATURE, NULL,				kDoNothing					},
-	{ ECDT, ECDT_TABLE_SIGNATURE, replaceTable,		kReplaceTable				},
-	{ SBST, SBST_TABLE_SIGNATURE, replaceTable,		kReplaceTable				}
+	{ NONE,	XSDT_TABLE_SIGNATURE,	NULL,				kDoNothing					},
+	{ ECDT, ECDT_TABLE_SIGNATURE,	replaceTable,		kReplaceTable				},
+	{ SBST, SBST_TABLE_SIGNATURE,	replaceTable,		kReplaceTable				},
+	{ 0,	0,						NULL,				0							}
 };
 
 
