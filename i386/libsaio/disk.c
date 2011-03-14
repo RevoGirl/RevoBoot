@@ -360,7 +360,7 @@ static int Biosread(int biosdev, unsigned long long secno)
 
 			error("  BIOS read error: %s\n", bios_error(rc), rc);
 			error("  Block %d, Cyl %d Head %d Sector %d\n", secno, cyl, head, sec);
-			_DISK_DEBUG_SLEEPP(1);
+			_DISK_DEBUG_SLEEP(1);
 		}
 	}
 #endif // LEGACY_BIOS_READ_SUPPORT
