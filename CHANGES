@@ -1,0 +1,26 @@
+RevoBoot v1.0.04
+================
+- Makefiles cleaned up.
+- make target lion added (overrides config/settings.h).
+- File VERSION added (replacing version/revision).
+- File CHANGES (this file) added.
+- File version removed.
+- File revision removed.
+
+RevoBoot v1.0.03
+================
+- Race condition in the ACPI patcher fixed.
+- Typo fixed (by STLVNUB) in disk.c
+
+RevoBoot v1.0.02
+================
+- Compiler error: ___bzero undefined fixed (exposed by Xcode 4).
+
+RevoBoot v1.0.01
+================
+- EFI_BOOT_PARTITION_SUPPORT renamed into EFI_SYSTEM_PARTITION_SUPPORT
+
+RevoBoot v1.0.00
+================
+- Initial commit (plus name change).
+

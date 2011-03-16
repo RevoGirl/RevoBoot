@@ -115,7 +115,7 @@ void initPlatform(int biosDevice)
     setVideoMode(0); // Switch to VGA_TEXT_MODE
 #endif
 
-	gPlatform.RevolutionVersionInfo = strdup("Revolution v1.0.00");
+	gPlatform.RevolutionVersionInfo = strdup(REVOBOOT_VERSION_INFO);	// Example: "RevoBoot v1.0.04"
 
 	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevolutionVersionInfo);
 
@@ -155,11 +155,15 @@ void initPlatform(int biosDevice)
 	// Default set to Snow Leopard.
 	gPlatform.OSVersion				= strdup("10.6");
 
+#ifdef REVOBOOT_OS_TARGET // make lion overrides TARGET_OS in config/settings.h
+	gPlatform.OSType				= (int) REVOBOOT_OS_TARGET;
+#else
 	gPlatform.OSType				= (int) TARGET_OS;
+#endif
 
 	_PLATFORM_DEBUG_DUMP("gPlatform.OSType: %d\n", gPlatform.OSType);
 
-	// Target OS setting from config/settings.h
+	// Target OS setting from either make or config/settings.h
 	gPlatform.OSVersion[3]			= 0x34 + gPlatform.OSType;
 
 	_PLATFORM_DEBUG_DUMP("gPlatform.OSVersion: %s\n", gPlatform.OSVersion);

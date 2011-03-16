@@ -1,6 +1,8 @@
-export USE_APPLE_PB_SUPPORT = all
+#
+#	Makefile for RevoBoot
+#
 
-#	Makefile for kernel booter
+export USE_APPLE_PB_SUPPORT = all
 
 # CFLAGS	= -O $(MORECPP) -arch i386 -g 
 DEFINES=
@@ -20,21 +22,14 @@ OBJROOT = `pwd`/obj
 SYMROOT = `pwd`/sym
 DSTROOT = `pwd`/dst
 SRCROOT = /tmp
-DOCROOT = `pwd`/doc
-IMGROOT = `pwd`/sym/cache
-IMGSKELROOT = `pwd`/imgskel
-CDBOOT = ${IMGROOT}/usr/standalone/i386/cdboot
 
-THEME = default
+#
+# Export version number (picked up by i386/libsaio/Makefile)
+#
 
-VERSION = `cat version`
-REVISION = `cat revision`
-PRODUCT = RevoBoot-$(VERSION)-r$(REVISION)
-CDLABEL = ${PRODUCT}
-ISOIMAGE = ${SYMROOT}/${CDLABEL}.iso
+export PRODUCT_VERSION_NUMBER = `cat ../../VERSION`
 
-EXCLUDE = --exclude=.svn --exclude=.DS_Store --exclude=sym --exclude=obj \
-		--exclude=package --exclude=archive --exclude=User_Guide_src --exclude=*.sh
+EXCLUDE = --exclude=.DS_Store --exclude=sym --exclude=obj --exclude=*.sh
 
 ARCHLESS_RC_CFLAGS=`echo $(RC_CFLAGS) | sed 's/-arch [a-z0-9]*//g'`
 
@@ -43,11 +38,20 @@ VPATH = $(OBJROOT):$(SYMROOT)
 GENERIC_SUBDIRS =
 
 #
-# Currently builds for i386
+# Export target OS type (picked up by i386/libsaio/Makefile)
 #
 
-all embedtheme tags debug install installhdrs: $(SYMROOT) $(OBJROOT)
-	@if [ -e ".svn" ]; then svnversion -n | tr -d [:alpha:] > revision; fi
+ifeq ($(MAKECMDGOALS), lion)
+	TARGET_OS_TYPE = 3;
+else
+	TARGET_OS_TYPE = 2;
+endif
+
+export PRODUCT_OS_TARGET = `echo $(TARGET_OS_TYPE)`
+
+lion: all
+
+all: $(SYMROOT) $(OBJROOT)
 	@if [ -z "$(RC_ARCHS)" ]; then					  \
 		RC_ARCHS="i386";					  \
 	fi;								  \
@@ -76,54 +80,15 @@ all embedtheme tags debug install installhdrs: $(SYMROOT) $(OBJROOT)
 			"SRCROOT=$$SRCROOT"				  \
 			"RC_ARCHS=$$RC_ARCHS"				  \
 			"TARGET=$$i"					  \
-			"RC_KANJI=$(RC_KANJI)"				  \
-			"JAPANESE=$(JAPANESE)"				  \
 			"RC_CFLAGS=$$XCFLAGS" $@			  \
 		) || exit $$?; 						  \
 	    else							  \
-	    	echo "========= nothing to build for $$i =========";	  \
+	    	echo "========= Nothing to build for $$i =========";	  \
 	    fi;								  \
 	done
 
-image:
-	@if [ -e "$(SYMROOT)" ]; then					  \
-	    rm -r -f ${IMGROOT};				  	  \
-	    mkdir -p ${IMGROOT}/usr/standalone/i386;		  	  \
-	    if [ -e "$(IMGSKELROOT)" ]; then				  \
-		cp -R -f "${IMGSKELROOT}"/* "${IMGROOT}";		  \
-	    fi;								  \
-	    cp -f ${SYMROOT}/i386/cdboot ${CDBOOT};		  	  \
-	    cp -f ${SYMROOT}/i386/boot ${IMGROOT}/usr/standalone/i386; 	  \
-	    cp -f ${SYMROOT}/i386/boot0 ${IMGROOT}/usr/standalone/i386;	  \
-	    cp -f ${SYMROOT}/i386/boot1h ${IMGROOT}/usr/standalone/i386;  \
-	    cp -f ${SYMROOT}/i386/boot1f32 ${IMGROOT}/usr/standalone/i386;\
-	    $(shell hdiutil makehybrid -iso -joliet -hfs -hfs-volume-name \
-	       ${CDLABEL} -eltorito-boot ${CDBOOT} -no-emul-boot -ov -o   \
-	       "${ISOIMAGE}" ${IMGROOT} -quiet) 		  	  \
-	fi;
-
-pkg installer: embedtheme
-	@if [ -e "$(SYMROOT)" ]; then					  \
-	    sudo `pwd`/package/buildpkg `pwd`/sym/package;		  \
-	fi;
-
-release: $(SYMROOT)
-	@if [ -e ".svn" ]; then svnversion -n | tr -d [:alpha:] > revision; fi
-	@if [ -e "$(SYMROOT)" ]; then					  \
-	    sudo `pwd`/package/buildpkg `pwd`/sym/package;		  \
-	fi;
-	@tar -czf $(SYMROOT)/$(PRODUCT)-src.tar.gz ${EXCLUDE} .
-	@tar -cjf $(SYMROOT)/$(PRODUCT)-src.tar.bz2 ${EXCLUDE} .
-
 clean:
-	rm -rf sym obj dst
-
-#distclean: clean
-#	@rm -f $(SYMROOT)/$(PRODUCT)-src.*
-#	@rm -f $(SYMROOT)/$(PRODUCT).pkg
-
-installsrc:
-	gnutar cf - . | (cd ${SRCROOT}; gnutar xpf -)
+	rm -rf sym obj dst out.log
 
 $(SYMROOT) $(OBJROOT) $(DSTROOT):
 	@$(MKDIRS) $@
