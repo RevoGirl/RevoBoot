@@ -24,7 +24,7 @@ OUTFILES = $(PROGRAMS)
 
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT) $(LANGDIR)
 
-all embedtheme: $(DIRS_NEEDED) $(PROGRAMS)
+all: $(DIRS_NEEDED) $(PROGRAMS)
 
 machOconv: machOconv.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) machOconv.o
