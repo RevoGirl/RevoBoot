@@ -31,17 +31,6 @@ LIBS=
 
 VPATH = $(OBJROOT):$(SYMROOT)
 
-#SAIO_OBJS = table.o asm.o bios.o biosfn.o \
-#	disk.o sys.o cache.o bootstruct.o \
-#	stringTable.o load.o pci.o memory.o misc.o \
-#	ufs.o ufs_byteorder.o \
-#	vbe.o nbp.o hfs.o hfs_compare.o \
-#	xml.o ntfs.o msdos.o md5c.o device_tree.o \
-#	freq_detect.o platform.o dsdt_patcher.o \
-#	smbios_patcher.o fake_efi.o ext2fs.o \
-#	hpet.o spd.o usb.o pci_setup.o \
-#	device_inject.o nvidia.o ati.o
-
 SAIO_OBJS = table.o asm.o bios.o biosfn.o \
 	disk.o sys.o cache.o bootstruct.o \
 	stringTable.o load.o pci.o allocate.o \
@@ -62,33 +51,13 @@ ALLSRC =  $(SFILES) $(CFILES) \
 	$(HFILES) $(OTHERFILES)
 LIBS = libsaio.a
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
-#GENFILES = $(SYMROOT)/saio_internal.h \
-#	$(SYMROOT)/saio_external.h \
-#	$(SYMROOT)/saio_defs.h \
-#	$(SYMROOT)/saio_table.c
 
-#SIG = $(SYMROOT)/sig
-
-all embedtheme: $(DIRS_NEEDED) libsaio.h $(LIBS)
-
-#libsaio_static.a: $(SAIO_OBJS)
-#	rm -f $(SYMROOT)/$@
-#	ar q $(SYMROOT)/$@ $(SAIO_OBJS)
-#	ranlib $(SYMROOT)/$@
+all: $(DIRS_NEEDED) libsaio.h $(LIBS)
 
 libsaio.a: $(SAIO_EXTERN_OBJS) $(SAIO_OBJS)
 	rm -f $(SYMROOT)/$(@F)
 	ar q $(SYMROOT)/$(@F) $^
 	ranlib $(SYMROOT)/$(@F)
-
-#saio_internal.h: saio_external.h
-#saio_table.c: saio_external.h
-#saio_defs.h: saio_external.h
-#saio_external.h: saio.def
-#	$(SIG) -d $(SYMROOT) -n saio saio.def
-
-#installhdrs:: $(INSTALLDIR)
-#	cp $(INSTALLED_HFILES) $(INSTALLDIR)
 
 include ../MakeInc.dir
 
