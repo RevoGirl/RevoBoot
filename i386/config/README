@@ -1,0 +1,37 @@
+RevoBoot comes with the following five template files:
+
+ACPI/data-template.h
+--------------------
+
+This file is optional. Only required when you want to inject static ACPI table data. 
+Copy/rename the file to data.h and add your ACPI tables.
+
+
+EFI/data-tempalte.h
+-------------------
+
+This file is optional. Only required when you want to inject EFI device properties. 
+Copy/rename the file to data.h and add your EFI device properties.
+
+
+SMBIOS/data-template.h
+----------------------
+
+This file is optional. Only required when you want to inject static ACPI table data. 
+Copy/rename the file to data.h and add your ACPI tables.
+
+
+settings-template.h
+-------------------
+
+This is the master settings file for RevoBoot. 
+Copy/rename it and change it so that it matches your hardware configuration. 
+
+
+data-template.h
+---------------
+
+This is the master data file for RevoBoot. 
+Copy/rename it to data.h and add your static data. 
+
+
