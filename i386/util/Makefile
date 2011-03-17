@@ -24,6 +24,8 @@ OUTFILES = $(PROGRAMS)
 
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT) $(LANGDIR)
 
+lion: all
+
 all: $(DIRS_NEEDED) $(PROGRAMS)
 
 machOconv: machOconv.o

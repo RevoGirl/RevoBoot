@@ -13,9 +13,20 @@
 
 // ------------------------------------------------------------
 
-#define	LEOPARD					1
-#define	SNOW_LEOPARD			2
-#define LION					3
+#define	LEOPARD					1	// Not supported.
+#define	SNOW_LEOPARD			2	// The default.
+#define LION					3	// For future use only.
+
+// ------------------------------------------------------------
+// Automatic target OS setup is done in our Makefiles.
+
+#ifndef TARGET_OS
+	#if REVOBOOT_OS_TARGET == LION
+		#define TARGET_OS	LION
+	#else
+		#define TARGET_OS	SNOW_LEOPARD
+	#endif
+#endif
 
 // ------------------------------------------------------------
 

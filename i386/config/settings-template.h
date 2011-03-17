@@ -267,8 +267,6 @@
 //-------------------------------------------------------------- PLATFORM.C ----------------------------------------------------------------
 
 
-#define TARGET_OS							SNOW_LEOPARD									// See platform.h for other values.
-
 #define STATIC_MAC_PRODUCT_NAME				"MacBookPro6,1"
 
 #if USE_STATIC_SMBIOS_DATA

@@ -1,37 +1,58 @@
-RevoBoot comes with the following five template files:
+RevoBoot comes with configuration templates of which some you need to change:
+
 
 ACPI/data-template.h
 --------------------
 
 This file is optional. Only required when you want to inject static ACPI table data. 
-Copy/rename the file to data.h and add your ACPI tables.
+Copy/rename the file to data.h and add your (modified) ACPI tables.
+
+Note: We use 'factory tables' for the original ACPI tables in the BIOS and 'modified' 
+      for new/modified ACPI tables.
 
 
-EFI/data-tempalte.h
+EFI/data-template.h
 -------------------
 
-This file is optional. Only required when you want to inject EFI device properties. 
+This file is optional. Only required when you want/need to inject EFI device properties. 
 Copy/rename the file to data.h and add your EFI device properties.
+
+Note: A simple HOWTO will (hopefully) soon be added to the EFI directory. 
 
 
 SMBIOS/data-template.h
 ----------------------
 
 This file is optional. Only required when you want to inject static ACPI table data. 
-Copy/rename the file to data.h and add your ACPI tables.
+Copy/rename the file to data.h and add your static SMBIOS data.
+
+Note: You can extract the SMBIOS table data with: /smbios/tools/smbios2struct2 
+      Make instruction are included in the source code.
 
 
 settings-template.h
 -------------------
 
-This is the master settings file for RevoBoot. 
-Copy/rename it and change it so that it matches your hardware configuration. 
+This is the default configuration template for RevoBoot. Every possible option can be found in it. 
+You have to either copy or rename this file to settings.h and change it so that it matches your 
+hardware configuration.
 
 
 data-template.h
 ---------------
 
-This is the master data file for RevoBoot. 
-Copy/rename it to data.h and add your static data. 
+RevoBoot has one main include file for static data in the ACPI, EFI and SMBIOS directories. 
+This enables you to add files for different target configurations there. Here's an example 
+for two setups:
 
+#include "ACPI/data-hp.h"
+#include "EFI/data-hp.h"
+#include "SMBIOS/data-hp.h"
 
+or (not both):
+
+#include "ACPI/data-asus.h" 
+#include "EFI/data-asus.h" 
+#include "SMBIOS/data-asus.h" 
+
+Note: We plan to add a make option for this. To let it select the files for the target configuration. 

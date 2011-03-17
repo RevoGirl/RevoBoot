@@ -28,7 +28,6 @@
 #include <pexpert/i386/boot.h>
 #include "saio_types.h"
 #include "bios.h"
-#include "device_tree.h"
 #include "platform.h"
 
 #define kDefaultKernel	"mach_kernel"

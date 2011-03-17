@@ -9,6 +9,7 @@ INSTALLDIR = $(DSTROOT)/System/Library/Frameworks/System.framework/Versions/B/Pr
 
 OPTIM = -Os -Oz
 DEBUG = -DNOTHING
+
 CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -arch i386 -g -Wmost \
     -D__ARCHITECTURE__=\"i386\" -DSAIO_INTERNAL_USER \
     -DRCZ_COMPRESSED_FILE_SUPPORT $(DEBUG) \
@@ -17,6 +18,7 @@ CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -arch i386 -g -Wmost \
     -fno-builtin -static $(OMIT_FRAME_POINTER_CFLAG) \
     -mpreferred-stack-boundary=2 -fno-align-functions -fno-stack-protector \
     -march=pentium4 -msse2 -mfpmath=sse -msoft-float
+
 
 DEFINES=
 CONFIG = hd
@@ -53,6 +55,8 @@ ALLSRC =  $(SFILES) $(CFILES) \
 	$(HFILES) $(OTHERFILES)
 LIBS = libsaio.a
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
+
+lion: all
 
 all: $(DIRS_NEEDED) libsaio.h $(LIBS)
 

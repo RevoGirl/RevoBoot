@@ -4,10 +4,8 @@
  *
  */
 
-#include "platform.h"
 #include "bootstruct.h"
 #include "cpu/cpuid.h"
-
 
 // Global platform structure with everything we need.
 PlatformInfo_t	gPlatform;
@@ -155,11 +153,9 @@ void initPlatform(int biosDevice)
 	// Default set to Snow Leopard.
 	gPlatform.OSVersion				= strdup("10.6");
 
-#ifdef REVOBOOT_OS_TARGET // make lion overrides TARGET_OS in config/settings.h
-	gPlatform.OSType				= (int) REVOBOOT_OS_TARGET;
-#else
+	// _PLATFORM_DEBUG_DUMP("REVOBOOT_OS_TARGET: %d\n", REVOBOOT_OS_TARGET);
+
 	gPlatform.OSType				= (int) TARGET_OS;
-#endif
 
 	_PLATFORM_DEBUG_DUMP("gPlatform.OSType: %d\n", gPlatform.OSType);
 
