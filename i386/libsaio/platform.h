@@ -35,7 +35,7 @@
 #define SMB_MEM_TYPE_DDR3		24
 
 // ------------------------------------------------------------
-
+#define SMB_MEM_SIZE_0GB           0 // need it for empty slots 
 #define SMB_MEM_SIZE_1GB		1024
 #define SMB_MEM_SIZE_2GB		(SMB_MEM_SIZE_1GB * 2)
 #define SMB_MEM_SIZE_4GB		(SMB_MEM_SIZE_1GB * 4)
