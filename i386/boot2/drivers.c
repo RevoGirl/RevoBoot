@@ -803,13 +803,13 @@ long decodeKernel(void *binary, entry_t *rentry, char **raddr, int *rsize)
 #if DEBUG_DRIVERS
 	printf("Kernel header data.\n");
 	printf("===================\n");
-	printf("signature         : 0x%08x\n", kernel_header->signature);
-	printf("compressType      : 0x%08x\n", kernel_header->compressType);
-	printf("adler32           : 0x%08x\n", kernel_header->adler32);
-	printf("uncompressedSize  : 0x%08x\n", kernel_header->uncompressedSize);
-	printf("compressedSize    : 0x%08x\n", kernel_header->compressedSize);
-	printf("platformName      : %s\n", kernel_header->platformName);
-	printf("rootPath          : %s\n", kernel_header->rootPath);
+	printf("signature         : 0x%08x\n",	kernel_header->signature);
+	printf("compressType      : 0x%08x\n",	kernel_header->compressType);
+	printf("adler32           : 0x%08x\n",	kernel_header->adler32);
+	printf("uncompressedSize  : 0x%08x\n",	kernel_header->uncompressedSize);
+	printf("compressedSize    : 0x%08x\n",	kernel_header->compressedSize);
+	printf("platformName      : %s\n",		kernel_header->platformName);
+	printf("rootPath          : %s\n",		kernel_header->rootPath);
 	printf("Sleeping for 5 seconds...\n");
 	sleep(5);
 #endif

@@ -50,11 +50,11 @@
 
  // Copied from xnu/osfmk/proc_reg.h
 #define MSR_IA32_PLATFORM_ID	0x17
+#define	MSR_CORE_THREAD_COUNT	0x35
+#define	MSR_PLATFORM_INFO		0xCE
 #define	MSR_IA32_PERF_STATUS	0x198	// MSR_IA32_PERF_STS in XNU
 #define MSR_FLEX_RATIO			0x194
-#define	MSR_PLATFORM_INFO		0xCE
-
-#define	MSR_CORE_THREAD_COUNT	0x035
+#define	MSR_TURBO_RATIO_LIMIT	0x1AD
 
 
 // CPUID leaf index values (pointing to the right spot in CPUID/LEAF array).

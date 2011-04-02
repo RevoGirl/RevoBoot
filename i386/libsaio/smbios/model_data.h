@@ -75,17 +75,27 @@ static const SMBPropertyData const MacBook[] =
 // ------------------------------------------------------------
 static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 {
-    {	"SMBbiosVendor",		"Apple Inc."					},
-    {	"SMBbiosVersion",		"MBP61.88Z.0057.B0C.1007261552"	},
-    {	"SMBbiosDate",			"07/26/2010"					},
-    {	"SMBmanufacter",		"Apple Inc."					},
-    {	"SMBproductName",		"MacBookPro6,1"					},
-    {	"SMBsystemVersion",		"1.0"							},
-    {	"SMBserial",			STATIC_SMSERIALNUMBER			},
-    {	"SMBfamily",			"MacBookPro"					},
-    {	"SMBboardManufacter",	"Apple Inc."					},
-    {	"SMBboardProduct",		"Mac-F22589C8"					},
-    {	"", ""													} 
+/*	{	"SMBbiosVendor",		"Apple Inc."					},
+	{	"SMBbiosVersion",		"MBP61.88Z.0057.B0C.1007261552"	},
+	{	"SMBbiosDate",			"07/26/2010"					},
+	{	"SMBmanufacter",		"Apple Inc."					},
+	{	"SMBproductName",		"MacBookPro6,1"					},
+	{	"SMBsystemVersion",		"1.0"							},
+	{	"SMBserial",			STATIC_SMSERIALNUMBER			},
+	{	"SMBfamily",			"MacBookPro"					},
+	{	"SMBboardManufacter",	"Apple Inc."					},
+	{	"SMBboardProduct",		"Mac-F22589C8"					}, */
+	{	"SMBbiosVendor",		"Apple Inc."					},
+	{	"SMBbiosVersion",		"MBP83.88Z.0057.B0C.1007261552"	},
+	{	"SMBbiosDate",			"07/26/2010"					},
+	{	"SMBmanufacter",		"Apple Inc."					},
+	{	"SMBproductName",		"MacBookPro8,3"					},
+	{	"SMBsystemVersion",		"1.0"							},
+	{	"SMBserial",			STATIC_SMSERIALNUMBER			},
+	{	"SMBfamily",			"MacBookPro"					},
+	{	"SMBboardManufacter",	"Apple Inc."					},
+	{	"SMBboardProduct",		"Mac-F22589C8"					},
+	{	"", ""													}
 };
 // ------------------------------------------------------------
 #endif
@@ -115,17 +125,37 @@ static const SMBPropertyData const Macmini[] =
 // ------------------------------------------------------------
 static const SMBPropertyData const MacPro[] =
 {
-    {	"SMBbiosVendor",      "Apple Computer, Inc."			},
-    {	"SMBbiosVersion",     "MP31.88Z.006C.B05.0802291410"	},
-    {	"SMBbiosDate",        "04/01/2008"						},
-    {	"SMBmanufacter",      "Apple Computer, Inc."			},
-    {	"SMBproductName",     "MacPro3,1"						},
-    {	"SMBsystemVersion",   "1.0"								},
-    {	"SMBserial",          STATIC_SMSERIALNUMBER				},
-    {	"SMBfamily",          "MacPro"							},
-    {	"SMBboardManufacter", "Apple Computer, Inc."			},
-    {	"SMBboardProduct",    "Mac-F4208DC8"					},
-    {	"", "" }
+/*	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
+	{	"SMBbiosVersion",     "MP31.88Z.006C.B05.0802291410"	},
+	{	"SMBbiosDate",        "08/03/10"						},
+	{	"SMBmanufacter",      "Apple Computer, Inc."			},
+	{	"SMBproductName",     "MacPro3,1"						},
+	{	"SMBsystemVersion",   "1.0"								},
+	{	"SMBserial",          STATIC_SMSERIALNUMBER				},
+	{	"SMBfamily",          "MacPro"							},
+	{	"SMBboardManufacter", "Apple Computer, Inc."			},
+	{	"SMBboardProduct",    "Mac-F4208DC8"					}, */
+	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
+	{	"SMBbiosVersion",     "MP51.88Z.007F.B00.1008031144"	},
+	{	"SMBbiosDate",        "08/03/10"						},
+	{	"SMBmanufacter",      "Apple Inc."						},
+	{	"SMBproductName",     "MacPro5,1"						},
+	{	"SMBsystemVersion",   "1.0"								},
+	{	"SMBserial",          STATIC_SMSERIALNUMBER				},
+	{	"SMBfamily",          "MacPro"							},
+	{	"SMBboardManufacter", "Apple Inc."						},
+	{	"SMBboardProduct",    "Mac-F221BEC8"					},
+/*	{	"SMBbiosVendor",      "Apple Computer, Inc."		},
+	{	"SMBbiosVersion",     "MP41.88Z.0081.B04.0903051113"	},
+	{	"SMBbiosDate",        "11/06/2009"						},
+	{	"SMBmanufacter",      "Apple Inc."						},
+	{	"SMBproductName",     "MacPro4,1"						},
+	{	"SMBsystemVersion",   "1.0"								},
+	{	"SMBserial",          STATIC_SMSERIALNUMBER				},
+	{	"SMBfamily",          "MacPro"							},
+	{	"SMBboardManufacter", "Apple Inc."						},
+	{	"SMBboardProduct",    "Mac-F221BEC8"					}, */
+	{	"", ""													}
 };
 // ------------------------------------------------------------
 #endif

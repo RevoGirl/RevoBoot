@@ -16,7 +16,7 @@
 
 void setupSMBIOS(void)
 {
-	_SMBIOS_DEBUG_DUMP("Entering setupSMBIOS()\n");
+	_SMBIOS_DEBUG_DUMP("Entering setupSMBIOS(static)\n");
 
 	// Allocate 1 page of kernel memory (sufficient for a stripped SMBIOS table).
     void * kernelMemory = (void *)AllocateKernelMemory(4096);

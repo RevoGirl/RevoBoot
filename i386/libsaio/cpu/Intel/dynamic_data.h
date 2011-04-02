@@ -19,6 +19,7 @@
 #define DEFAULT_FSB				100000	// Hardcoded to 100MHz
 #define BASE_NHM_CLOCK_SOURCE	133333333ULL
 
+#define DEBUG_CPU_EXTREME		0
 
 //==============================================================================
 // DFE: Measures the TSC frequency in Hz (64-bit) using the ACPI PM timer
@@ -110,15 +111,15 @@ unsigned long getQPISpeed(uint64_t aFSBFrequency)
 
 	static long possible_nhm_bus[] = { 0xFF, 0x7F, 0x3F };
 
-	unsigned long did, vid, qpimult, qpiBusSpeed = 0;
+	unsigned long vendorID, deviceID, qpimult, qpiBusSpeed = 0;
 
 	// Nehalem supports Scrubbing. First, locate the PCI bus where the MCH is located
-	for (i = 0; i < sizeof(possible_nhm_bus); i++)
+	for (i = 0; i < 3; i++)
 	{
-		vid = (pciConfigRead16(PCIADDR(possible_nhm_bus[i], 3, 4), 0x00) & 0xFFFF);
-		did = (pciConfigRead16(PCIADDR(possible_nhm_bus[i], 3, 4), 0x02) & 0xFF00);
-	
-		if (vid == 0x8086 && did >= 0x2C00)
+		vendorID = (pciConfigRead16(PCIADDR(possible_nhm_bus[i], 3, 4), 0x00) & 0xFFFF);
+		deviceID = (pciConfigRead16(PCIADDR(possible_nhm_bus[i], 3, 4), 0x02) & 0xFF00);
+
+		if (vendorID == 0x8086 && deviceID >= 0x2C00)
 		{
 			nhm_bus = possible_nhm_bus[i];
 		}
@@ -281,6 +282,7 @@ void initCPUStruct(void)
 				case CPU_MODEL_DALES_32NM:
 				case CPU_MODEL_WESTMERE:
 				case CPU_MODEL_WESTMERE_EX:
+				case CPU_MODEL_SB_CORE:
 					/*
 					 * This should be the same as Nehalem but an A0 silicon bug returns
 					 * invalid data in the top 12 bits. Hence, we use only bits [19..16]
@@ -312,7 +314,11 @@ void initCPUStruct(void)
 				gPlatform.CPU.NumThreads	= bitfield32(msr, 15,  0);
 
 				// Getting 'cpu-type' for SMBIOS later on. 
-				if (strstr(gPlatform.CPU.BrandString, "Core(TM) i5"))
+				if (strstr(gPlatform.CPU.BrandString, "Core(TM) i7-2"))
+				{
+					gPlatform.CPU.Type =  0x307;	// Core i7-2xxx(X) for Sandy Bridge.
+				}
+				else if (strstr(gPlatform.CPU.BrandString, "Core(TM) i5"))
 				{
 					gPlatform.CPU.Type = 0x601;		// Core i5
 				}
@@ -325,6 +331,32 @@ void initCPUStruct(void)
 					gPlatform.CPU.Type = 0x0701;	// Core i7
 				}
 
+#if DEBUG_CPU_TURBO_RATIO
+				// Get turbo values of all cores.
+				msr = rdmsr64(MSR_TURBO_RATIO_LIMIT);
+				// Extends our CPU structure (defined in platform.h)
+				gPlatform.CPU.CoreTurboRatio[gPlatform.CPU.NumCores] = 0;
+
+				// All CPU's have at least two cores (think mobility CPU here).
+				gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);
+				gPlatform.CPU.CoreTurboRatio[1] = bitfield32(msr, 15, 8);
+
+				// Additionally for quad and six core CPU's.
+				if (gPlatform.CPU.NumCores >= 4)
+				{
+					gPlatform.CPU.CoreTurboRatio[2] = bitfield32(msr, 23, 16);
+					gPlatform.CPU.CoreTurboRatio[3] = bitfield32(msr, 31, 24);
+
+					// For the lucky few with a six core Gulftown CPU.
+					if (gPlatform.CPU.NumCores >= 6)
+					{
+						// bitfield32() supports 32 bit values only and thus we 
+ 						// have to do it a little different here (bit shifting).
+						gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
+						gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
+					}
+				}
+#endif
 				msr = rdmsr64(MSR_PLATFORM_INFO);
 
 				_CPU_DEBUG_DUMP("msr(%d): platform_info %08x\n", __LINE__, (unsigned) msr & 0xffffffff);
@@ -460,6 +492,21 @@ void initCPUStruct(void)
 	_CPU_DEBUG_DUMP("CPU: Type                 : 0x%x\n",			gPlatform.CPU.Type);
 	_CPU_DEBUG_DUMP("CPU: Mobile CPU           : %s\n",				gPlatform.CPU.Mobile ? "true" : "false");
 	_CPU_DEBUG_DUMP("CPU: NumCores/NumThreads  : %d/%d\n",			gPlatform.CPU.NumCores, gPlatform.CPU.NumThreads);
+
+#if DEBUG_CPU_TURBO_RATIO
+	int core = 0;
+	char div[] = "-------------------------------------\n";
+
+	_CPU_DEBUG_DUMP("%s", div);
+
+	for (; core < gPlatform.CPU.NumCores; core++)
+	{
+		_CPU_DEBUG_DUMP("CPU: Max Turbo with %d core%s: %d00MHz\n", (core + 1), core > 1 ? "s" : " ", gPlatform.CPU.CoreTurboRatio[core]);
+	}
+
+	_CPU_DEBUG_DUMP("%s", div);
+#endif
+
 	_CPU_DEBUG_DUMP("CPU: Features             : 0x%08x\n",			gPlatform.CPU.Features);
 	_CPU_DEBUG_DUMP("CPU: MaxCoef/CurrCoef     : %d%s/%d%s\n",		gPlatform.CPU.MaxCoef, gPlatform.CPU.MaxDiv ? ".5" : "",
 																	gPlatform.CPU.CurrCoef, gPlatform.CPU.CurrDiv ? ".5" : "");
@@ -468,6 +515,5 @@ void initCPUStruct(void)
 	_CPU_DEBUG_DUMP("CPU: FSBFreq              : %dMHz\n",			gPlatform.CPU.FSBFrequency / 1000000);
 	_CPU_DEBUG_DUMP("CPU: CPUFreq              : %dMHz\n",			gPlatform.CPU.CPUFrequency / 1000000);
 	_CPU_DEBUG_DUMP("CPU: QPISpeed             : %x\n",				gPlatform.CPU.QPISpeed);
-
 	_CPU_DEBUG_SLEEP(15);
 }

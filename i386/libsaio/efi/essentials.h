@@ -81,4 +81,108 @@ typedef struct EFI_GUID
 	typedef uint32_t		EFI_HANDLE;
 #endif
 
+
+typedef struct
+{
+	//
+	// HARDWARE_DEVICE_PATH		0x01
+	// ACPI_DEVICE_PATH			0x02
+	// MESSAGING_DEVICE_PATH	0x03
+	// MEDIA_DEVICE_PATH		0x04
+	// BBS_DEVICE_PATH			0x05
+	// END_DEVICE_PATH_TYPE		0x7f
+	//
+	EFI_UINT8					Type;
+	
+	//
+	// Depends On Type
+	//
+	// HW_PCI_DP				0x01  
+	// HW_PCCARD_DP				0x02
+	// HW_MEMMAP_DP				0x03
+	// HW_VENDOR_DP				0x04
+	// HW_CONTROLLER_DP			0x05
+	//
+	EFI_UINT8					SubType;
+	
+	//
+	// Device Path Length
+	//
+	EFI_UINT8					Length[2];
+} EFI_DEVICE_PATH_PROTOCOL;
+
+
+#define HW_VENDOR_DP			0x04
+
+typedef struct
+{
+	EFI_DEVICE_PATH_PROTOCOL	Header;
+	
+	EFI_GUID					Guid;
+} VENDOR_DEVICE_PATH;
+
+
+typedef struct
+{
+	EFI_DEVICE_PATH_PROTOCOL	Header;
+	
+	//
+	// Device's PnP hardware ID stored in a numeric 32-bit
+	// compressed EISA-type ID. This value must match the
+	// corresponding _HID in the ACPI name space.
+	//
+	EFI_UINT32					HID;
+	//
+	// Unique ID that is required by ACPI if two devices have the
+	// same _HID. This value must also match the corresponding
+	// _UID/_HID pair in the ACPI name space. Only the 32-bit
+	// numeric value type of _UID is supported. Thus, strings must
+	// not be used for the _UID in the ACPI name space.
+	//
+	EFI_UINT32					UID;
+} ACPI_HID_DEVICE_PATH;
+
+
+typedef struct
+{
+	EFI_DEVICE_PATH_PROTOCOL	Header;
+
+	///
+	/// Describes the entry in a partition table, starting with entry 1.
+	/// Partition number zero represents the entire device. Valid
+	/// partition numbers for a MBR partition are [1, 4]. Valid
+	/// partition numbers for a GPT partition are [1, NumberOfPartitionEntries].
+	///
+	EFI_UINT32					PartitionNumber;
+	///
+	/// Starting LBA of the partition on the hard drive.
+	///
+	EFI_UINT64					PartitionStart;
+	///
+	/// Size of the partition in units of Logical Blocks.
+	///
+	EFI_UINT64					PartitionSize;
+	//
+	// Signature unique to this partition:
+	// If SignatureType is 0, this field has to be initialized with 16 zeros.
+	// If SignatureType is 1, the MBR signature is stored in the first 4 bytes of this field.
+	// The other 12 bytes are initialized with zeros.
+	// If SignatureType is 2, this field contains a 16 byte signature.
+	//
+	EFI_UINT8					Signature[16];
+	//
+	// Partition Format: (Unused values reserved).
+	// 0x01 - PC-AT compatible legacy MBR.
+	// 0x02 - GUID Partition Table.
+	//
+	EFI_UINT8					MBRType;
+	//
+	// Type of Disk Signature: (Unused values reserved).
+	// 0x00 - No Disk Signature.
+	// 0x01 - 32-bit signature from address 0x1b8 of the type 0x01 MBR.
+	// 0x02 - GUID signature.
+	//
+	EFI_UINT8					SignatureType;
+} EFI_BOOT_DEVICE_PATH; // HARDDRIVE_DEVICE_PATH
+
 #endif /* !__LIBSAIO_EFI_ESSENTIALS_H */

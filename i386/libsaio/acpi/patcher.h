@@ -58,6 +58,10 @@ void loadACPITables(void)
 
 #if LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(SSDT);
+	loadACPITable(SSDT_PR);
+	loadACPITable(SSDT_USB);
+	loadACPITable(SSDT_GPU);
+	loadACPITable(SSDT_SATA);
 #endif
 
 }

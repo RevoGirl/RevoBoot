@@ -32,15 +32,13 @@
 #include "bootstruct.h"							// For bootArgs.
 #include "efi_tables.h"
 
+//------------------------------------------------------------------------------
 
-/* DHP: Move me!
-extern void setupEFITables(void);
-extern void addConfigurationTables(void); */
+extern void setupACPI(void);
+extern void setupSMBIOS(void);
 extern bool setRootUUID(Node *chosenNode, char * rootUUID);
 
-extern void setupSMBIOS(void);
-extern void setupACPI(void);
-
+//------------------------------------------------------------------------------
 
 static EFI_CHAR16 const FIRMWARE_VENDOR[] = { 'A', 'p', 'p', 'l', 'e' };
 
@@ -48,7 +46,9 @@ static EFI_CHAR16 const FIRMWARE_VENDOR[] = { 'A', 'p', 'p', 'l', 'e' };
  * We use the same value for everything, as we should, which means (currently)
  * 0x0001000A for EFI64 and 0x00010001 for EFI32. Just like on real Mac's.
  */
+
 static EFI_UINT32 const FIRMWARE_REVISION = EFI_SYSTEM_TABLE_REVISION;
+
 
 //==============================================================================
 // Utility function to make a device tree string from an EFI_GUID
@@ -85,20 +85,20 @@ extern EFI_STATUS addConfigurationTable(EFI_GUID const *pGuid, void * table, cha
 	
 	_EFI_DEBUG_DUMP("In addConfigurationTable(%d)\n", numberOfTables);
 
-	// We only do additions. No modifications and deletes like InstallConfigurationTable does.
+	// We only do additions. No modifications and deletes like CoreInstallConfigurationTable does.
 	if (numberOfTables >= EFI_MAX_CONFIG_TABLES)
 	{
-		stop("Ran out of space for configuration tables.\nIncrease the reserved size in the code.\n");
+		stop("Unable to add table.\nIncrease EFI_MAX_CONFIG_TABLES in efi/efi.h\n");
 	}
 	
 	if (table != NULL)
 	{
-		/* FIXME
-		((EFI_CONFIGURATION_TABLE *)gPlatform.EFI.SystemTable->ConfigurationTable)[numberOfTables].VendorGuid = (void *) pGuid;
-		((EFI_CONFIGURATION_TABLE *)gPlatform.EFI.SystemTable->ConfigurationTable)[numberOfTables].VendorTable = (EFI_UINT) table;
-		 
+		/* FIX ME
+		EFI_CONFIGURATION_TABLE *cTable = (EFI_CONFIGURATION_TABLE *)((uint32_t)gPlatform.EFI.SystemTable->ConfigurationTable);
+		cTable[numberOfTables].VendorGuid = (EFI_GUID *)pGuid;
+		cTable[numberOfTables].VendorTable = (uint32_t)table;
 		gPlatform.EFI.SystemTable->NumberOfTableEntries++; */
-		
+
 		Node *tableNode = DT__AddChild(gPlatform.EFI.Nodes.ConfigurationTable, mallocStringForGuid(pGuid));
 
 		// Use the pointer to the GUID we just stuffed into the system table.
@@ -185,7 +185,7 @@ void setupEFITables(void)
      * boot process is exited so we can probably do without it.
      * Apple didn't provide a definition for it in pexpert/i386/efi.h
      * so I'm guessing they don't use it.
-    */
+     */
     efiSystemTable->BootServices					= 0;
 
     efiSystemTable->NumberOfTableEntries			= 0;

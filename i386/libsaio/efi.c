@@ -51,7 +51,7 @@ void initEFITree(void)
 	static EFI_CHAR16 const SYSTEM_SERIAL_NUMBER[]	= STATIC_SYSTEM_SERIAL_NUMBER;
 
 	DT__Initialize(); // Add and initialize gPlatform.DT.RootNode
-	
+
 	/*
 	 * The root node is available until the call to DT__Finalize, or the first call 
 	 * to DT__AddChild with NULL as first argument. Which we don't do and thus we 
@@ -64,8 +64,8 @@ void initEFITree(void)
 	Node * efiNode = DT__AddChild(gPlatform.DT.RootNode, "efi");
 
 	DT__AddProperty(efiNode, "firmware-abi", 6, (gPlatform.ArchCPUType == CPU_TYPE_X86_64) ? "EFI64" : "EFI32");
-    DT__AddProperty(efiNode, "firmware-revision", sizeof(FIRMWARE_REVISION), (EFI_UINT32*) &FIRMWARE_REVISION);
-    DT__AddProperty(efiNode, "firmware-vendor", sizeof(FIRMWARE_VENDOR) + 1, (EFI_CHAR16*) FIRMWARE_VENDOR);
+	DT__AddProperty(efiNode, "firmware-revision", sizeof(FIRMWARE_REVISION), (EFI_UINT32*) &FIRMWARE_REVISION);
+	DT__AddProperty(efiNode, "firmware-vendor", sizeof(FIRMWARE_VENDOR) + 1, (EFI_CHAR16*) FIRMWARE_VENDOR);
 
 	// Initialize a global var, used by function setupEFITables later on, to
 	// add the address to the boot arguments (done to speed up the process).
@@ -86,7 +86,7 @@ void initEFITree(void)
 
 	// The use of sizeof() here is mandatory (to prevent breakage).
 	DT__AddProperty(platformNode, "Model", sizeof(MODEL_NAME), (EFI_CHAR16*) MODEL_NAME);
-    DT__AddProperty(platformNode, "SystemSerialNumber", sizeof(SYSTEM_SERIAL_NUMBER), (EFI_CHAR16*) SYSTEM_SERIAL_NUMBER);
+	DT__AddProperty(platformNode, "SystemSerialNumber", sizeof(SYSTEM_SERIAL_NUMBER), (EFI_CHAR16*) SYSTEM_SERIAL_NUMBER);
 
 	if (gPlatform.CPU.FSBFrequency)
 	{
@@ -104,7 +104,18 @@ void initEFITree(void)
 	gPlatform.EFI.Nodes.MemoryMap = DT__AddChild(chosenNode, "memory-map");
 
 	// Adding the root path for kextcache.
-	DT__AddProperty(chosenNode, "boot-device-path", 38, ((gPlatform.OSType & 3) == 3) ? "\\boot.efi" : "\\System\\Library\\CoreServices\\boot.efi");
+	DT__AddProperty(chosenNode, "boot-device-path", 38, "\\System\\Library\\CoreServices\\boot.efi");
+
+	/* static EFI_UINT8 const BOOT_DEVICE_PATH[] =
+	{
+		0x02, 0x01, 0x0C, 0x00, 0xD0, 0x41, 0x08, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x06, 0x00,
+		0x02, 0x1F, 0x03, 0x12, 0x0A, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x01, 0x2A, 0x00,
+		0x02, 0x00, 0x00, 0x00, 0x28, 0x40, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x0B, 0x63, 0x34,
+		0x00, 0x00, 0x00, 0x00, 0x65, 0x8C, 0x53, 0x3F, 0x1B, 0xCA, 0x83, 0x38, 0xA9, 0xD0, 0xF0, 0x46,
+		0x19, 0x14, 0x8E, 0x31, 0x02, 0x02, 0x7F, 0xFF, 0x04, 0x00
+	};
+
+	DT__AddProperty(chosenNode, "boot-device-path", sizeof(BOOT_DEVICE_PATH), &BOOT_DEVICE_PATH); */
 
 	// Adding the default kernel name (mach_kernel) for kextcache.
 	DT__AddProperty(chosenNode, "boot-file", sizeof(bootInfo->bootFile), bootInfo->bootFile);
@@ -141,11 +152,24 @@ void initEFITree(void)
 
 	DT__AddProperty(chosenNode, "machine-signature", sizeof(MACHINE_SIGNATURE), &MACHINE_SIGNATURE);
 
+#if MAKE_TARGET_OS == LION
+
+	// Used by boot.efi - cosmetic only node/properties on hacks.
+	Node * kernelCompatNode = DT__AddChild(efiNode, "kernel-compatibility");
+
+	static EFI_UINT8 const COMPAT_MODE[] = { 0x01, 0x00, 0x00, 0x00 };
+
+	DT__AddProperty(kernelCompatNode, "i386", sizeof(COMPAT_MODE), &COMPAT_MODE);
+	DT__AddProperty(kernelCompatNode, "x86_64", sizeof(COMPAT_MODE), &COMPAT_MODE);
+#endif
+
 	// Adding the options node breaks AppleEFINVRAM (missing hardware UUID).
 	// Node *optionsNode = DT__AddChild(gPlatform.DT.RootNode, "options");
 	// DT__AddProperty(optionsNode, "EFICapsuleResult", 4, "STAR"); // 53 54 41 52
 
 #endif
+
+	// DT__AddProperty(chosenNode, "boot-kernelcache-adler32", sizeof(uint64_t), adler32);
 
 	gPlatform.EFI.Nodes.Chosen = chosenNode;
 
@@ -180,22 +204,22 @@ void updateEFITree(char *rootUUID)
 #if UNUSED_EFI_CODE
 	// Feature to set your own, uuidgen generated string in com.apple.Boot.plist
 	// Note: Unsupported feature in Revolution (you need to compile it anyway).
-	
+
 	const char* userDefinedUUID = newStringForKey("SystemID", &bootInfo->bootConfig);
 	
-    if (userDefinedUUID)
-    {
+	if (userDefinedUUID)
+	{
 		targetUUID = getUUIDFromString(userDefinedUUID);
-		
+
 		if (targetUUID)
 		{
 			verbose("Customizing SystemID with: %s\n", userDefinedUUID);
 		}
-		
+
 		free ((void*) userDefinedUUID);
-    }
-	
-    setupDeviceProperties(gPlatform.DT.RootNode); // /efi/device-properties.
+	}
+
+	setupDeviceProperties(gPlatform.DT.RootNode); // /efi/device-properties.
 #endif
 
 	DT__AddProperty(gPlatform.EFI.Nodes.Platform, "system-id", 16, targetUUID);
@@ -230,14 +254,55 @@ bool setRootUUID(Node *chosenNode, char *rootUUID)
 	if (strlen(rootUUID) == 36)
 	{
 		_EFI_DEBUG_DUMP("Initializing property boot-uuid (%s)\n", rootUUID);
-		
+
 		DT__AddProperty(chosenNode, "boot-uuid", 37, rootUUID);
-		
+
 		return 0;
-	}	
-	
+	}
+
 	return -1;
 }
+
+
+#if INCLUDE_MPS_TABLE
+//==============================================================================
+
+bool initMultiProcessorTableAdress(void)
+{
+	// Is the base address initialized already?
+	if (gPlatform.MPS.BaseAddress != 0)
+	{
+		// Yes (true for dynamic SMBIOS gathering only).
+		return true;
+	}
+	else
+	{
+		// The MP table is usually located after the factory SMBIOS table (aka
+		// (a dynamic run). Not when you use static SMBIOS data, which is when 
+		// we have to search the whole area – hence the use of directives here.
+#if USE_STATIC_SMBIOS_DATA
+		void *baseAddress = (void *)0x000F0000;
+#else
+		void *baseAddress = &gPlatform.SMBIOS.BaseAddress;
+#endif
+	
+		for(; baseAddress <= (void *)0x000FFFFF; baseAddress += 16)
+		{
+			// Do we have a Multi Processor signature match?
+			if (*(uint32_t *)baseAddress == 0x5f504d5f) // _MP_ signature.
+			{
+				// Yes, set address and return true.
+				gPlatform.MPS.BaseAddress = (uint32_t)baseAddress;
+			
+				return true;
+			}
+		}
+	}
+
+	// No _MP_ signature found.
+	return false;
+}
+#endif // #if INCLUDE_MP_TABLE
 
 
 //==============================================================================
@@ -257,6 +322,17 @@ void finalizeEFITree(void)
 
 	addConfigurationTable(&gPlatform.SMBIOS.Guid, &gPlatform.SMBIOS.BaseAddress, NULL);
 
+#if INCLUDE_MPS_TABLE
+	// This BIOS includes a MP table?
+	if (initMultiProcessorTableAdress())
+	{
+		// The EFI specification dictates that the MP table must be reallocated 
+		// when is it not in the right spot. We don't bother about this rule 
+		// simply because we're not - pretending to be - EFI compliant.
+		addConfigurationTable(&gPlatform.MPS.Guid, &gPlatform.MPS.BaseAddress, NULL);
+	}
+#endif
+
 	_EFI_DEBUG_DUMP("done)\nCalling setupACPI(");
 
 	// DHP: Pfff. Setting DEBUG to 1 in acpi_patcher.c breaks our layout!
@@ -270,8 +346,7 @@ void finalizeEFITree(void)
 
 	// Now fixup the CRC32 and we're done here.
 	gPlatform.EFI.SystemTable->Hdr.CRC32 = 0;
-	gPlatform.EFI.SystemTable->Hdr.CRC32 = crc32(0L, 
-												 gPlatform.EFI.SystemTable, 
+	gPlatform.EFI.SystemTable->Hdr.CRC32 = crc32(0L, gPlatform.EFI.SystemTable, 
 												 gPlatform.EFI.SystemTable->Hdr.HeaderSize);
 
 	_EFI_DEBUG_DUMP("(done).\n");

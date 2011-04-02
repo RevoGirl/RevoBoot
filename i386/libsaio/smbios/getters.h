@@ -16,7 +16,8 @@
 
 #define SMBIOS_SEARCH_BASE      0x000F0000
 #define SMBIOS_SEARCH_END       0x000FFFFF
-#define SMBIOS_ANCHOR_UINT32_LE 0x5f4d535f // '_SM_' in Little Endian format
+#define SMBIOS_ANCHOR			0x5f4d535f // '_SM_' in Little Endian.
+#define SMBIOS_MPS_ANCHOR		0x5f504d5f // '_MP_' in Little Endian. 
 
 #define NOT_AVAILABLE	"N/A"
 
@@ -36,14 +37,36 @@
 
 static inline struct SMBEntryPoint * getEPSAddress(void)
 {
+	_SMBIOS_DEBUG_DUMP("in getEPSAddress()\n");
+
 	void *baseAddress = (void *)SMBIOS_SEARCH_BASE;
 
 	for(; baseAddress <= (void *)SMBIOS_SEARCH_END; baseAddress += 16)
 	{
-		if (*(uint32_t *)baseAddress == SMBIOS_ANCHOR_UINT32_LE) // _SM_
+		if (*(uint32_t *)baseAddress == SMBIOS_ANCHOR) // _SM_
 		{
 			if (checksum8(baseAddress, sizeof(struct SMBEntryPoint)) == 0)
 			{
+#if INCLUDE_MP_TABLE
+				// SMBIOS table located. Use this address as starting point.
+				void * mpsAddress = baseAddress;
+
+				// Now search for the Multi Processor table.
+				for(; mpsAddress <= (void *)SMBIOS_SEARCH_END; mpsAddress += 16)
+				{
+					if (*(uint32_t *)mpsAddress == SMBIOS_MPS_ANCHOR)
+					{
+						gPlatform.MP.BaseAddress = (uint32_t)mpsAddress;
+
+						_SMBIOS_DEBUG_DUMP("SMBIOS baseAddress: 0x%8x\n", baseAddress);
+						_SMBIOS_DEBUG_DUMP("MultiP baseAddress: 0x%8x\n", mpsAddress);
+						_SMBIOS_DEBUG_SLEEP(10);
+
+						break;
+					}
+				}
+#endif // INCLUDE_MP_TABLE
+
 				return baseAddress;
 			}
 			else
@@ -174,7 +197,7 @@ int getSlotNumber(int structureIndex)
 #endif
 
 
-#if 1 // USE_STATIC_RAM_SIZE
+#if USE_STATIC_RAM_SIZE
 //==============================================================================
 
 static int getRAMSize(int structureIndex, void * structurePtr)

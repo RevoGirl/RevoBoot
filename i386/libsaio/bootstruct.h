@@ -149,7 +149,7 @@ typedef struct boot_args_new
     uint16_t    Revision;							// Revision of boot_args structure.
     uint16_t    Version;							// Version of boot_args structure.
 
-#if TARGET_OS == LION
+#if MAKE_TARGET_OS == LION
     uint8_t     efiMode;							// 32 = 32-bit, 64 = 64-bit.
 
     uint8_t     debugMode;							// Bit field with behavior changes.
@@ -175,13 +175,13 @@ typedef struct boot_args_new
     uint32_t    efiRuntimeServicesPageStart;		// Physical address of defragmented runtime pages.
     uint32_t    efiRuntimeServicesPageCount;
 
-#if TARGET_OS == LION
+#if MAKE_TARGET_OS == LION
     uint64_t    efiRuntimeServicesVirtualPageStart;	// Virtual address of defragmented runtime pages.
 #endif
 
     uint32_t    efiSystemTable;						// Physical address of system table in runtime area.
 
-#if TARGET_OS == LION
+#if MAKE_TARGET_OS == LION
     uint32_t    __reserved2;
 
     uint32_t    performanceDataStart;				// Physical address of log.

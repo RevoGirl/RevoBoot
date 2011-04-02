@@ -77,22 +77,22 @@ typedef struct
 {
 	EFI_TABLE_HEADER		Hdr;
 
-	// Time services
+	// Time Services
 	EFI_PTR					GetTime;
 	EFI_PTR					SetTime;
 	EFI_PTR					GetWakeupTime;
 	EFI_PTR					SetWakeupTime;
 
-	// Virtual memory services
+	// Virtual Memory Services
 	EFI_PTR					SetVirtualAddressMap;
 	EFI_PTR					ConvertPointer;
 
-	// Variable services
+	// Variable Services
 	EFI_PTR					GetVariable;
 	EFI_PTR					GetNextVariableName;
 	EFI_PTR					SetVariable;
 
-	// Misc
+	// Miscellaneous Services
 	EFI_PTR					GetNextHighMonotonicCount;
 	EFI_PTR					ResetSystem;
 } __attribute__((aligned(8))) EFI_RUNTIME_SERVICES;
@@ -106,7 +106,6 @@ typedef struct EFI_CONFIGURATION_TABLE
 } __attribute__((aligned(8))) EFI_CONFIGURATION_TABLE;
 #else
 } EFI_CONFIGURATION_TABLE;
-
 #endif
 
 

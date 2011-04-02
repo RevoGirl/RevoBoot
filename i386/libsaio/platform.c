@@ -135,6 +135,10 @@ void initPlatform(int biosDevice)
 
 	gPlatform.SMBIOS.Guid			= (EFI_GUID) EFI_SMBIOS_TABLE_GUID;
 
+#if INCLUDE_MPS_TABLE
+	gPlatform.MPS.Guid				= (EFI_GUID) EFI_MPS_TABLE_GUID;
+#endif // INCLUDE_MP_TABLE
+
 	// Used in boot.c to verify the checksum (adler32) of a pre-linked kernel.
 	gPlatform.ModelID				= strdup(STATIC_MAC_PRODUCT_NAME);
 
@@ -155,7 +159,7 @@ void initPlatform(int biosDevice)
 
 	// _PLATFORM_DEBUG_DUMP("REVOBOOT_OS_TARGET: %d\n", REVOBOOT_OS_TARGET);
 
-	gPlatform.OSType				= (int) TARGET_OS;
+	gPlatform.OSType				= (int) MAKE_TARGET_OS;
 
 	_PLATFORM_DEBUG_DUMP("gPlatform.OSType: %d\n", gPlatform.OSType);
 

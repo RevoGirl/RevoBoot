@@ -9,7 +9,7 @@ include ../MakePaths.dir
 OPTIM = -Os -Oz
 CFLAGS	= $(RC_CFLAGS) $(OPTIM) $(MORECPP) -arch i386 -g -Wmost -Werror \
 	-fno-builtin -DSAIO_INTERNAL_USER -static $(OMIT_FRAME_POINTER_CFLAG) \
-	-DREVOBOOT_OS_TARGET=$(PRODUCT_OS_TARGET) \
+	-DMAKE_TARGET_OS=$(PRODUCT_OS_TARGET) \
 	-mpreferred-stack-boundary=2 -fno-align-functions -fno-stack-protector \
 	-march=pentium4 -msse2 -mfpmath=sse -msoft-float
 

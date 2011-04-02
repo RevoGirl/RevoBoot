@@ -80,7 +80,7 @@ struct SMBProperty SMBProperties[] =
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-#if 1 // USE_STATIC_RAM_SIZE
+#if USE_STATIC_RAM_SIZE
 	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_inti	= getRAMSize			},
 #endif
 	
@@ -127,7 +127,7 @@ struct SMBStructure requiredStructures[] =
 	{ kSMBUnused					/*  14 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  15 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  16 */,		 0,		 0,		false,		0	},
-#if 1 // USE_STATIC_RAM_SIZE
+#if USE_STATIC_RAM_SIZE
     { kSMBTypeMemoryDevice			/*  17 */,		12,		20,		true,		0	},
 #else
     { kSMBTypeMemoryDevice			/*  17 */,		13,		19,		true,		0	}
@@ -139,7 +139,7 @@ struct SMBStructure requiredStructures[] =
 
 void setupSMBIOS(void)
 {
-	_SMBIOS_DEBUG_DUMP("Entering setupSMBIOS()\n");
+	_SMBIOS_DEBUG_DUMP("Entering setupSMBIOS(dynamic)\n");
 
 	struct SMBEntryPoint *factoryEPS = (struct SMBEntryPoint *) getEPSAddress();
 	

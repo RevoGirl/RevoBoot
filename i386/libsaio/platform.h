@@ -11,30 +11,19 @@
 #include "efi/efi.h"
 #include "device_tree.h"
 
-// ------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define	LEOPARD					1	// Not supported.
 #define	SNOW_LEOPARD			2	// The default.
 #define LION					3	// For future use only.
 
-// ------------------------------------------------------------
-// Automatic target OS setup is done in our Makefiles.
-
-#ifndef TARGET_OS
-	#if REVOBOOT_OS_TARGET == LION
-		#define TARGET_OS	LION
-	#else
-		#define TARGET_OS	SNOW_LEOPARD
-	#endif
-#endif
-
-// ------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define SMB_MEM_TYPE_DDR2		19
 #define SMB_MEM_TYPE_FBDIMM		20
 #define SMB_MEM_TYPE_DDR3		24
 
-// ------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define SMB_MEM_SIZE_1GB		1024
 #define SMB_MEM_SIZE_2GB		(SMB_MEM_SIZE_1GB * 2)
@@ -43,7 +32,7 @@
 #define SMB_MEM_SIZE_16GB		(SMB_MEM_SIZE_1GB * 16)
 #define SMB_MEM_SIZE_32GB		(SMB_MEM_SIZE_1GB * 32)	// May not be supported!
 
-// ------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define IMAC					1
 #define MACBOOK					2
@@ -51,18 +40,22 @@
 #define MACMINI					8
 #define MACPRO					16
 
-// ------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define kKernelCachePath		"/System/Library/Caches/com.apple.kext.caches/Startup"
 #define kKernelCache			"kernelcache"
 
-// ------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-#define EFI_SMBIOS_TABLE_GUID { 0xeb9d2d31, 0x2d88, 0x11d3, { 0x9a, 0x16, 0x0, 0x90, 0x27, 0x3f, 0xc1, 0x4d } }
+#define EFI_SMBIOS_TABLE_GUID	{ 0xeb9d2d31, 0x2d88, 0x11d3, { 0x9a, 0x16, 0x0, 0x90, 0x27, 0x3f, 0xc1, 0x4d } }
 
-#define EFI_ACPI_20_TABLE_GUID { 0x8868e871, 0xe4f1, 0x11d3, { 0xbc, 0x22, 0x0, 0x80, 0xc7, 0x3c, 0x88, 0x81 } }
+#define EFI_ACPI_20_TABLE_GUID	{ 0x8868e871, 0xe4f1, 0x11d3, { 0xbc, 0x22, 0x0, 0x80, 0xc7, 0x3c, 0x88, 0x81 } }
 
-// ------------------------------------------------------------
+#if INCLUDE_MPS_TABLE
+	#define EFI_MPS_TABLE_GUID	{ 0xeb9d2d2f, 0x2d88, 0x11d3, { 0x9a, 0x16, 0x0, 0x90, 0x27, 0x3f, 0xc1, 0x4d } }
+#endif
+
+//------------------------------------------------------------------------------
 // Number of physical memory slots.
 
 #ifdef STATIC_RAM_SLOTS
@@ -154,6 +147,9 @@ typedef struct _PlatformInfo_t
 		uint64_t	FSBFrequency;			// FSB Frequency Hz
 		uint64_t	CPUFrequency;			// CPU Frequency Hz
 		uint32_t	QPISpeed;				// QuickPath Interconnect Bus Speed
+#if DEBUG_CPU_TURBO_RATIO
+		uint32_t	CoreTurboRatio[6];		// 
+#endif
 		char		BrandString[48];		// Brand/frequency string
 		uint32_t	ID[MAX_CPUID_LEAVES][4];	// CPUID 0..4, 80..81 Raw Values
 	} CPU;
@@ -165,6 +161,15 @@ typedef struct _PlatformInfo_t
 		int				RAMSlotsActive;		// Total number of active slots (with module inserted).
 		int				MODULE[MAX_SLOTS];	// Information and SPD mapping for each slot.
 	} DMI;
+
+#if INCLUDE_MPS_TABLE
+    struct MPS								// Multi Procesor Table
+	{
+		EFI_GUID		Guid;
+		
+		EFI_UINT		BaseAddress;		// Either 32 or 64-bit (depends on platform info).
+	} MPS;
+#endif // INCLUDE_MP_TABLE
 
     struct RAM								// Patch by: Asere / Rekursor.
 	{
@@ -231,6 +236,8 @@ typedef struct _PlatformInfo_t
 
 } PlatformInfo_t;
 
+
+//------------------------------------------------------------------------------
 
 /* cpu/static_data.h & cpu/dynamic_data.h */
 extern void initCPUStruct(void);

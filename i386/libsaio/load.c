@@ -128,7 +128,7 @@ long DecodeMachO(void *binary, entry_t *rentry, char **raddr, int *rsize)
 	printf("ncmds:      %x\n", (unsigned)mH->ncmds);
 	printf("sizeofcmds: %x\n", (unsigned)mH->sizeofcmds);
 	printf("flags:      %x\n", (unsigned)mH->flags);
-	getc();
+	sleep(5);
 #endif
 
 	/* if ((gArchCPUType == CPU_TYPE_I386   && mH->magic != MH_MAGIC) ||
@@ -307,8 +307,8 @@ static long DecodeSegment(long cmdBase, unsigned int *load_addr, unsigned int *l
 		{
 #if DEBUG
 			printf("Setting: gLoadKernelDrivers to false.\n");
-			printf("Press a key...\n");
-			sleep(3);
+			printf("Sleeping for 5 seconds...\n");
+			sleep(5);
 #endif
 			// Make boot() skip kernel / MKext(s) loading.
 			gLoadKernelDrivers = false;

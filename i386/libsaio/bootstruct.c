@@ -87,7 +87,7 @@ void initKernelBootConfig(void)
 	// EFI selection is based on the CPU type.
 	bootArgs->efiMode = (gPlatform.ArchCPUType == CPU_TYPE_X86_64) ? kBootArgsEfiMode64 : kBootArgsEfiMode32;
 
-#if TARGET_OS == LION
+#if MAKE_TARGET_OS == LION
 	// Lion's new debug output (replacing a couple of former boot arguments).
 	bootArgs->debugMode = EFI_DEBUG_MODE;					// Defined in config/settings.h
 #endif
@@ -171,7 +171,7 @@ void finalizeKernelBootConfig(void)
     bootArgs->deviceTreeP = (uint32_t)addr;
     bootArgs->deviceTreeLength = size;
 	
-#if TARGET_OS == LION
+#if MAKE_TARGET_OS == LION
 	// Adding a 16 KB log space.
 	bootArgs->performanceDataSize	= 0;
 	bootArgs->performanceDataStart	= 0;

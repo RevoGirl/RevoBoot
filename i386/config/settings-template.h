@@ -149,6 +149,10 @@
 #define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
                                                 // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
+#if DEBUG_CPU
+	#define DEBUG_CPU_TURBO_RATIO			0	// Set to 0 by default. Change this to 1 when you want to check the core ratio.
+#endif
+
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
 
 
@@ -231,7 +235,7 @@
 
 #define STATIC_SYSTEM_ID					{ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F }
 
-#define DEBUG_EFI							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
+
 
 #define EFI_DEBUG_MODE						0	// Set to 0 by default (for OS X 10.7 LION only).
 
@@ -291,6 +295,8 @@
 
 	#define STATIC_RAM_SERIAL_NUMBERS		{ "Serial#1", "Serial#2", 0 }					// Use "N/A" for empty RAM banks.
 #endif
+
+#define INCLUDE_MPS_TABLE					1	// Set to 0 by default. Change this to 1 when you want to include the MP table.
 
 #define DEBUG_PLATFORM						0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
 
