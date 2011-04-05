@@ -1,3 +1,10 @@
+RevoBoot v1.0.07
+================
+- Kext path/filename length set to 256 (was 128 and caused a boot error).
+- Safeguards added (to drivers.c) to trap memory allocation errors.
+- VERSION info updated.
+
+
 RevoBoot v1.0.06
 ================
 - Makefile changes.

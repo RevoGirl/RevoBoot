@@ -31,7 +31,6 @@
 
 #include <mach-o/fat.h>
 #include <libkern/OSByteOrder.h>
-// #include <mach/machine.h>
 
 #include "sl.h"
 #include "boot.h"
@@ -42,6 +41,8 @@
 #if RAMDISK_SUPPORT
 	#include "ramdisk.h"
 #endif
+
+#define MAX_KEXT_PATH_LENGTH	256
 
 int gKextLoadStatus = 0; // Used to keep track of MKext loads.
 
@@ -147,9 +148,9 @@ static unsigned long localAdler32(unsigned char * buffer, long length)
 
 static long initDriverSupport(void)
 {
-	gPlatform.KextFileName	= (char *) malloc(128); // Used in loadKexts()
-	gPlatform.KextPlistSpec	= (char *) malloc(128); // Used in loadPlist()
-	gPlatform.KextFileSpec	= (char *) malloc(128); // Used in loadKexts() and loadMatchedModules()
+	gPlatform.KextFileName	= (char *) malloc(MAX_KEXT_PATH_LENGTH); // Used in loadKexts()
+	gPlatform.KextPlistSpec	= (char *) malloc(MAX_KEXT_PATH_LENGTH); // Used in loadPlist()
+	gPlatform.KextFileSpec	= (char *) malloc(MAX_KEXT_PATH_LENGTH); // Used in loadKexts() and loadMatchedModules()
 
 	if (!gPlatform.KextFileName || !gPlatform.KextPlistSpec || !gPlatform.KextFileSpec)
 	{
@@ -348,6 +349,12 @@ static int loadKexts(char * targetFolder, bool isPluginRun)
 			{
 				sprintf(gPlatform.KextFileName, "%s/%s", targetFolder, dirEntryName);
 
+#if DEBUG_DRIVERS
+				if (strlen(gPlatform.KextFileName) >= MAX_KEXT_PATH_LENGTH)
+				{
+					stop("Error: gPlatform.KextFileName >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
+				}
+#endif
 				// Determine bundle type.
 				isBundleType2 = (GetFileInfo(gPlatform.KextFileName, "Contents", &dirEntryFlags, &dirEntryTime) == 0);
 
@@ -359,6 +366,12 @@ static int loadKexts(char * targetFolder, bool isPluginRun)
 					// Setup plug-ins path.
 					sprintf(gPlatform.KextFileSpec, "%s/%sPlugIns", gPlatform.KextFileName, (isBundleType2) ? "Contents/" : "");
 
+#if DEBUG_DRIVERS
+					if (strlen(gPlatform.KextFileSpec) >= MAX_KEXT_PATH_LENGTH)
+					{
+						stop("Error: gPlatform.KextFileSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
+					}
+#endif
 					_DRIVERS_DEBUG_DUMP("R");
 
 					// Recursive call for kexts in the PlugIns folder.
@@ -408,6 +421,12 @@ static int loadPlist(char * targetFolder, bool isBundleType2)
 			// Path to plist, which may not exist.
 			sprintf(gPlatform.KextPlistSpec, "%s/%sInfo.plist", targetFolder, (isBundleType2) ? "Contents/" : "");
 
+#if DEBUG_DRIVERS
+			if (strlen(gPlatform.KextPlistSpec) >= MAX_KEXT_PATH_LENGTH)
+			{
+				stop("Error: gPlatform.KextPlistSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
+			}
+#endif
 			// Try to load the plist. Returns -1 on failure, otherwise the file length.
 			plistLength = LoadFile(gPlatform.KextPlistSpec);
 
@@ -793,6 +812,8 @@ static long parseXML(char * buffer, ModulePtr * module, TagPtr * personalities)
 
 long decodeKernel(void *binary, entry_t *rentry, char **raddr, int *rsize)
 {
+	// return DecodeMachO(binary, rentry, raddr, rsize);
+
 	void *buffer;
 	long ret;
 	unsigned long len;
