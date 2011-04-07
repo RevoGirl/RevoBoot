@@ -214,7 +214,7 @@ void initPlatform(int biosDevice)
 			gPlatform.RAM.MODULE[i].PartNumber		= ramPartNumber[i];
 			gPlatform.RAM.MODULE[i].SerialNumber	= ramSerialNumber[i];
 
-			_PLATFORM_DEBUG_DUMP("Vendor:%s, Part#:%s, Serial#:%s\n",
+			_PLATFORM_DEBUG_DUMP("%s, %s, %s\n",
 								 gPlatform.RAM.MODULE[i].Vendor,
 								 gPlatform.RAM.MODULE[i].PartNumber,
 								 gPlatform.RAM.MODULE[i].SerialNumber);
@@ -229,7 +229,7 @@ void initPlatform(int biosDevice)
 	_PLATFORM_DEBUG_DUMP("Static data for %d RAM BANKS used.\n", gPlatform.RAM.SlotCount);
 #endif
 
-	_PLATFORM_DEBUG_SLEEP(5);
+	_PLATFORM_DEBUG_SLEEP(15);
 
 	initKernelBootConfig();
 

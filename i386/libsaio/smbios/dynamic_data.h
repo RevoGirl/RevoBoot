@@ -56,41 +56,41 @@ struct SMBProperty SMBProperties[] =
 {
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeBIOSInformation,		0x04,	kSMBString,		"SMBbiosVendor",		.auto_str	= getOverrideString		},
-	{ kSMBTypeBIOSInformation,		0x05,	kSMBString,		"SMBbiosVersion",		.auto_str	= getOverrideString		},
-	{ kSMBTypeBIOSInformation,		0x08,	kSMBString,		"SMBbiosDate",			.auto_str	= getOverrideString		},
+	{ /*  0 */ kSMBTypeBIOSInformation,		0x04,	kSMBString,		"SMBbiosVendor",		.auto_str	= getOverrideString		},
+	{ /*  1 */ kSMBTypeBIOSInformation,		0x05,	kSMBString,		"SMBbiosVersion",		.auto_str	= getOverrideString		},
+	{ /*  2 */ kSMBTypeBIOSInformation,		0x08,	kSMBString,		"SMBbiosDate",			.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeSystemInformation,	0x04,	kSMBString,		"SMBmanufacter",		.auto_str	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x05,	kSMBString,		"SMBproductName",		.auto_str	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x06,	kSMBString,		"SMBsystemVersion",		.auto_str	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x07,	kSMBString,		"SMBserial",			.auto_str	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x1a,	kSMBString,		"SMBfamily",			.auto_str	= getOverrideString		},
+	{ /*  3 */ kSMBTypeSystemInformation,	0x04,	kSMBString,		"SMBmanufacter",		.auto_str	= getOverrideString		},
+	{ /*  4 */ kSMBTypeSystemInformation,	0x05,	kSMBString,		"SMBproductName",		.auto_str	= getOverrideString		},
+	{ /*  5 */ kSMBTypeSystemInformation,	0x06,	kSMBString,		"SMBsystemVersion",		.auto_str	= getOverrideString		},
+	{ /*  6 */ kSMBTypeSystemInformation,	0x07,	kSMBString,		"SMBserial",			.auto_str	= getOverrideString		},
+	{ /*  7 */ kSMBTypeSystemInformation,	0x1a,	kSMBString,		"SMBfamily",			.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeBaseBoard,			0x04,	kSMBString,		"SMBboardManufacter",	.auto_str	= getOverrideString		},
-	{ kSMBTypeBaseBoard,			0x05,	kSMBString,		"SMBboardProduct",		.auto_str	= getOverrideString		},
+	{ /*  8 */ kSMBTypeBaseBoard,			0x04,	kSMBString,		"SMBboardManufacter",	.auto_str	= getOverrideString		},
+	{ /*  9 */  kSMBTypeBaseBoard,			0x05,	kSMBString,		"SMBboardProduct",		.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeProcessorInformation,	0x12,	kSMBWord,		"SMBexternalClock",		.auto_int	= getFSBFrequency		},
-	{ kSMBTypeProcessorInformation,	0x14,	kSMBWord,		"SMBmaximalClock",		.auto_int	= getCPUFrequency		},
+	{ /* 10 */ kSMBTypeProcessorInformation,	0x12,	kSMBWord,		"SMBexternalClock",		.auto_int	= getFSBFrequency		},
+	{ /* 11 */ kSMBTypeProcessorInformation,	0x14,	kSMBWord,		"SMBmaximalClock",		.auto_int	= getCPUFrequency		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
 #if USE_STATIC_RAM_SIZE
-	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_inti	= getRAMSize			},
+	{ /* 12 */ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_inti	= getRAMSize			},
 #endif
 	
-	{ kSMBTypeMemoryDevice,			0x10,	kSMBString,		"SMBmemDevLoc",			.auto_str	= 0						},
-	{ kSMBTypeMemoryDevice,			0x11,	kSMBString,		"SMBmemBankLoc",		.auto_str	= 0						},
-	{ kSMBTypeMemoryDevice,			0x12,	kSMBByte,		"SMBmemType",			.auto_inti	= getRAMType			},
-	{ kSMBTypeMemoryDevice,			0x15,	kSMBWord,		"SMBmemSpeed",			.auto_int	= getRAMFrequency		},
-	{ kSMBTypeMemoryDevice,			0x17,	kSMBString,		"SMBmemManufacter",		.auto_stri	= getRAMVendor			},
-	{ kSMBTypeMemoryDevice,			0x18,	kSMBString,		"SMBmemSerial",			.auto_stri	= getRAMSerialNumber	},
-	{ kSMBTypeMemoryDevice,			0x1a,	kSMBString,		"SMBmemPartNumber",		.auto_stri	= getRAMPartNumber		},
+	{ /* 13 */ kSMBTypeMemoryDevice,			0x10,	kSMBString,		"SMBmemDevLoc",			.auto_str	= 0						},
+	{ /* 14 */ kSMBTypeMemoryDevice,			0x11,	kSMBString,		"SMBmemBankLoc",		.auto_str	= 0						},
+	{ /* 15 */ kSMBTypeMemoryDevice,			0x12,	kSMBByte,		"SMBmemType",			.auto_inti	= getRAMType			},
+	{ /* 16 */ kSMBTypeMemoryDevice,			0x15,	kSMBWord,		"SMBmemSpeed",			.auto_int	= getRAMFrequency		},
+	{ /* 17 */ kSMBTypeMemoryDevice,			0x17,	kSMBString,		"SMBmemManufacter",		.auto_stri	= getRAMVendor			},
+	{ /* 18 */ kSMBTypeMemoryDevice,			0x18,	kSMBString,		"SMBmemSerial",			.auto_stri	= getRAMSerialNumber	},
+	{ /* 19 */ kSMBTypeMemoryDevice,			0x1a,	kSMBString,		"SMBmemPartNumber",		.auto_stri	= getRAMPartNumber		},
 };
 
 
@@ -246,9 +246,8 @@ void setupSMBIOS(void)
 			structurePtr += 2;
 
 #if DEBUG_SMBIOS
-			// sleep(1); // Silent sleep (for debug only).
+			sleep(1); // Silent sleep (for debug only).
 #endif
-
 			continue;
 		}
 			

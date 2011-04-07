@@ -20,6 +20,7 @@
 #define SMBIOS_MPS_ANCHOR		0x5f504d5f // '_MP_' in Little Endian. 
 
 #define NOT_AVAILABLE	"N/A"
+#define RAM_SLOT_EMPTY	""
 
 #ifndef STATIC_RAM_TYPE
 	#define STATIC_RAM_TYPE	SMB_MEM_TYPE_DDR3
@@ -178,21 +179,27 @@ static int getCPUType(void)
 //==============================================================================
 // Helper function.
 
-int getSlotNumber(int structureIndex)
+int getSlotNumber(int slotNumber)
 {
-	_SMBIOS_DEBUG_DUMP("In getSlotNumber(%d)\n", structureIndex);
+	_SMBIOS_DEBUG_DUMP("In getSlotNumber(%d)\n", slotNumber);
+
+	// Return -1 for empty slots.
+	if (gPlatform.RAM.MODULE[slotNumber].InUse == false)
+	{
+		return -1;
+	}
 
 	// Limit structureIndex to STATIC_RAM_SLOTS (defined in: config/settings.h)
-	if (structureIndex > gPlatform.RAM.SlotCount)
+	if (slotNumber > gPlatform.RAM.SlotCount)
 	{
-		structureIndex = 0;
+		slotNumber = 0;
 	}
 
 #if DEBUG_SMBIOS
 	sleep(1);	// Silent sleep (for debug only).
 #endif
 
-	return structureIndex;
+	return slotNumber;
 }
 #endif
 
@@ -202,13 +209,20 @@ int getSlotNumber(int structureIndex)
 
 static int getRAMSize(int structureIndex, void * structurePtr)
 {
-	struct SMBMemoryDevice * module = (SMBMemoryDevice *) structurePtr;
-	printf("module->memorySize: %x\n", module->memorySize);
+	/* struct SMBMemoryDevice * module = (SMBMemoryDevice *) structurePtr;
+	printf("module->memorySize: %x\n", module->memorySize); */
 
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
-	_SMBIOS_DEBUG_DUMP("In getRAMSize(%d) = %d\n", structureIndex, gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].Size);
+	int slotNumber = getSlotNumber(structureIndex);
 
-	return gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].Size;
+	_SMBIOS_DEBUG_DUMP("In getRAMSize(%d) = %d\n", structureIndex, gPlatform.RAM.MODULE[slotNumber].Size);
+
+	if (gPlatform.RAM.MODULE[slotNumber].Size == SMB_MEM_BANK_EMPTY)
+	{
+		return 0;
+	}
+
+	return gPlatform.RAM.MODULE[slotNumber].Size;
 #else
 	return 2048;
 #endif
@@ -220,10 +234,6 @@ static int getRAMSize(int structureIndex, void * structurePtr)
 
 static int getRAMType(int structureIndex, void * structurePtr)
 {
-	/* struct SMBMemoryDevice * module = (SMBMemoryDevice *) structurePtr;
-	printf("module->memoryType: %x\n", module->memoryType); // , SMBMemoryDeviceTypes[module->memoryType]);
-	sleep(5); */
-
 	_SMBIOS_DEBUG_DUMP("In getRAMType() = %s\n", SMBMemoryDeviceTypes[STATIC_RAM_TYPE]);
 
 	return STATIC_RAM_TYPE;
@@ -244,13 +254,21 @@ static int getRAMFrequency(void)
 
 static const char * getRAMVendor(int structureIndex, void * structurePtr)
 {
-	/* struct SMBMemoryDevice * module = (SMBMemoryDevice *) structurePtr;
-	printf("module->memoryType: %\n", module->memoryType); */
-
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
-	_SMBIOS_DEBUG_DUMP("In getRAMVendor(%d) = %s\n", structureIndex, gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].Vendor);
+	_SMBIOS_DEBUG_DUMP("In getRAMVendor(%d)", structureIndex);
 
-	return gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].Vendor;
+	int slotNumber = getSlotNumber(structureIndex);
+
+	if (slotNumber == -1)
+	{
+		_SMBIOS_DEBUG_DUMP("\n");
+
+		return RAM_SLOT_EMPTY;
+	}
+
+	_SMBIOS_DEBUG_DUMP(" = %s\n", gPlatform.RAM.MODULE[slotNumber].Vendor);
+
+	return gPlatform.RAM.MODULE[slotNumber].Vendor;
 #else
 	_SMBIOS_DEBUG_DUMP("In getRAMVendor(%d) = N/A\n", structureIndex);
 
@@ -264,9 +282,20 @@ static const char * getRAMVendor(int structureIndex, void * structurePtr)
 static const char * getRAMSerialNumber(int structureIndex, void * structurePtr)
 {
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
-	_SMBIOS_DEBUG_DUMP("In getRAMSerialNumber(%d) = %s\n", structureIndex, gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].SerialNumber);
+	_SMBIOS_DEBUG_DUMP("In getRAMSerialNumber(%d)", structureIndex);
 
-	return gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].SerialNumber;
+	int slotNumber = getSlotNumber(structureIndex);
+
+	if (slotNumber == -1)
+	{
+		_SMBIOS_DEBUG_DUMP("\n");
+
+		return RAM_SLOT_EMPTY;
+	}
+
+	_SMBIOS_DEBUG_DUMP(" = %s\n", gPlatform.RAM.MODULE[slotNumber].SerialNumber);
+
+	return gPlatform.RAM.MODULE[slotNumber].SerialNumber;
 #else
 	_SMBIOS_DEBUG_DUMP("In getRAMSerialNumber(%d) = N/A\n", structureIndex);
 
@@ -280,9 +309,20 @@ static const char * getRAMSerialNumber(int structureIndex, void * structurePtr)
 static const char * getRAMPartNumber(int structureIndex, void * structurePtr)
 {
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
-	_SMBIOS_DEBUG_DUMP("In getRAMPartNumber(%d) = %s\n", structureIndex, gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].PartNumber);
+	_SMBIOS_DEBUG_DUMP("In getRAMPartNumber(%d)", structureIndex);
 
-	return gPlatform.RAM.MODULE[getSlotNumber(structureIndex)].PartNumber;
+	int slotNumber = getSlotNumber(structureIndex);
+
+	if (slotNumber == -1)
+	{
+		_SMBIOS_DEBUG_DUMP("\n");
+		
+		return RAM_SLOT_EMPTY;
+	}
+
+	_SMBIOS_DEBUG_DUMP(" = %s\n", gPlatform.RAM.MODULE[slotNumber].PartNumber);
+
+	return gPlatform.RAM.MODULE[slotNumber].PartNumber;
 #else
 	_SMBIOS_DEBUG_DUMP("In getRAMPartNumber(%d) = N/A\n", structureIndex);
 

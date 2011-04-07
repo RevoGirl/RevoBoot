@@ -1,3 +1,10 @@
+RevoBoot v1.0.08
+================
+- Whitespace fix in smbios/mode_data.h
+- System Profiler -> Memory fix
+- VERSION info updated.
+
+
 RevoBoot v1.0.07
 ================
 - Kext path/filename length set to 256 (was 128 and caused a boot error).
