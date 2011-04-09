@@ -1,3 +1,10 @@
+RevoBoot v1.0.09
+================
+- Dynamic memory override features changed.
+- VERSION info updated.
+- Be aware that the settings template changed for this version!
+
+
 RevoBoot v1.0.08
 ================
 - Whitespace fix in smbios/mode_data.h

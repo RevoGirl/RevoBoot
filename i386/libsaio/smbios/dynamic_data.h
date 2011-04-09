@@ -42,7 +42,6 @@ struct SMBProperty
     const char	*keyString;
 
 	int			(* auto_int)	(void);
-	int			(* auto_inti)	(int structureIndex, void * structurePtr);
 
 	const char	*(* auto_str)	(const char * keyString);
 	const char	*(* auto_stri)	(int structureIndex, void * structurePtr);
@@ -56,41 +55,48 @@ struct SMBProperty SMBProperties[] =
 {
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ /*  0 */ kSMBTypeBIOSInformation,		0x04,	kSMBString,		"SMBbiosVendor",		.auto_str	= getOverrideString		},
-	{ /*  1 */ kSMBTypeBIOSInformation,		0x05,	kSMBString,		"SMBbiosVersion",		.auto_str	= getOverrideString		},
-	{ /*  2 */ kSMBTypeBIOSInformation,		0x08,	kSMBString,		"SMBbiosDate",			.auto_str	= getOverrideString		},
+	{ kSMBTypeBIOSInformation,		0x04,	kSMBString,		"SMBbiosVendor",		.auto_str	= getOverrideString		},
+	{ kSMBTypeBIOSInformation,		0x05,	kSMBString,		"SMBbiosVersion",		.auto_str	= getOverrideString		},
+	{ kSMBTypeBIOSInformation,		0x08,	kSMBString,		"SMBbiosDate",			.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ /*  3 */ kSMBTypeSystemInformation,	0x04,	kSMBString,		"SMBmanufacter",		.auto_str	= getOverrideString		},
-	{ /*  4 */ kSMBTypeSystemInformation,	0x05,	kSMBString,		"SMBproductName",		.auto_str	= getOverrideString		},
-	{ /*  5 */ kSMBTypeSystemInformation,	0x06,	kSMBString,		"SMBsystemVersion",		.auto_str	= getOverrideString		},
-	{ /*  6 */ kSMBTypeSystemInformation,	0x07,	kSMBString,		"SMBserial",			.auto_str	= getOverrideString		},
-	{ /*  7 */ kSMBTypeSystemInformation,	0x1a,	kSMBString,		"SMBfamily",			.auto_str	= getOverrideString		},
+	{ kSMBTypeSystemInformation,	0x04,	kSMBString,		"SMBmanufacter",		.auto_str	= getOverrideString		},
+	{ kSMBTypeSystemInformation,	0x05,	kSMBString,		"SMBproductName",		.auto_str	= getOverrideString		},
+	{ kSMBTypeSystemInformation,	0x06,	kSMBString,		"SMBsystemVersion",		.auto_str	= getOverrideString		},
+	{ kSMBTypeSystemInformation,	0x07,	kSMBString,		"SMBserial",			.auto_str	= getOverrideString		},
+	{ kSMBTypeSystemInformation,	0x1a,	kSMBString,		"SMBfamily",			.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ /*  8 */ kSMBTypeBaseBoard,			0x04,	kSMBString,		"SMBboardManufacter",	.auto_str	= getOverrideString		},
-	{ /*  9 */  kSMBTypeBaseBoard,			0x05,	kSMBString,		"SMBboardProduct",		.auto_str	= getOverrideString		},
+	{ kSMBTypeBaseBoard,			0x04,	kSMBString,		"SMBboardManufacter",	.auto_str	= getOverrideString		},
+	{ kSMBTypeBaseBoard,			0x05,	kSMBString,		"SMBboardProduct",		.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-	{ /* 10 */ kSMBTypeProcessorInformation,	0x12,	kSMBWord,		"SMBexternalClock",		.auto_int	= getFSBFrequency		},
-	{ /* 11 */ kSMBTypeProcessorInformation,	0x14,	kSMBWord,		"SMBmaximalClock",		.auto_int	= getCPUFrequency		},
+	{ kSMBTypeProcessorInformation,	0x12,	kSMBWord,		"SMBexternalClock",		.auto_int	= getFSBFrequency		},
+	{ kSMBTypeProcessorInformation,	0x14,	kSMBWord,		"SMBmaximalClock",		.auto_int	= getCPUFrequency		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
 	
-#if USE_STATIC_RAM_SIZE
-	{ /* 12 */ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_inti	= getRAMSize			},
+#if DYNAMIC_RAM_OVERRIDE_SIZE
+	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_int	= getRAMSize			},
 #endif
 	
-	{ /* 13 */ kSMBTypeMemoryDevice,			0x10,	kSMBString,		"SMBmemDevLoc",			.auto_str	= 0						},
-	{ /* 14 */ kSMBTypeMemoryDevice,			0x11,	kSMBString,		"SMBmemBankLoc",		.auto_str	= 0						},
-	{ /* 15 */ kSMBTypeMemoryDevice,			0x12,	kSMBByte,		"SMBmemType",			.auto_inti	= getRAMType			},
-	{ /* 16 */ kSMBTypeMemoryDevice,			0x15,	kSMBWord,		"SMBmemSpeed",			.auto_int	= getRAMFrequency		},
-	{ /* 17 */ kSMBTypeMemoryDevice,			0x17,	kSMBString,		"SMBmemManufacter",		.auto_stri	= getRAMVendor			},
-	{ /* 18 */ kSMBTypeMemoryDevice,			0x18,	kSMBString,		"SMBmemSerial",			.auto_stri	= getRAMSerialNumber	},
-	{ /* 19 */ kSMBTypeMemoryDevice,			0x1a,	kSMBString,		"SMBmemPartNumber",		.auto_stri	= getRAMPartNumber		},
+	{ kSMBTypeMemoryDevice,			0x10,	kSMBString,		"SMBmemDevLoc",			.auto_str	= 0						},
+	{ kSMBTypeMemoryDevice,			0x11,	kSMBString,		"SMBmemBankLoc",		.auto_str	= 0						},
+
+#if DYNAMIC_RAM_OVERRIDE_TYPE
+	{ kSMBTypeMemoryDevice,			0x12,	kSMBByte,		"SMBmemType",			.auto_int	= getRAMType			},
+#endif
+
+#if DYNAMIC_RAM_OVERRIDE_FREQUENCY
+	{ kSMBTypeMemoryDevice,			0x15,	kSMBWord,		"SMBmemSpeed",			.auto_int	= getRAMFrequency		},
+#endif
+
+	{ kSMBTypeMemoryDevice,			0x17,	kSMBString,		"SMBmemManufacter",		.auto_stri	= getRAMVendor			},
+	{ kSMBTypeMemoryDevice,			0x18,	kSMBString,		"SMBmemSerial",			.auto_stri	= getRAMSerialNumber	},
+	{ kSMBTypeMemoryDevice,			0x1a,	kSMBString,		"SMBmemPartNumber",		.auto_stri	= getRAMPartNumber		},
 };
 
 
@@ -100,7 +106,7 @@ struct SMBStructure
 {
     SMBByte	type;			// Structure type.
     SMBByte	start;			// Turbo index (start location in properties array).
-    SMBByte	stop;			// Turbo index end (start + properties + 1).
+    SMBByte	stop;			// Turbo index end (start + properties).
 	SMBBool	copyStrings;	// True for structures where string data should be copied.
 	SMBByte	hits;			// Number of located structures of a given type.
 };
@@ -110,11 +116,11 @@ struct SMBStructure
 
 struct SMBStructure requiredStructures[] =
 {
-    { kSMBTypeBIOSInformation		/*   0 */,		 0,		 3,		false,		0	},
-    { kSMBTypeSystemInformation		/*   1 */,		 3,		 8,		false,		0	},
-    { kSMBTypeBaseBoard				/*   2 */,		 8,		10,		false,		0	},
+    { kSMBTypeBIOSInformation		/*   0 */,		 0,		 2,		false,		0	},
+    { kSMBTypeSystemInformation		/*   1 */,		 3,		 7,		false,		0	},
+    { kSMBTypeBaseBoard				/*   2 */,		 8,		 9,		false,		0	},
 	{ kSMBUnused					/*   3 */,		 0,		 0,		false,		0	},
-    { kSMBTypeProcessorInformation	/*   4 */,		10,		12,		true,		0	},
+    { kSMBTypeProcessorInformation	/*   4 */,		10,		11,		true,		0	},
 	{ kSMBUnused					/*   5 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   6 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   7 */,		 0,		 0,		false,		0	},
@@ -127,11 +133,7 @@ struct SMBStructure requiredStructures[] =
 	{ kSMBUnused					/*  14 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  15 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  16 */,		 0,		 0,		false,		0	},
-#if USE_STATIC_RAM_SIZE
-    { kSMBTypeMemoryDevice			/*  17 */,		12,		20,		true,		0	},
-#else
-    { kSMBTypeMemoryDevice			/*  17 */,		13,		19,		true,		0	}
-#endif
+    { kSMBTypeMemoryDevice			/*  17 */,		12,		16,		true,		0	}
 };
 
 
@@ -222,6 +224,10 @@ void setupSMBIOS(void)
 	newEPS->dmi.structureCount += 2;
 
 	newtablesPtr += 8;
+
+#if DYNAMIC_RAM_OVERRIDE_SIZE || DYNAMIC_RAM_OVERRIDE_TYPE || DYNAMIC_RAM_OVERRIDE_FREQUENCY
+	requiredStructures[17].stop = (sizeof(SMBProperties) / sizeof(SMBProperties[0])) -1;
+#endif
 
 	//------------------------------------------------------------------------------
 	// Main loop
@@ -338,7 +344,7 @@ void setupSMBIOS(void)
 		int stop	= requiredStructures[currentStructureType].stop;
 
 		// Jump to the target start index in the properties array (looping to the target end) and update the SMBIOS structure.
-		for (j = start; j < stop; j++)
+		for (j = start; j <= stop; j++)
 		{
 			const char * str = "";
 
@@ -359,7 +365,7 @@ void setupSMBIOS(void)
 					}
 					else if (SMBProperties[j].auto_stri)
 					{
-						str = SMBProperties[j].auto_stri(requiredStructures[currentStructureType].hits, (void *) structurePtr);
+						str = SMBProperties[j].auto_stri(requiredStructures[currentStructureType].hits, (void *) factoryHeader);
 					}
 
 					int size = strlen(str);
@@ -376,9 +382,9 @@ void setupSMBIOS(void)
 					
 				case kSMBByte:
 					
-					if (SMBProperties[j].auto_inti)
+					if (SMBProperties[j].auto_int)
 					{
-						*((uint8_t *)(((char *)newHeader) + SMBProperties[j].offset)) = SMBProperties[j].auto_inti(requiredStructures[currentStructureType].hits, (void *)structurePtr);							
+						*((uint8_t *)(((char *)newHeader) + SMBProperties[j].offset)) = SMBProperties[j].auto_int();							
 					}
 					
 					break;
@@ -388,10 +394,6 @@ void setupSMBIOS(void)
 					if (SMBProperties[j].auto_int)
 					{
 						*((uint16_t *)(((char *)newHeader) + SMBProperties[j].offset)) = SMBProperties[j].auto_int();
-					}
-					else if (SMBProperties[j].auto_inti)
-					{
-						*((uint16_t *)(((char *)newHeader) + SMBProperties[j].offset)) = SMBProperties[j].auto_inti(requiredStructures[currentStructureType].hits, (void *)structurePtr);
 					}
 
 					break;

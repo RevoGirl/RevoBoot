@@ -22,12 +22,12 @@
 #define NOT_AVAILABLE	"N/A"
 #define RAM_SLOT_EMPTY	""
 
-#ifndef STATIC_RAM_TYPE
-	#define STATIC_RAM_TYPE	SMB_MEM_TYPE_DDR3
+#ifndef DYNAMIC_RAM_OVERRIDE_TYPE
+	#define DYNAMIC_RAM_OVERRIDE_TYPE	SMB_MEM_TYPE_DDR3
 #endif
 
-#ifndef STATIC_RAM_SPEED
-	#define STATIC_RAM_SPEED 1066
+#ifndef DYNAMIC_RAM_OVERRIDE_FREQUENCY
+	#define DYNAMIC_RAM_OVERRIDE_FREQUENCY 1066
 #endif
 
 /*==============================================================================
@@ -175,9 +175,8 @@ static int getCPUType(void)
 }
 
 
-#if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 //==============================================================================
-// Helper function.
+#if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 
 int getSlotNumber(int slotNumber)
 {
@@ -196,7 +195,7 @@ int getSlotNumber(int slotNumber)
 	}
 
 #if DEBUG_SMBIOS
-	sleep(1);	// Silent sleep (for debug only).
+	// sleep(1);	// Silent sleep (for debug only / slows down the process).
 #endif
 
 	return slotNumber;
@@ -204,15 +203,11 @@ int getSlotNumber(int slotNumber)
 #endif
 
 
-#if USE_STATIC_RAM_SIZE
 //==============================================================================
+#if DYNAMIC_RAM_OVERRIDE_SIZE
 
-static int getRAMSize(int structureIndex, void * structurePtr)
+static int getRAMSize(int structureIndex)
 {
-	/* struct SMBMemoryDevice * module = (SMBMemoryDevice *) structurePtr;
-	printf("module->memorySize: %x\n", module->memorySize); */
-
-#if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	int slotNumber = getSlotNumber(structureIndex);
 
 	_SMBIOS_DEBUG_DUMP("In getRAMSize(%d) = %d\n", structureIndex, gPlatform.RAM.MODULE[slotNumber].Size);
@@ -223,31 +218,32 @@ static int getRAMSize(int structureIndex, void * structurePtr)
 	}
 
 	return gPlatform.RAM.MODULE[slotNumber].Size;
-#else
-	return 2048;
-#endif
 }
 #endif
 
 
 //==============================================================================
+#if DYNAMIC_RAM_OVERRIDE_TYPE
 
-static int getRAMType(int structureIndex, void * structurePtr)
+static int getRAMType(void)
 {
-	_SMBIOS_DEBUG_DUMP("In getRAMType() = %s\n", SMBMemoryDeviceTypes[STATIC_RAM_TYPE]);
+	_SMBIOS_DEBUG_DUMP("In getRAMType() = %s\n", SMBMemoryDeviceTypes[DYNAMIC_RAM_OVERRIDE_TYPE]);
 
-	return STATIC_RAM_TYPE;
+	return DYNAMIC_RAM_OVERRIDE_TYPE;
 }
+#endif
 
 
 //==============================================================================
+#if DYNAMIC_RAM_OVERRIDE_FREQUENCY
 
 static int getRAMFrequency(void)
 {
-	_SMBIOS_DEBUG_DUMP("In getRAMFrequency() = %d\n", STATIC_RAM_SPEED);
+	_SMBIOS_DEBUG_DUMP("In getRAMFrequency() = %d\n", DYNAMIC_RAM_OVERRIDE_FREQUENCY);
 
-	return STATIC_RAM_SPEED;
+	return DYNAMIC_RAM_OVERRIDE_FREQUENCY;
 }
+#endif
 
 
 //==============================================================================

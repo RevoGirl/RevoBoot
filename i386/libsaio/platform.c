@@ -187,8 +187,8 @@ void initPlatform(int biosDevice)
 	const char * ramPartNumber[]	= STATIC_RAM_PART_NUMBERS;
 	const char * ramSerialNumber[]	= STATIC_RAM_SERIAL_NUMBERS;
 
-#if USE_STATIC_RAM_SIZE
-	int ramSize[]					= STATIC_RAM_SIZES;
+#if DYNAMIC_RAM_OVERRIDE_SIZE
+	int ramSize[]					= DYNAMIC_RAM_OVERRIDE_SIZES;
 #endif
 
 	int i = 0;
@@ -204,8 +204,8 @@ void initPlatform(int biosDevice)
 			_PLATFORM_DEBUG_DUMP("Slot:%d, ", i); 
 
 			gPlatform.RAM.MODULE[i].InUse			= true;
-			gPlatform.RAM.MODULE[i].Type			= STATIC_RAM_TYPE;
-#if USE_STATIC_RAM_SIZE
+			gPlatform.RAM.MODULE[i].Type			= DYNAMIC_RAM_OVERRIDE_TYPE;
+#if DYNAMIC_RAM_OVERRIDE_SIZE
 			gPlatform.RAM.MODULE[i].Size			= ramSize[i];
 
 			_PLATFORM_DEBUG_DUMP("Size:%d, ", gPlatform.RAM.MODULE[i].Size); 
