@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Master Chief. All rights reserved.
  *
- * Note: This is an essential part of the build process for Revolution v0.6.36 and greater.
+ * Note: This is an essential part of the build process for RevoBoot v1.0.09 and greater.
  *
  *
  * Latest cleanups and additional directives added by DHP in 2011
@@ -149,10 +149,6 @@
 #define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
                                                 // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
-#if DEBUG_CPU
-	#define DEBUG_CPU_TURBO_RATIO			0	// Set to 0 by default. Change this to 1 when you want to check the core ratio.
-#endif
-
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
 
 
@@ -235,7 +231,7 @@
 
 #define STATIC_SYSTEM_ID					{ 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F }
 
-
+#define DEBUG_EFI							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
 
 #define EFI_DEBUG_MODE						0	// Set to 0 by default (for OS X 10.7 LION only).
 
@@ -262,7 +258,7 @@
 												// Note: Defaults to STATIC_MAC_PRODUCT_NAME when set to 0.
 
 #if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
-	#define STATIC_SMBIOS_MODEL_ID			MACBOOKPRO	// Supported models: IMAC, MACBOOK, MACBOOKPRO, MACMINI or MACPRO
+	#define STATIC_SMBIOS_MODEL_ID			MACPRO	// Supported models: IMAC, MACBOOK, MACBOOKPRO, MACMINI or MACPRO
 #endif
 
 #define DEBUG_SMBIOS						0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
@@ -271,32 +267,32 @@
 //-------------------------------------------------------------- PLATFORM.C ----------------------------------------------------------------
 
 
-#define STATIC_MAC_PRODUCT_NAME				"MacBookPro6,1"
+#define STATIC_MAC_PRODUCT_NAME				"MacPro5,1"
 
 #if USE_STATIC_SMBIOS_DATA
-	// Do nothing.
+// Do nothing.
 #elif OVERRIDE_DYNAMIC_MEMORY_DETECTION
-	// Setup RAM module info. Please note that you may have to expand this when you have more RAM modules.
-	#define STATIC_RAM_SLOTS				2												// Number of RAM slots on mainboard.
+// Setup RAM module info. Please note that you may have to expand this when you have more RAM modules.
+	#define STATIC_RAM_SLOTS				4	// Number of RAM slots on mainboard.
 
-	#define STATIC_RAM_VENDORS				{ "Vendor#1", "Vendor#2", 0 }					// Use "N/A" for empty RAM banks.
+	#define STATIC_RAM_VENDORS				{ "Corsair", "N/A", "Corsair", "N/A", 0 }	// Use "N/A" for empty RAM banks.
 
-	#define STATIC_RAM_TYPE					SMB_MEM_TYPE_DDR3								// See libsaio/platform.h for other values.
+	#define DYNAMIC_RAM_OVERRIDE_TYPE		0	// Set to 0 by default. See libsaio/platform.h for supported values.
 
-	#define USE_STATIC_RAM_SIZE				0
+	#define DYNAMIC_RAM_OVERRIDE_SIZE		0	// Set to 0 by default. Change this to 1 when you want to use override values (see below).
 
-#if USE_STATIC_RAM_SIZE
-	#define STATIC_RAM_SIZES				{ SMB_MEM_SIZE_2GB, SMB_MEM_SIZE_2GB, 0 }		// See libsaio/platform.h for other values.
+#if DYNAMIC_RAM_OVERRIDE_SIZE
+	#define DYNAMIC_RAM_OVERRIDE_SIZES		{ SMB_MEM_SIZE_2GB, SMB_MEM_BANK_EMPTY, SMB_MEM_SIZE_2GB, SMB_MEM_BANK_EMPTY, 0 } // See libsaio/platform.h for other values.
 #endif
 
-	#define STATIC_RAM_SPEED				1066
+	#define DYNAMIC_RAM_OVERRIDE_FREQUENCY	0	// Set to 0 by default. Change this to the frequency that you want to use as override value.
 
-	#define STATIC_RAM_PART_NUMBERS			{ "Part#1", "Part#2", 0 }						// Use "N/A" for empty RAM banks.
+	#define STATIC_RAM_PART_NUMBERS			{ "CMX4GX3M2B2000C9", "N/A", "CMX4GX3M2B2000C9", "N/A", 0 }	// Use "N/A" for empty RAM banks.
 
-	#define STATIC_RAM_SERIAL_NUMBERS		{ "Serial#1", "Serial#2", 0 }					// Use "N/A" for empty RAM banks.
+	#define STATIC_RAM_SERIAL_NUMBERS		{ "Serial#0", "N/A", "Serial#2", "N/A", 0 }	// Use "N/A" for empty RAM banks.
 #endif
 
-#define INCLUDE_MPS_TABLE					1	// Set to 0 by default. Change this to 1 when you want to include the MP table.
+#define INCLUDE_MPS_TABLE					0	// Set to 0 by default. Change this to 1 when you want to include the MP table.
 
 #define DEBUG_PLATFORM						0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
 
