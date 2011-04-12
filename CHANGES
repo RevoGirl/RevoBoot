@@ -1,3 +1,10 @@
+RevoBoot v1.0.10
+================
+- Fixed Sandy Bridge CPU detection error (see 'About This Mac' dialog).
+- New MacBook Pro 8 series with Sandy Bridge CPU's added.
+- VERSION info updated.
+
+
 RevoBoot v1.0.09
 ================
 - Dynamic memory override features changed.

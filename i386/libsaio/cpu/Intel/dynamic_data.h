@@ -314,21 +314,31 @@ void initCPUStruct(void)
 				gPlatform.CPU.NumThreads	= bitfield32(msr, 15,  0);
 
 				// Getting 'cpu-type' for SMBIOS later on. 
-				if (strstr(gPlatform.CPU.BrandString, "Core(TM) i7-2"))
+				if (strstr(gPlatform.CPU.BrandString, "Core(TM) i7"))
 				{
-					gPlatform.CPU.Type =  0x307;	// Core i7-2xxx(X) for Sandy Bridge.
+					if (hiBit = 19)						// Sandy Bridge
+					{
+						gPlatform.CPU.Type =  0x703;	// Core  i7-2635QM and i7-2720QM
+					}
+					else //  Nehalem
+					{
+						gPlatform.CPU.Type =  0x701;	// Core i7
+					}
 				}
 				else if (strstr(gPlatform.CPU.BrandString, "Core(TM) i5"))
 				{
-					gPlatform.CPU.Type = 0x601;		// Core i5
+					if (hiBit = 19)						// Sandy Bridge
+					{
+						gPlatform.CPU.Type = 0x603;		// Core i5-2415M				
+					}
+					else
+					{
+						gPlatform.CPU.Type = 0x601;		// Core i5
+					}
 				}
 				else if (strstr(gPlatform.CPU.BrandString, "Core(TM) i3"))
 				{
-					gPlatform.CPU.Type =  0x901;	// Core i3
-				}
-				else
-				{
-					gPlatform.CPU.Type = 0x0701;	// Core i7
+					gPlatform.CPU.Type =  0x901;		// Core i3
 				}
 
 #if DEBUG_CPU_TURBO_RATIO
