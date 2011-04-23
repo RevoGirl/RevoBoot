@@ -1,7 +1,8 @@
 /*
- * Original source code (dsdt_patcher) by mackerintel (2008)
+ * Original source code (dsdt_patcher for Chameleon) by mackerintel (2008)
  * Overhaul by Master Chief in 2009
- * Refactored by DHP in 2010/2011
+ * Refactored by DHP in 2010
+ * Completely new implementation written by DHP in 2011
  */
 
 
@@ -389,7 +390,7 @@ void setupACPI(void)
 			}
 		}
 
-		_ACPI_DEBUG_DUMP("dropOffset: %d\n", dropOffset);
+		_ACPI_DEBUG_DUMP("Dropped table count: %d\n", dropOffset);
 
 		// printf("size: %d\n", sizeof(customTables) / sizeof(ACPITable)); // 308
 
@@ -424,17 +425,22 @@ void setupACPI(void)
 
 					newTableEntries++;
 
-					// Fix length.
+					// Adjust table length.
 					patchedXSDT->Length += ADDRESS_WIDTH;
 				}
 			}
 		}
 
-		_ACPI_DEBUG_DUMP("patchedXSDT->Length (factory): %d\n", patchedXSDT->Length);
+		_ACPI_DEBUG_DUMP("patchedXSDT->Length (current): %d\n", patchedXSDT->Length);
 
-        patchedXSDT->Length -= ADDRESS_WIDTH * (dropOffset - newTableEntries);
+		// Did we drop tables without using them for new tables?
+		if (dropOffset)
+		{
+			// Yes, fix length.
+			patchedXSDT->Length -= (ADDRESS_WIDTH * dropOffset);
 
-		_ACPI_DEBUG_DUMP("patchedXSDT->Length (patched): %d\n", patchedXSDT->Length);
+			_ACPI_DEBUG_DUMP("patchedXSDT->Length (changed): %d\n", patchedXSDT->Length);
+		}
 
 		_ACPI_DEBUG_DUMP("\nRecalculating checksums / ");
 
