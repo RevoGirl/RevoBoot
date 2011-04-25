@@ -263,7 +263,8 @@ void setupSMBIOS(void)
 		memcpy(newHeader, factoryHeader, factoryHeader->length);
 
 		// Init handle in the new header.
-		newHeader->handle++;
+		newHeader->handle = ++handle;
+		printf("Type: %d, handle: %d\n", newHeader->type, newHeader->handle);
 
 		// Update structure counter.
 		newEPS->dmi.structureCount++;
@@ -410,7 +411,24 @@ void setupSMBIOS(void)
 		newtablesPtr++;
 		requiredStructures[currentStructureType].hits++;
 	}
-		
+
+	//------------------------------------------------------------------------------
+	// Add EndOfTable structure.
+
+	newHeader = (struct SMBStructHeader *) newtablesPtr;
+	
+	newHeader->type		= kSMBTypeEndOfTable;
+	newHeader->length	= 4;
+	newHeader->handle	= ++handle;
+	
+	newtablesPtr += 6;
+
+	// Update EPS
+	newEPS->dmi.tableLength += 6;
+	newEPS->dmi.structureCount++;
+
+	//------------------------------------------------------------------------------
+
 	newEPS->dmi.tableLength = (newtablesPtr - (char *)newEPS->dmi.tableAddress);
 		
 	// Calculate new checksums.

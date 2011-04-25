@@ -100,6 +100,8 @@ enum {
     kSMBType32BitMemoryErrorInfo        = 18,
     kSMBType64BitMemoryErrorInfo        = 33,
 
+    kSMBTypeEndOfTable                  = 127,
+
     // Apple Specific Structures.
     kSMBTypeFirmwareVolume              = 128,
     kSMBTypeMemorySPD                   = 130,
