@@ -264,7 +264,6 @@ void setupSMBIOS(void)
 
 		// Init handle in the new header.
 		newHeader->handle = ++handle;
-		printf("Type: %d, handle: %d\n", newHeader->type, newHeader->handle);
 
 		// Update structure counter.
 		newEPS->dmi.structureCount++;
