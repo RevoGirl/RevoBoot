@@ -152,6 +152,8 @@ unsigned long getQPISpeed(uint64_t aFSBFrequency)
 
 void initCPUStruct(void)
 {
+	bool SandyBridge = false;
+
 	uint8_t		maxcoef, maxdiv, currcoef, currdiv;
 
 	uint32_t	qpiSpeed = 0;
@@ -166,6 +168,23 @@ void initCPUStruct(void)
 	do_cpuid( 0x00000001, gPlatform.CPU.ID[LEAF_1]);			// Feature Information (Function 01h).
 	do_cpuid( 0x00000002, gPlatform.CPU.ID[LEAF_2]);			// Cache Descriptors (Function 02h).
 	do_cpuid2(0x00000004, 0, gPlatform.CPU.ID[LEAF_4]);			// Deterministic Cache Parameters (Function 04h).
+
+#if DEBUG_CST_SUPPORT
+	do_cpuid( 0x00000005, gPlatform.CPU.ID[LEAF_5]);			// CST support (Function 05h).
+
+	msr = rdmsr64(0x00E2); // MSR_PKG_CST_CONFIG_CONTROL
+
+	printf("C-State limit   : %d\n", (msr & 7));
+
+	printf("C1-State enabled: %s\n", ((getCachedCPUID(LEAF_5, edx) >>  4) & 0xf) ? "true" : "false"); // C1
+	printf("C3-State enabled: %s\n", ((getCachedCPUID(LEAF_5, edx) >>  8) & 0xf) ? "true" : "false"); // C3
+	printf("C6-State enabled: %s\n", ((getCachedCPUID(LEAF_5, edx) >> 12) & 0xf) ? "true" : "false"); // C6
+	printf("C7-State enabled: %s\n", ((getCachedCPUID(LEAF_5, edx) >> 16) & 0xf) ? "true" : "false"); // C7
+
+	printf("MWAIT supported : %s\n", (getCachedCPUID(LEAF_5, ecx) & 1) ? "true" : "false");
+
+	_CPU_DEBUG_SLEEP(5);
+#endif
 
 	do_cpuid(0x80000000, gPlatform.CPU.ID[LEAF_80]);			// Largest Extended Function # (Function 80000000h).
 
@@ -279,10 +298,12 @@ void initCPUStruct(void)
 			
 			switch (gPlatform.CPU.Model)
 			{
+				case CPU_MODEL_SB_CORE:	
+					SandyBridge = true;
+
 				case CPU_MODEL_DALES_32NM:
 				case CPU_MODEL_WESTMERE:
 				case CPU_MODEL_WESTMERE_EX:
-				case CPU_MODEL_SB_CORE:
 					/*
 					 * This should be the same as Nehalem but an A0 silicon bug returns
 					 * invalid data in the top 12 bits. Hence, we use only bits [19..16]
@@ -316,9 +337,9 @@ void initCPUStruct(void)
 				// Getting 'cpu-type' for SMBIOS later on. 
 				if (strstr(gPlatform.CPU.BrandString, "Core(TM) i7"))
 				{
-					if (hiBit = 19)						// Sandy Bridge
+					if (SandyBridge)						// Sandy Bridge
 					{
-						gPlatform.CPU.Type =  0x703;	// Core  i7-2635QM and i7-2720QM
+						gPlatform.CPU.Type =  0x703;	// Core i7-2635QM and i7-2720QM
 					}
 					else //  Nehalem
 					{
@@ -327,7 +348,7 @@ void initCPUStruct(void)
 				}
 				else if (strstr(gPlatform.CPU.BrandString, "Core(TM) i5"))
 				{
-					if (hiBit = 19)						// Sandy Bridge
+					if (SandyBridge)						// Sandy Bridge
 					{
 						gPlatform.CPU.Type = 0x603;		// Core i5-2415M				
 					}
@@ -367,6 +388,39 @@ void initCPUStruct(void)
 					}
 				}
 #endif
+				
+#if DEBUG_CPU_TDP
+				if (SandyBridge /* || JakeTown */)
+				{
+					msr = rdmsr64(MSR_PKG_RAPL_POWER_LIMIT);
+					uint32_t powerLimit = bitfield32(msr, 14, 0);
+
+					_CPU_DEBUG_DUMP("RAPL Power Limit : %d\n", powerLimit);	// 2040
+
+					msr = rdmsr64(MSR_RAPL_POWER_UNIT);
+					uint8_t powerUnit = bitfield32(msr, 3, 0);
+
+					_CPU_DEBUG_DUMP("RAPL Power Unit  : %d\n", powerUnit);	// 3 (1/8 Watt)
+
+					uint16_t TDP = (powerLimit / (1 << powerUnit));
+
+					_CPU_DEBUG_DUMP("RAPL Package TDP : %d\n", TDP);			// 255
+
+					if (TDP == 255)
+					{
+						msr = rdmsr64(MSR_PKG_POWER_INFO);
+						powerLimit = bitfield32(msr, 14, 0);
+
+						_CPU_DEBUG_DUMP("RAPL Power Limit : %d\n", powerLimit);
+
+						TDP = (powerLimit / (1 << powerUnit));
+					}
+
+					_CPU_DEBUG_DUMP("CPU IA (Core) TDP: %d\n", TDP);			// 95
+					_CPU_DEBUG_SLEEP(15);
+				}
+#endif
+
 				msr = rdmsr64(MSR_PLATFORM_INFO);
 
 				_CPU_DEBUG_DUMP("msr(%d): platform_info %08x\n", __LINE__, (unsigned) msr & 0xffffffff);
@@ -393,7 +447,10 @@ void initCPUStruct(void)
 
 				cpuFrequency = tscFrequency;
 				
-				qpiSpeed = getQPISpeed(fsbFrequency);
+				if (!SandyBridge)
+				{
+					qpiSpeed = getQPISpeed(fsbFrequency);
+				}
 			} 
 			else // For all other (mostly older) Intel CPU models.
 			{

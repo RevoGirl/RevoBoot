@@ -48,13 +48,38 @@
 #define CPU_STRING_UNKNOWN "Unknown CPU Typ"
 
 
- // Copied from xnu/osfmk/proc_reg.h
+// Copied from xnu/osfmk/proc_reg.h
 #define MSR_IA32_PLATFORM_ID	0x17
 #define	MSR_CORE_THREAD_COUNT	0x35
 #define	MSR_PLATFORM_INFO		0xCE
 #define	MSR_IA32_PERF_STATUS	0x198	// MSR_IA32_PERF_STS in XNU
 #define MSR_FLEX_RATIO			0x194
 #define	MSR_TURBO_RATIO_LIMIT	0x1AD
+
+// Sandy Bridge & JakeTown specific 'Running Average Power Limit' MSR's.
+#define MSR_RAPL_POWER_UNIT			0x606
+
+#define MSR_PKG_RAPL_POWER_LIMIT	0x610
+#define MSR_PKG_ENERGY_STATUS		0x611
+#define MSR_PKG_PERF_STATUS			0x613
+#define MSR_PKG_POWER_INFO			0x614
+
+// Sandy Bridge IA (Core) domain MSR's.
+#define MSR_PP0_POWER_LIMIT			0x638
+#define MSR_PP0_ENERGY_STATUS		0x639
+#define MSR_PP0_POLICY				0x63A
+#define MSR_PP0_PERF_STATUS			0x63B
+
+// Sandy Bridge Uncore (IGPU) domain MSR's (Not on JakeTown).
+#define MSR_PP1_POWER_LIMIT			0x640
+#define MSR_PP1_ENERGY_STATUS		0x641
+#define MSR_PP1_POLICY				0x642
+
+// JakeTown only Memory MSR's.
+#define MSR_DRAM_POWER_LIMIT		0x618
+#define MSR_DRAM_ENERGY_STATUS		0x619
+#define MSR_DRAM_PERF_STATUS		0x61B
+#define MSR_DRAM_POWER_INFO			0x61C
 
 
 // CPUID leaf index values (pointing to the right spot in CPUID/LEAF array).
@@ -63,11 +88,12 @@
 #define LEAF_1				1
 #define LEAF_2				2
 #define LEAF_4				3
-#define LEAF_B				4
-#define LEAF_80				5
-#define LEAF_81				6
+#define LEAF_5				4
+#define LEAF_B				5
+#define LEAF_80				6
+#define LEAF_81				7
 
-#define MAX_CPUID_LEAVES	7			// DHP: Formely known as MAX_CPUID
+#define MAX_CPUID_LEAVES	8			// DHP: Formely known as MAX_CPUID
 
 
 /* Copied from: xnu/osfmk/cpuid.h */
