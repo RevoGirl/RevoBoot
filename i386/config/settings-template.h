@@ -149,6 +149,14 @@
 #define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
                                                 // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
+#if DEBUG_CPU
+	#define DEBUG_CPU_TURBO_RATIO			0	// Set to 0 by default. Change this to 1 when you want to check the core ratio.
+
+	#define DEBUG_CST_SUPPORT				0	// Set to 0 by default. Change this to 1 to check the in BIOS enabled C-States.
+
+	#define DEBUG_CPU_TDP					0	// Set to 0 by default. Change this to 1 when you want to check the TDP.
+#endif
+
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
 
 
