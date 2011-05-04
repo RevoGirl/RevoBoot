@@ -82,7 +82,7 @@
  * New boot0 (boot1 has been deprecated). Booter must now reside in its own partition, no disk label required.
  *
  * Revision 1.1.1.2  1999/08/04 21:16:57  wsanchez
- * Impoort of boot-66
+ * Import of boot-66
  *
  * Revision 1.3  1999/08/04 21:12:12  wsanchez
  * Update APSL
@@ -335,16 +335,41 @@ LABEL(_halt)
     jmp     _halt
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// startMachKernel(phyaddr, arg)
+// disableIRQs()
+//
+// Port of original patch by: CPARM (who basically did this in boot.c) Thanks!
+//
+LABEL(_disableIRQs)
+	// The ACPI specification dictates that the 8259 (PC-AT compatible) vectors 
+	// must be disabled (that is, masked) when enabling the ACPI APIC operation 
+	// but this isn't done (apparently) on all mobo's and thus we do that here.
+
+	push	%eax			// Saving register data
+
+	movb	$0x80, %al		// Block NMI
+	outb	%al, $0x70
+
+	movb	$0xff, %al		// Load mask
+	outb	%al, $0x21		// Disable IRQ's 0-7 on Master PIC
+	outb	%al, $0xa1		// Disable IRQ's 8-15 on Slave PIC
+
+	popl	%eax			// Restore register data
+
+	ret
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// startMachKernel(phyaddr, bootargs)
 //
 // Starts the Mach Kernel in protected mode where phyaddr is the entry point.
 // Passes boot arguments in %eax.
 //
 LABEL(_startMachKernel)
-    push    %ebp
+    call    _disableIRQs	// Taking care of a ACPI bug.
+
+	push    %ebp
     mov     %esp, %ebp
 
-    mov     0xc(%ebp), %eax  // argument to program
+    mov     0xc(%ebp), %eax  // bootargs to mach_kernel
     mov     0x8(%ebp), %ecx  // entry offset 
     mov     $0x28, %ebx      // segment
     push    %ebx
