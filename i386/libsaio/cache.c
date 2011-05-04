@@ -30,12 +30,11 @@
 #include <sl.h>
 // #include <fs.h>
 
-struct CacheEntry {
+typedef struct CacheEntry {
   CICell    ih;
   long      time;
   long long offset;
-};
-typedef struct CacheEntry CacheEntry;
+} CacheEntry;
 
 #define kCacheSize            (0x100000)
 #define kCacheMinBlockSize    (0x200)
@@ -48,17 +47,17 @@ static long       gCacheNumEntries;
 static long       gCacheTime;
 
 #ifdef __i386__
-static CacheEntry *gCacheEntries;
-static char       *gCacheBuffer;
+	static CacheEntry *gCacheEntries;
+	static char       *gCacheBuffer;
 #else
-static CacheEntry gCacheEntries[kCacheMaxEntries];
-static char       gCacheBuffer[kCacheSize];
+	static CacheEntry gCacheEntries[kCacheMaxEntries];
+	static char       gCacheBuffer[kCacheSize];
 #endif
 
 #if CACHE_STATS
-unsigned long     gCacheHits;
-unsigned long     gCacheMisses;
-unsigned long     gCacheEvicts;
+	unsigned long     gCacheHits;
+	unsigned long     gCacheMisses;
+	unsigned long     gCacheEvicts;
 #endif
 
 void CacheReset()
@@ -70,29 +69,40 @@ void CacheInit( CICell ih, long blockSize )
 {
 #ifdef __i386__
     if ((ih == gCacheIH) && (blockSize == gCacheBlockSize))
+	{
         return;
+	}
 #endif
 
-    if ((blockSize  < kCacheMinBlockSize) ||
-        (blockSize >= kCacheMaxBlockSize))
+    if ((blockSize  < kCacheMinBlockSize) || (blockSize >= kCacheMaxBlockSize))
+	{
         return;
+	}
 
     gCacheBlockSize = blockSize;
     gCacheNumEntries = kCacheSize / gCacheBlockSize;
     gCacheTime = 0;
     
 #if CACHE_STATS
-    gCacheHits = 0;
-    gCacheMisses = 0;
-    gCacheEvicts = 0;
+    gCacheHits		= 0;
+    gCacheMisses	= 0;
+    gCacheEvicts	= 0;
 #endif
 
     gCacheIH = ih;
 
 #ifdef __i386__
-    if (!gCacheBuffer) gCacheBuffer = (char *) malloc(kCacheSize);
-    if (!gCacheEntries) gCacheEntries = (CacheEntry *) malloc(kCacheMaxEntries * sizeof(CacheEntry));
-    if ( !gCacheBuffer || !gCacheEntries )
+    if (!gCacheBuffer)
+	{
+		gCacheBuffer = (char *) malloc(kCacheSize);
+	}
+
+    if (!gCacheEntries)
+	{
+		gCacheEntries = (CacheEntry *) malloc(kCacheMaxEntries * sizeof(CacheEntry));
+	}
+
+    if (!gCacheBuffer || !gCacheEntries)
     {
         gCacheIH = 0;  // invalidate cache
         return;
@@ -102,25 +112,29 @@ void CacheInit( CICell ih, long blockSize )
     bzero(gCacheEntries, kCacheMaxEntries * sizeof(CacheEntry));
 }
 
-long CacheRead( CICell ih, char * buffer, long long offset,
-	            long length, long cache )
+long CacheRead(CICell ih, char * buffer, long long offset, long length, long cache)
 {
-    long       cnt, oldestEntry = 0, oldestTime, loadCache = 0;
+    long cnt, oldestEntry = 0, oldestTime, loadCache = 0;
     CacheEntry *entry;
 
     // See if the data can be cached.
-    if (cache && (gCacheIH == ih) && (length == gCacheBlockSize)) {
+    if (cache && (gCacheIH == ih) && (length == gCacheBlockSize))
+	{
         // Look for the data in the cache.
-        for (cnt = 0; cnt < gCacheNumEntries; cnt++) {
+        for (cnt = 0; cnt < gCacheNumEntries; cnt++)
+		{
             entry = &gCacheEntries[cnt];
-            if ((entry->ih == ih) && (entry->offset == offset)) {
+
+            if ((entry->ih == ih) && (entry->offset == offset))
+			{
                 entry->time = ++gCacheTime;
                 break;
             }
         }
 
         // If the data was found copy it to the caller.
-        if (cnt != gCacheNumEntries) {
+        if (cnt != gCacheNumEntries)
+		{
             bcopy(gCacheBuffer + cnt * gCacheBlockSize, buffer, gCacheBlockSize);
 #if CACHE_STATS
             gCacheHits++;
@@ -135,28 +149,40 @@ long CacheRead( CICell ih, char * buffer, long long offset,
     // Read the data from the disk.
     Seek(ih, offset);
     Read(ih, (long)buffer, length);
+
 #if CACHE_STATS
-    if (cache) gCacheMisses++;
+    if (cache)
+	{
+		gCacheMisses++;
+	}
 #endif
 
     // Put the data from the disk in the cache if needed.
-    if (loadCache) {
+    if (loadCache)
+	{
         // Find a free entry.
         oldestTime = gCacheTime;
-        for (cnt = 0; cnt < gCacheNumEntries; cnt++) {
+
+        for (cnt = 0; cnt < gCacheNumEntries; cnt++)
+		{
             entry = &gCacheEntries[cnt];
 
             // Found a free entry.
-            if (entry->ih == 0) break;
+            if (entry->ih == 0)
+			{
+				break;
+			}
         
-            if (entry->time < oldestTime) {
+            if (entry->time < oldestTime)
+			{
                 oldestTime = entry->time;
                 oldestEntry = cnt;
             }
         }
 
         // If no free entry was found, use the oldest.
-        if (cnt == gCacheNumEntries) {
+        if (cnt == gCacheNumEntries)
+		{
             cnt = oldestEntry;
 #if CACHE_STATS
             gCacheEvicts++;
