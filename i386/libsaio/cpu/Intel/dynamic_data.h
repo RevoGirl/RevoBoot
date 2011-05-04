@@ -334,32 +334,23 @@ void initCPUStruct(void)
 				gPlatform.CPU.NumCores		= bitfield32(msr, hiBit, 16);
 				gPlatform.CPU.NumThreads	= bitfield32(msr, 15,  0);
 
-				// Getting 'cpu-type' for SMBIOS later on. 
+				// Get 'cpu-type' for our SMBIOS patcher.
 				if (strstr(gPlatform.CPU.BrandString, "Core(TM) i7"))
 				{
-					if (SandyBridge)						// Sandy Bridge
-					{
-						gPlatform.CPU.Type =  0x703;	// Core i7-2635QM and i7-2720QM
-					}
-					else //  Nehalem
-					{
-						gPlatform.CPU.Type =  0x701;	// Core i7
-					}
+					gPlatform.CPU.Type = 0x701;		// Core i7
 				}
 				else if (strstr(gPlatform.CPU.BrandString, "Core(TM) i5"))
 				{
-					if (SandyBridge)						// Sandy Bridge
-					{
-						gPlatform.CPU.Type = 0x603;		// Core i5-2415M				
-					}
-					else
-					{
-						gPlatform.CPU.Type = 0x601;		// Core i5
-					}
+					gPlatform.CPU.Type = 0x601;		// Core i5
 				}
 				else if (strstr(gPlatform.CPU.BrandString, "Core(TM) i3"))
 				{
-					gPlatform.CPU.Type =  0x901;		// Core i3
+					gPlatform.CPU.Type = 0x901;		// Core i3
+				}
+
+				if (SandyBridge)
+				{
+					gPlatform.CPU.Type |=  0x02;
 				}
 
 #if DEBUG_CPU_TURBO_RATIO
@@ -404,7 +395,7 @@ void initCPUStruct(void)
 
 					uint16_t TDP = (powerLimit / (1 << powerUnit));
 
-					_CPU_DEBUG_DUMP("RAPL Package TDP : %d\n", TDP);			// 255
+					_CPU_DEBUG_DUMP("RAPL Package TDP : %d\n", TDP);		// 255
 
 					if (TDP == 255)
 					{
@@ -416,7 +407,7 @@ void initCPUStruct(void)
 						TDP = (powerLimit / (1 << powerUnit));
 					}
 
-					_CPU_DEBUG_DUMP("CPU IA (Core) TDP: %d\n", TDP);			// 95
+					_CPU_DEBUG_DUMP("CPU IA (Core) TDP: %d\n", TDP);		// 95
 					_CPU_DEBUG_SLEEP(15);
 				}
 #endif
