@@ -186,6 +186,14 @@ void initCPUStruct(void)
 	_CPU_DEBUG_SLEEP(5);
 #endif
 
+#if DEBUG_TSS_SUPPORT
+	do_cpuid(0x00000006, gPlatform.CPU.ID[LEAF_6]);			// TSS support (Function 06h).
+
+	printf("Clock modulation: %s\n", (getCachedCPUID(LEAF_6, eax) & 0x20) ? "Fine grained (6.25% increments)" : "Coarse grained (12.5% increments)");
+
+	_CPU_DEBUG_SLEEP(5);
+#endif
+
 	do_cpuid(0x80000000, gPlatform.CPU.ID[LEAF_80]);			// Largest Extended Function # (Function 80000000h).
 
 	if ((getCachedCPUID(LEAF_80, eax) & 0x0000000f) >= 1)
