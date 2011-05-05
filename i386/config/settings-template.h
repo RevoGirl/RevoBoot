@@ -231,7 +231,10 @@
 												//
 												// Note: Do not change this setting, unless you know what you are doing.
 
-#define STATIC_MODEL_NAME					{ 'M', 'a', 'c', 'B', 'o', 'o', 'k', 'P', 'r', 'o', '6', ',', '1' }
+#define STATIC_MODEL_NAME					{ 'i', 'M', 'a', 'c', '1', '2', ',', '2' }
+
+// #define STATIC_MODEL_NAME				{ 'M', 'a', 'c', 'B', 'o', 'o', 'k', 'P', 'r', 'o', '8', ',', '3' }
+// #define STATIC_MODEL_NAME				{ 'M', 'a', 'c', 'P', 'r', 'o', '5', ',', '1' }
 
 #define STATIC_SMSERIALNUMBER				"SOMESRLNUMBR"
 
@@ -266,7 +269,7 @@
 												// Note: Defaults to STATIC_MAC_PRODUCT_NAME when set to 0.
 
 #if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
-	#define STATIC_SMBIOS_MODEL_ID			MACPRO	// Supported models: IMAC, MACBOOK, MACBOOKPRO, MACMINI or MACPRO
+	#define STATIC_SMBIOS_MODEL_ID			IMAC	// Supported models: IMAC, MACBOOK, MACBOOKPRO, MACMINI or MACPRO
 #endif
 
 #define DEBUG_SMBIOS						0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
@@ -275,7 +278,10 @@
 //-------------------------------------------------------------- PLATFORM.C ----------------------------------------------------------------
 
 
-#define STATIC_MAC_PRODUCT_NAME				"MacPro5,1"
+#define STATIC_MAC_PRODUCT_NAME				"iMac12,2"
+
+// #define STATIC_MAC_PRODUCT_NAME			"MacBookPro,8,3"
+// #define STATIC_MAC_PRODUCT_NAME			"MacPro5,1"
 
 #if USE_STATIC_SMBIOS_DATA
 // Do nothing.
