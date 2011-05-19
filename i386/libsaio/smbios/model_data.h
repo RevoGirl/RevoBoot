@@ -57,7 +57,7 @@ static const SMBPropertyData const iMac[] =
     {	"SMBboardManufacter", "Apple Inc."						},
     {	"SMBboardProduct",    "Mac-942B5BF58194151B"			}, */
 
-/*  {	"SMBbiosVendor",      "Apple Inc."						},
+    {	"SMBbiosVendor",      "Apple Inc."						},
     {	"SMBbiosVersion",     "IM121.88Z.0047.B00.1102091756"	},
     {	"SMBbiosDate",        "10/04/11"						},
     {	"SMBmanufacter",      "Apple Inc."						},
@@ -66,19 +66,8 @@ static const SMBPropertyData const iMac[] =
     {	"SMBserial",          STATIC_SMSERIALNUMBER				},
     {	"SMBfamily",          "Mac"								},
     {	"SMBboardManufacter", "Apple Inc."						},
-    {	"SMBboardProduct",    "Mac-942B59F58194171B"			}, */
+    {	"SMBboardProduct",    "Mac-942B59F58194171B"			},
 	
-    {	"SMBbiosVendor",      "Apple Inc."						},
-    {	"SMBbiosVersion",     "IM121.88Z.0047.B00.1102091756"	},
-    {	"SMBbiosDate",        "10/04/11"						},
-    {	"SMBmanufacter",      "Apple Inc."						},
-    {	"SMBproductName",     "iMac12,3"						},
-    {	"SMBsystemVersion",   "1.0"								},
-    {	"SMBserial",          STATIC_SMSERIALNUMBER				},
-    {	"SMBfamily",          "Mac"								},
-    {	"SMBboardManufacter", "Apple Inc."						},
-    {	"SMBboardProduct",    "Mac-942B59F58194191B"			},
-
     {	"", "" }
 };
 // ------------------------------------------------------------
