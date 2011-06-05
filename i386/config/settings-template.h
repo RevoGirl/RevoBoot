@@ -231,7 +231,7 @@
 												//
 												// Note: Do not change this setting, unless you know what you are doing.
 
-#define STATIC_MODEL_NAME					{ 'i', 'M', 'a, 'c, '1', ',2', ',', '2' }
+#define STATIC_MODEL_NAME					{ 'i', 'M', 'a', 'c', '1', '2', ',', '2' }
 
 #define STATIC_SMSERIALNUMBER				"SOMESRLNUMBR"
 
