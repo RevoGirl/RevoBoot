@@ -12,13 +12,12 @@
  *			- blackosx, DB1, dgsga, FKA, humph, scrax and STLVNUB (testers).
  */
 
-#include "cpu/cpuid.h"
-#include "cpu/proc_reg.h"
+// #include "cpu/cpuid.h"
+// #include "cpu/proc_reg.h"
 #include "pci.h"
 
 #define DEFAULT_FSB				100000	// Hardcoded to 100MHz
 #define BASE_NHM_CLOCK_SOURCE	133333333ULL
-
 #define DEBUG_CPU_EXTREME		0
 
 //==============================================================================
@@ -158,8 +157,7 @@ void initCPUStruct(void)
 
 	uint32_t	qpiSpeed = 0;
 
-	uint64_t	tscFrequency, fsbFrequency, cpuFrequency;
-	uint64_t	msr, flex_ratio;
+	uint64_t	tscFrequency, fsbFrequency, cpuFrequency, msr;
 
 	maxcoef = maxdiv = currcoef = currdiv = 0;
 
@@ -186,8 +184,90 @@ void initCPUStruct(void)
 	_CPU_DEBUG_SLEEP(5);
 #endif
 
+#define MSR_PKGC3_IRTL 0x60A
+#define MSR_PKGC6_IRTL 0x60B
+#define MSR_PKGC7_IRTL 0x60C
+
+	/* msr = rdmsr64(MSR_PKGC3_IRTL);
+	_CPU_DEBUG_DUMP("MSR_PKGC3_IRTL: 0x%x\n", msr);
+
+	// Clear bits [12:10]
+	msr &= ~(((1ULL << 3) - 1) << 10);
+	// Set time unit as 32768ns
+	msr |= 3 << 10;
+	// Clear bits [9:0]
+	msr &= ~((1ULL << 10) - 1);
+	// Set time limit
+	msr |= 2;
+	msr |= 1 << 15;
+	wrmsr64(MSR_PKGC3_IRTL, msr);
+
+	msr = rdmsr64(MSR_PKGC3_IRTL);
+	_CPU_DEBUG_DUMP("MSR_PKGC3_IRTL: 0x%x\n", msr);
+
+	//--------------------------------------------------------------------------
+
+	msr = rdmsr64(MSR_PKGC6_IRTL);	
+	_CPU_DEBUG_DUMP("MSR_PKGC6_IRTL: 0x%x\n", msr);
+
+	// Clear bits [12:10]
+	msr &= ~(((1ULL << 3) - 1) << 10);
+	// Set time unit as 1024ns
+	msr |= 2 << 10;
+	// Clear bits [9:0]
+	msr &= ~((1ULL << 10) - 1);
+	// Set time limit
+	msr |= 0x5b; // core_count == 4 ? 0x5B : 0x54;
+	msr |= 1 << 15;
+	wrmsr64(MSR_PKGC6_IRTL, msr);
+
+	msr = rdmsr64(MSR_PKGC6_IRTL);	
+	_CPU_DEBUG_DUMP("MSR_PKGC6_IRTL: 0x%x\n", msr);
+
+	//--------------------------------------------------------------------------
+
+	msr = rdmsr64(MSR_PKGC7_IRTL);
+	_CPU_DEBUG_DUMP("MSR_PKGC7_IRTL: 0x%x\n", msr);
+
+	// Clear bits [12:10]
+	msr &= ~(((1ULL << 3) - 1) << 10);
+	// Set time unit as 1024ns
+	msr |= 2 << 10;
+	// Clear bits [9:0]
+	msr &= ~((1ULL << 10) - 1);
+	// Set time limit
+	msr |= 0x5b; // core_count == 4 ? 0x5B : 0x54;
+	msr |= 1 << 15;
+	wrmsr64(MSR_PKGC7_IRTL, msr);
+
+	msr = rdmsr64(MSR_PKGC7_IRTL);
+	_CPU_DEBUG_DUMP("MSR_PKGC7_IRTL: 0x%x\n", msr);
+
+	//--------------------------------------------------------------------------
+
+	_CPU_DEBUG_SLEEP(15); */
+// #endif
+
 #if DEBUG_TSS_SUPPORT
-	do_cpuid(0x00000006, gPlatform.CPU.ID[LEAF_6]);			// TSS support (Function 06h).
+	do_cpuid(0x00000006, gPlatform.CPU.ID[LEAF_6]);
+
+	printf("LEAF_6[eax]: 0x%x\n", getCachedCPUID(LEAF_6, eax)); // 0x77
+	printf("LEAF_6[ebx]: 0x%x\n", getCachedCPUID(LEAF_6, ebx)); // 0x02
+	printf("LEAF_6[ecx]: 0x%x\n", getCachedCPUID(LEAF_6, ecx)); // 0x09
+	printf("LEAF_6[edx]: 0x%x\n", getCachedCPUID(LEAF_6, edx)); // 0x00
+	
+	/* gPlatform.CPU.ID[LEAF_6][eax] = 6;
+	gPlatform.CPU.ID[LEAF_6][ecx] = 1;
+	cpuid(gPlatform.CPU.ID[LEAF_6]);
+
+	do_cpuid(0x00000006, gPlatform.CPU.ID[LEAF_6]);
+
+	printf("\nLEAF_6[eax]: 0x%x\n", getCachedCPUID(LEAF_6, eax)); // 0x77
+	printf("LEAF_6[ebx]: 0x%x\n", getCachedCPUID(LEAF_6, ebx)); // 0x02
+	printf("LEAF_6[ecx]: 0x%x\n", getCachedCPUID(LEAF_6, ecx)); // 0x09
+	printf("LEAF_6[edx]: 0x%x\n", getCachedCPUID(LEAF_6, edx)); // 0x00 */
+
+	// printf("LEAF_6: 0x%x\n", getCachedCPUID(LEAF_6, eax));
 
 	printf("Clock modulation: %s\n", (getCachedCPUID(LEAF_6, eax) & 0x20) ? "Fine grained (6.25% increments)" : "Coarse grained (12.5% increments)");
 
@@ -356,101 +436,89 @@ void initCPUStruct(void)
 					gPlatform.CPU.Type = 0x901;		// Core i3
 				}
 
-				if (SandyBridge)
+				msr = rdmsr64(MSR_PLATFORM_INFO);
+				uint16_t maxBusRatio = ((msr >> 8) & 0xff); // 0x21 for the i5-2500 and 0x22 for the i7-2600
+
+				msr = rdmsr64(IA32_MISC_ENABLES); // 0x1A0
+
+				if (!((msr >> 32) & 0x40)) // Turbo Mode Enabled?
 				{
-					gPlatform.CPU.Type |=  0x02;
-				}
+					// Get turbo ratio(s).
+					msr = rdmsr64(MSR_TURBO_RATIO_LIMIT);
 
 #if DEBUG_CPU_TURBO_RATIO
-				// Get turbo values of all cores.
-				msr = rdmsr64(MSR_TURBO_RATIO_LIMIT);
-				// Extends our CPU structure (defined in platform.h)
-				gPlatform.CPU.CoreTurboRatio[gPlatform.CPU.NumCores] = 0;
+					// Expand CPU structure (defined in platform.h)
+					gPlatform.CPU.CoreTurboRatio[gPlatform.CPU.NumCores] = 0;
 
-				// All CPU's have at least two cores (think mobility CPU here).
-				gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);
-				gPlatform.CPU.CoreTurboRatio[1] = bitfield32(msr, 15, 8);
-
-				// Additionally for quad and six core CPU's.
-				if (gPlatform.CPU.NumCores >= 4)
-				{
-					gPlatform.CPU.CoreTurboRatio[2] = bitfield32(msr, 23, 16);
-					gPlatform.CPU.CoreTurboRatio[3] = bitfield32(msr, 31, 24);
-
-					// For the lucky few with a six core Gulftown CPU.
-					if (gPlatform.CPU.NumCores >= 6)
-					{
-						// bitfield32() supports 32 bit values only and thus we 
- 						// have to do it a little different here (bit shifting).
-						gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
-						gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
-					}
-				}
-#endif
+					// All CPU's have at least two cores (think mobility CPU here).
+					gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);
+					gPlatform.CPU.CoreTurboRatio[1] = bitfield32(msr, 15, 8);
 				
-#if DEBUG_CPU_TDP
+					// Additionally for quad and six core CPU's.
+					if (gPlatform.CPU.NumCores >= 4)
+					{
+						gPlatform.CPU.CoreTurboRatio[2] = bitfield32(msr, 23, 16);
+						gPlatform.CPU.CoreTurboRatio[3] = bitfield32(msr, 31, 24);
+					
+						// For the lucky few with a six core Gulftown CPU.
+						if (gPlatform.CPU.NumCores >= 6)
+						{
+							// bitfield32() supports 32 bit values only and thus we 
+							// have to do it a little different here (bit shifting).
+							gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
+							gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
+						}
+					}
+#else
+					gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);
+#endif
+					requestMaxTurbo(STATIC_CPU_MaxTurboMultiplier || maxBusRatio);
+				}
+
 				if (SandyBridge /* || JakeTown */)
 				{
+					gPlatform.CPU.Type |= 0x02;
+
+#if DEBUG_CPU_TDP
 					msr = rdmsr64(MSR_PKG_RAPL_POWER_LIMIT);
 					uint32_t powerLimit = bitfield32(msr, 14, 0);
-
-					_CPU_DEBUG_DUMP("RAPL Power Limit : %d\n", powerLimit);	// 2040
-
+						
+					_CPU_DEBUG_DUMP("RAPL Power Limit : %d\n", powerLimit);	// 0x7F8 / 2040
+						
 					msr = rdmsr64(MSR_RAPL_POWER_UNIT);
 					uint8_t powerUnit = bitfield32(msr, 3, 0);
-
+						
 					_CPU_DEBUG_DUMP("RAPL Power Unit  : %d\n", powerUnit);	// 3 (1/8 Watt)
-
+						
 					uint16_t TDP = (powerLimit / (1 << powerUnit));
-
+						
 					_CPU_DEBUG_DUMP("RAPL Package TDP : %d\n", TDP);		// 255
-
+						
 					if (TDP == 255)
 					{
 						msr = rdmsr64(MSR_PKG_POWER_INFO);
 						powerLimit = bitfield32(msr, 14, 0);
-
+							
 						_CPU_DEBUG_DUMP("RAPL Power Limit : %d\n", powerLimit);
-
+							
 						TDP = (powerLimit / (1 << powerUnit));
 					}
-
+						
 					_CPU_DEBUG_DUMP("CPU IA (Core) TDP: %d\n", TDP);		// 95
 					_CPU_DEBUG_SLEEP(15);
-				}
 #endif
 
-				msr = rdmsr64(MSR_PLATFORM_INFO);
-
-				_CPU_DEBUG_DUMP("msr(%d): platform_info %08x\n", __LINE__, (unsigned) msr & 0xffffffff);
- 
-				currcoef = (msr >> 8) & 0xff;
-				msr = rdmsr64(MSR_FLEX_RATIO);
-
-				_CPU_DEBUG_DUMP("msr(%d): flex_ratio %08x\n", __LINE__, (unsigned) msr & 0xffffffff);
-
-				if ((msr >> 16) & 0x01)
-				{
-					flex_ratio = (msr >> 8) & 0xff;
-
-					if (currcoef > flex_ratio)
-					{
-						currcoef = flex_ratio;
-					}
+					qpiSpeed = 0; // No QPI but DMI for Sandy Bridge processors.
+					
+					// Disable EIST Hardware coordination.
+					wrmsr64(MSR_MISC_PWR_MGMT, 0x400001);
+					
+					wrmsr64(MSR_PKG_CST_CONFIG_CONTROL, 0x18008407);
 				}
 
-				if (currcoef)
-				{
-					fsbFrequency = (tscFrequency / currcoef);
-				}
-
+				fsbFrequency = (tscFrequency / maxBusRatio);
 				cpuFrequency = tscFrequency;
-				
-				if (!SandyBridge)
-				{
-					qpiSpeed = getQPISpeed(fsbFrequency);
-				}
-			} 
+			}
 			else // For all other (mostly older) Intel CPU models.
 			{
 				//--------------------------------------------------------------------------
@@ -520,7 +588,7 @@ void initCPUStruct(void)
 		}
 	}
 
-	if (!fsbFrequency)
+	if (!fsbFrequency && !SandyBridge)
 	{
 		fsbFrequency = (DEFAULT_FSB * 1000);
 		cpuFrequency = tscFrequency;
@@ -541,10 +609,13 @@ void initCPUStruct(void)
 		}
 	}
 	
+#if DEBUG_CPU
 	gPlatform.CPU.MaxCoef		= maxcoef;
 	gPlatform.CPU.MaxDiv		= maxdiv;
 	gPlatform.CPU.CurrCoef		= currcoef;
 	gPlatform.CPU.CurrDiv		= currdiv;
+#endif
+
 	gPlatform.CPU.TSCFrequency	= tscFrequency;
 	gPlatform.CPU.FSBFrequency	= fsbFrequency;
 	gPlatform.CPU.CPUFrequency	= cpuFrequency;
@@ -578,8 +649,13 @@ void initCPUStruct(void)
 																	gPlatform.CPU.CurrCoef, gPlatform.CPU.CurrDiv ? ".5" : "");
 	_CPU_DEBUG_DUMP("CPU: MaxDiv/CurrDiv       : 0x%x/0x%x\n",		gPlatform.CPU.MaxDiv, gPlatform.CPU.CurrDiv);
 	_CPU_DEBUG_DUMP("CPU: TSCFreq              : %dMHz\n",			gPlatform.CPU.TSCFrequency / 1000000);
-	_CPU_DEBUG_DUMP("CPU: FSBFreq              : %dMHz\n",			gPlatform.CPU.FSBFrequency / 1000000);
+	_CPU_DEBUG_DUMP("CPU: FSBFreq              : %dMHz\n",			gPlatform.CPU.FSBFrequency ? (gPlatform.CPU.FSBFrequency / 1000000) : 100);
 	_CPU_DEBUG_DUMP("CPU: CPUFreq              : %dMHz\n",			gPlatform.CPU.CPUFrequency / 1000000);
-	_CPU_DEBUG_DUMP("CPU: QPISpeed             : %x\n",				gPlatform.CPU.QPISpeed);
-	_CPU_DEBUG_SLEEP(15);
+
+	if (gPlatform.CPU.QPISpeed)
+	{
+		_CPU_DEBUG_DUMP("CPU: QPISpeed             : %x\n",				gPlatform.CPU.QPISpeed);
+	}
+
+	_CPU_DEBUG_SLEEP(10);
 }

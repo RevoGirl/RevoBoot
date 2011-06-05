@@ -47,14 +47,28 @@
 /* Copied from xnu/osfmk/cpuid.h */
 #define CPU_STRING_UNKNOWN "Unknown CPU Typ"
 
-
 // Copied from xnu/osfmk/proc_reg.h
-#define MSR_IA32_PLATFORM_ID	0x17
-#define	MSR_CORE_THREAD_COUNT	0x35
-#define	MSR_PLATFORM_INFO		0xCE
-#define	MSR_IA32_PERF_STATUS	0x198	// MSR_IA32_PERF_STS in XNU
-#define MSR_FLEX_RATIO			0x194
-#define	MSR_TURBO_RATIO_LIMIT	0x1AD
+#define MSR_IA32_PLATFORM_ID		0x17
+#define	MSR_CORE_THREAD_COUNT		0x35
+#define	MSR_PLATFORM_INFO			0xCE
+#define MSR_PKG_CST_CONFIG_CONTROL	0xE2	// MSR_PKG_CST_CONFIG_CONTROL
+#define MSR_PMG_IO_CAPTURE_BASE		0xE4
+
+#define	MSR_IA32_PERF_STATUS		0x0198	// MSR_IA32_PERF_STS in XNU
+#define	MSR_IA32_PERF_CONTROL		0x0199	// IA32_PERF_CTL
+
+#define MSR_FLEX_RATIO				0x0194
+#define IA32_CLOCK_MODULATION		0x019A
+#define IA32_THERM_STATUS			0x019C
+
+#define IA32_MISC_ENABLES			0x01A0
+#define MSR_TEMPERATURE_TARGET		0x01A2
+#define MSR_MISC_PWR_MGMT			0x01AA
+#define	MSR_TURBO_RATIO_LIMIT		0x01AD
+
+#define IA32_ENERGY_PERF_BIAS		0x01B0
+#define IA32_PLATFORM_DCA_CAP		0x01F8
+
 
 // Sandy Bridge & JakeTown specific 'Running Average Power Limit' MSR's.
 #define MSR_RAPL_POWER_UNIT			0x606
@@ -84,16 +98,17 @@
 
 // CPUID leaf index values (pointing to the right spot in CPUID/LEAF array).
 
-#define LEAF_0				0			// DHP: Formely known as CPUID_n
+#define LEAF_0				0			// DHP: Formerly known as CPUID_n
 #define LEAF_1				1
 #define LEAF_2				2
 #define LEAF_4				3
 #define LEAF_5				4
-#define LEAF_B				5
-#define LEAF_80				6
-#define LEAF_81				7
+#define LEAF_6				5
+#define LEAF_B				6
+#define LEAF_80				7
+#define LEAF_81				8
 
-#define MAX_CPUID_LEAVES	8			// DHP: Formely known as MAX_CPUID
+#define MAX_CPUID_LEAVES	9			// DHP: Formerly known as MAX_CPUID
 
 
 /* Copied from: xnu/osfmk/cpuid.h */

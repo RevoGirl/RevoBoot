@@ -50,7 +50,7 @@ typedef enum
 
 
 //==============================================================================
-// Copied from: xnu/osfmk/cpuid.h
+// Copied from: xnu/osfmk/i386/cpuid.h
 
 static inline void cpuid(uint32_t * data)
 {
@@ -68,7 +68,7 @@ static inline void cpuid(uint32_t * data)
 
 
 //==============================================================================
-// Copied from: xnu/osfmk/cpuid.h
+// Copied from: xnu/osfmk/i386/cpuid.h
 
 static inline void do_cpuid(uint32_t selector, uint32_t * data)
 {
