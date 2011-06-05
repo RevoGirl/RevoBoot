@@ -275,7 +275,7 @@
 //-------------------------------------------------------------- PLATFORM.C ----------------------------------------------------------------
 
 
-#define STATIC_MAC_PRODUCT_NAME				"iMac12,2"
+#define STATIC_MAC_PRODUCT_NAME				"iMac12,2"	// Changed for Sandy Bridge configurations.
 
 #if USE_STATIC_SMBIOS_DATA
 // Do nothing.
