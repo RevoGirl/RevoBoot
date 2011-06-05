@@ -288,7 +288,7 @@ static long DecodeSegment(long cmdBase, unsigned int *load_addr, unsigned int *l
 			printf("nsects: %d, flags: %x.\n", (unsigned) segCmd->nsects, (unsigned)segCmd->flags);
 		}
 
-		getc();
+		getchar();
 #endif
 		
 		if (! ((vmaddr >= KERNEL_ADDR && (vmaddr + vmsize) <= (KERNEL_ADDR + KERNEL_LEN)) ||
@@ -395,7 +395,7 @@ static long DecodeSymbolTable(long cmdBase)
 #if DEBUG
 	printf("symoff: %x, nsyms: %x, stroff: %x, strsize: %x\n",
 		   symTab->symoff, symTab->nsyms, symTab->stroff, symTab->strsize);
-	getc();
+	getchar();
 #endif
     
 	symsSize = symTab->stroff - symTab->symoff;
