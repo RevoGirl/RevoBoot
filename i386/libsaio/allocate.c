@@ -89,7 +89,7 @@ long AllocateKernelMemory(long inSize)
 
 #if DEBUG
 	printf("AllocateKernelMemory: 0x%lx - 0x%lx\n", address, inSize);
-	getc();
+	getchar();
 #endif
 
 	return address;
