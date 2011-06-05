@@ -215,9 +215,7 @@ void setupSMBIOS(void)
 	//------------------------------------------------------------------------------
 	// Add SMBOemProcessorBusSpeed structure (when we have something to inject).
 
-	int quickPathInterconnectSpeed = gPlatform.CPU.QPISpeed; // getQPISpeed();
-	
-	if (quickPathInterconnectSpeed)
+	if (gPlatform.CPU.QPISpeed)
 	{
 		newHeader = (struct SMBStructHeader *) newtablesPtr;
 
@@ -225,7 +223,7 @@ void setupSMBIOS(void)
 		newHeader->length	= 6;
 		newHeader->handle	= ++handle;
 
-		*((uint16_t *)(((char *)newHeader) + 4)) = quickPathInterconnectSpeed;
+		*((uint16_t *)(((char *)newHeader) + 4)) = gPlatform.CPU.QPISpeed;
 
 		// Update EPS
 		newEPS->dmi.tableLength += 8;
@@ -273,7 +271,6 @@ void setupSMBIOS(void)
 
 		// Init handle in the new header.
 		newHeader->handle = ++handle;
-		// printf("Type: %d, handle: %d\n", newHeader->type, newHeader->handle);
 
 		// Update structure counter.
 		newEPS->dmi.structureCount++;
@@ -325,13 +322,6 @@ void setupSMBIOS(void)
 
 			if (currentStructureType == kSMBTypeProcessorInformation)
 			{
-				struct SMBProcessorInformation * cpu = (SMBProcessorInformation *) factoryHeader;
-				cpu->externalClock = 0x0019;
-				// printf("cpu->externalClock: 0x%04x\n", cpu->externalClock);
-				// printf("cpu->maximumClock : 0x%04x\n", cpu->maximumClock);
-				// printf("cpu->currentClock : 0x%04x\n", cpu->currentClock);
-				// sleep(15);
-
 				int c = 0;
 
 				for (; c < 3; c++)
