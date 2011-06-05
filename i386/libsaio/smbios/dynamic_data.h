@@ -206,24 +206,33 @@ void setupSMBIOS(void)
 
 	*((uint16_t *)(((char *)newHeader) + 4)) = getCPUType();
 
+	// Update EPS
+	newEPS->dmi.tableLength += 8;
+	newEPS->dmi.structureCount++;
+
 	newtablesPtr += 8;
 
 	//------------------------------------------------------------------------------
-	// Add SMBOemProcessorBusSpeed structure.
+	// Add SMBOemProcessorBusSpeed structure (when we have something to inject).
 
-	newHeader = (struct SMBStructHeader *) newtablesPtr;
+	int quickPathInterconnectSpeed = gPlatform.CPU.QPISpeed; // getQPISpeed();
+	
+	if (quickPathInterconnectSpeed)
+	{
+		newHeader = (struct SMBStructHeader *) newtablesPtr;
 
-	newHeader->type		= kSMBTypeOemProcessorBusSpeed;
-	newHeader->length	= 6;
-	newHeader->handle	= ++handle;
+		newHeader->type		= kSMBTypeOemProcessorBusSpeed;
+		newHeader->length	= 6;
+		newHeader->handle	= ++handle;
 
-	*((uint16_t *)(((char *)newHeader) + 4)) = getQPISpeed();
+		*((uint16_t *)(((char *)newHeader) + 4)) = quickPathInterconnectSpeed;
 
-	// Update EPS
-	newEPS->dmi.tableLength += 16;
-	newEPS->dmi.structureCount += 2;
+		// Update EPS
+		newEPS->dmi.tableLength += 8;
+		newEPS->dmi.structureCount++;
 
-	newtablesPtr += 8;
+		newtablesPtr += 8;
+	}
 
 #if DYNAMIC_RAM_OVERRIDE_SIZE || DYNAMIC_RAM_OVERRIDE_TYPE || DYNAMIC_RAM_OVERRIDE_FREQUENCY
 	requiredStructures[17].stop = (sizeof(SMBProperties) / sizeof(SMBProperties[0])) -1;
@@ -264,6 +273,7 @@ void setupSMBIOS(void)
 
 		// Init handle in the new header.
 		newHeader->handle = ++handle;
+		// printf("Type: %d, handle: %d\n", newHeader->type, newHeader->handle);
 
 		// Update structure counter.
 		newEPS->dmi.structureCount++;
@@ -315,6 +325,13 @@ void setupSMBIOS(void)
 
 			if (currentStructureType == kSMBTypeProcessorInformation)
 			{
+				struct SMBProcessorInformation * cpu = (SMBProcessorInformation *) factoryHeader;
+				cpu->externalClock = 0x0019;
+				// printf("cpu->externalClock: 0x%04x\n", cpu->externalClock);
+				// printf("cpu->maximumClock : 0x%04x\n", cpu->maximumClock);
+				// printf("cpu->currentClock : 0x%04x\n", cpu->currentClock);
+				// sleep(15);
+
 				int c = 0;
 
 				for (; c < 3; c++)

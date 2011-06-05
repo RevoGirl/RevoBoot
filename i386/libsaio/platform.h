@@ -140,17 +140,19 @@ typedef struct _PlatformInfo_t
 		uint32_t	ExtFamily;				// Extended Family
 		uint32_t	NumCores;				// Number of cores per package
 		uint32_t	NumThreads;				// Number of threads per package
+
+#if USE_STATIC_CPU_DATA == 0 && DEBUG_CPU
 		uint8_t		CurrCoef;				// Current Multiplier (busratio).
 		uint8_t		MaxCoef;				// Max multiplier
 		uint8_t		CurrDiv;
 		uint8_t		MaxDiv;
+#endif
 		uint64_t	TSCFrequency;			// TSC Frequency Hz
 		uint64_t	FSBFrequency;			// FSB Frequency Hz
 		uint64_t	CPUFrequency;			// CPU Frequency Hz
 		uint32_t	QPISpeed;				// QuickPath Interconnect Bus Speed
-#if DEBUG_CPU_TURBO_RATIO
-		uint32_t	CoreTurboRatio[6];		// 
-#endif
+		uint8_t		CoreTurboRatio[1];		// Expanded in: libsaio/cpu_intel/dynamic_data.h
+
 		char		BrandString[48];		// Brand/frequency string
 		uint32_t	ID[MAX_CPUID_LEAVES][4];	// CPUID 0..4, 80..81 Raw Values
 	} CPU;

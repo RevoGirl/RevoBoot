@@ -95,6 +95,13 @@ static const char * getOverrideString(const char * aKeyString)
 
 #if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
 	keyValues = STATIC_DEFAULT_DATA;
+	
+	#if OVERRIDE_PRODUCT_NAME
+		if (!strcmp(aKeyString, "SMBproductName"))
+		{
+			return STATIC_MAC_PRODUCT_NAME;
+		},
+	#endif
 #else
 	if (gPlatform.CPU.Mobile)
     {

@@ -47,8 +47,8 @@ static const SMBPropertyData const iMac[] =
     {	"SMBboardProduct",    "Mac-F2268DAE"					}, */
 
 /*	{	"SMBbiosVendor",      "Apple Inc."						},
-    {	"SMBbiosVersion",     "IM121.88Z.0047.B00.1102091756"	},
-    {	"SMBbiosDate",        "10/04/11"						},
+    {	"SMBbiosVersion",     "IM121.88Z.0047.B0A.1104221555"	},
+    {	"SMBbiosDate",        "04/22/11"						},
     {	"SMBmanufacter",      "Apple Inc."						},
     {	"SMBproductName",     "iMac12,1"						},
     {	"SMBsystemVersion",   "1.0"								},
@@ -57,9 +57,9 @@ static const SMBPropertyData const iMac[] =
     {	"SMBboardManufacter", "Apple Inc."						},
     {	"SMBboardProduct",    "Mac-942B5BF58194151B"			}, */
 
-    {	"SMBbiosVendor",      "Apple Inc."						},
-    {	"SMBbiosVersion",     "IM121.88Z.0047.B00.1102091756"	},
-    {	"SMBbiosDate",        "10/04/11"						},
+	{	"SMBbiosVendor",      "Apple Inc."						},
+    {	"SMBbiosVersion",     "IM121.88Z.0047.B0A.1104221555"	},
+    {	"SMBbiosDate",        "04/22/11"						},
     {	"SMBmanufacter",      "Apple Inc."						},
     {	"SMBproductName",     "iMac12,2"						},
     {	"SMBsystemVersion",   "1.0"								},
@@ -88,6 +88,7 @@ static const SMBPropertyData const MacBook[] =
     {	"SMBfamily",          " MacBook"						},
     {	"SMBboardManufacter", "Apple Inc."						},
     {	"SMBboardProduct",    "Mac-F42D89C8"					},
+
     {	"", "" }
 };
 // ------------------------------------------------------------
@@ -110,8 +111,8 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 	{	"SMBboardProduct",		"Mac-F22589C8"					}, */
 
 /*	{	"SMBbiosVendor",		"Apple Inc."					},
-	{	"SMBbiosVersion",		"MBP81.88Z.0047.B04.1102071707"	},
-	{	"SMBbiosDate",			"02/07/2011"					},
+	{	"SMBbiosVersion",		"MBP81.88Z.0047.B0A.1104221557"	},
+	{	"SMBbiosDate",			"04/22/11"						},
 	{	"SMBmanufacter",		"Apple Inc."					},
 	{	"SMBproductName",		"MacBookPro8,1"					},
 	{	"SMBsystemVersion",		"1.0"							},
@@ -121,8 +122,8 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 	{	"SMBboardProduct",		"Mac-94245B3640C91C81"			}, */
 
 /*	{	"SMBbiosVendor",		"Apple Inc."					},
-	{	"SMBbiosVersion",		"MBP81.88Z.0047.B04.1102071707"	},
-	{	"SMBbiosDate",			"02/07/2011"					},
+	{	"SMBbiosVersion",		"MBP81.88Z.0047.B0A.1104221557"	},
+	{	"SMBbiosDate",			"04/22/11"						},
 	{	"SMBmanufacter",		"Apple Inc."					},
 	{	"SMBproductName",		"MacBookPro8,2"					},
 	{	"SMBsystemVersion",		"1.0"							},
@@ -132,8 +133,8 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 	{	"SMBboardProduct",		"Mac-94245A3940C91C80"			}, */
 
 	{	"SMBbiosVendor",		"Apple Inc."					},
-	{	"SMBbiosVersion",		"MBP81.88Z.0047.B04.1102071707"	},
-	{	"SMBbiosDate",			"02/07/2011"					},
+	{	"SMBbiosVersion",		"MBP81.88Z.0047.B0A.1104221557"	},
+	{	"SMBbiosDate",			"04/22/11"						},
 	{	"SMBmanufacter",		"Apple Inc."					},
 	{	"SMBproductName",		"MacBookPro8,3"					},
 	{	"SMBsystemVersion",		"1.0"							},
@@ -173,7 +174,7 @@ static const SMBPropertyData const Macmini[] =
 // ------------------------------------------------------------
 static const SMBPropertyData const MacPro[] =
 {
-/*	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
+	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
 	{	"SMBbiosVersion",     "MP31.88Z.006C.B05.0802291410"	},
 	{	"SMBbiosDate",        "08/03/10"						},
 	{	"SMBmanufacter",      "Apple Computer, Inc."			},
@@ -182,7 +183,7 @@ static const SMBPropertyData const MacPro[] =
 	{	"SMBserial",          STATIC_SMSERIALNUMBER				},
 	{	"SMBfamily",          "MacPro"							},
 	{	"SMBboardManufacter", "Apple Computer, Inc."			},
-	{	"SMBboardProduct",    "Mac-F4208DC8"					}, */
+	{	"SMBboardProduct",    "Mac-F4208DC8"					},
 
 /*	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
 	{	"SMBbiosVersion",     "MP41.88Z.0081.B04.0903051113"	},
@@ -195,7 +196,7 @@ static const SMBPropertyData const MacPro[] =
 	{	"SMBboardManufacter", "Apple Inc."						},
 	{	"SMBboardProduct",    "Mac-F221BEC8"					}, */
 
-	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
+/*	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
 	{	"SMBbiosVersion",     "MP51.88Z.007F.B00.1008031144"	},
 	{	"SMBbiosDate",        "08/03/10"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
@@ -204,7 +205,7 @@ static const SMBPropertyData const MacPro[] =
 	{	"SMBserial",          STATIC_SMSERIALNUMBER				},
 	{	"SMBfamily",          "MacPro"							},
 	{	"SMBboardManufacter", "Apple Inc."						},
-	{	"SMBboardProduct",    "Mac-F221BEC8"					},
+	{	"SMBboardProduct",    "Mac-F221BEC8"					}, */
 
 	{	"", ""													}
 };
