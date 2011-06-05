@@ -147,7 +147,8 @@ unsigned long getMemoryMap(MemoryRange * rangeArray, unsigned long maxRangeCount
     // Some BIOSes will simply ignore the value of ECX on entry.
     // Probably best to keep its value at 20 to avoid surprises.
 
-    //printf("Get memory map 0x%x, %d\n", rangeArray);getc();
+    // printf("Get memory map 0x%x, %d\n", rangeArray);
+	// getchar();
     if (maxRangeCount > (BIOS_LEN / sizeof(MemoryRange)))
         maxRangeCount = (BIOS_LEN / sizeof(MemoryRange));
 
@@ -206,13 +207,14 @@ unsigned long getMemoryMap(MemoryRange * rangeArray, unsigned long maxRangeCount
 #if DEBUG
     {
         int i;
-        printf("%d total ranges\n", count);getc();
+        printf("%d total ranges\n", count);
 
-        for (i=0, range = rangeArray; i<count; i++, range++)
+		getchar();
+
+        for (i = 0, range = rangeArray; i<count; i++, range++)
         {
-            printf("range: type %d, base 0x%x, length 0x%x\n",
-                   range->type, (unsigned int)range->base, (unsigned int)range->length);
-            getc();
+            printf("range: type %d, base 0x%x, length 0x%x\n", range->type, (unsigned int)range->base, (unsigned int)range->length);
+            getchar();
         }
     }
 #endif
@@ -469,7 +471,8 @@ int is_no_emulation(int drive)
 	printf("media_type: %x\n", pkt.media_type);
 	printf("drive_num: %x\n", pkt.drive_num);
 	printf("device_spec: %x\n", pkt.device_spec);
-	printf("press a key->\n");getc();
+	printf("press a key->\n");
+	getchar();
 #endif
 
 	/* Some BIOSes erroneously return cf = 1 */
@@ -567,7 +570,8 @@ int get_drive_info(int drive, struct driveInfo *dp)
     print_drive_info(di);
     printf("uses_ebios = 0x%x\n", dp->uses_ebios);
     printf("result %d\n", ret);
-    printf("press a key->\n");getc();
+    printf("press a key->\n");
+	getchar();
 #endif
 
     if (ret == 0)
