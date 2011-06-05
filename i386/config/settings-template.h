@@ -96,7 +96,7 @@
 
 
 #define LOAD_SSDT_TABLE_FROM_EXTRA_ACPI		0	// Set to 0 by default. Use 1 when you know how to override / patch 
-												// your DSDT table, by injection the modifications from /Extra/ACPI/
+												// your SSDT table, by injection the modifications from /Extra/ACPI/
 												//
 												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
 
@@ -123,7 +123,7 @@
 
 
 #if USE_STATIC_ACPI_BASE_ADDRESS
-	#define	STATIC_ACPI_BASE_ADDRESS		0x000fe020
+	#define	STATIC_ACPI_BASE_ADDRESS		0x000fe020	// Set DEBUG_ACPI to 1 to get this address.
 #endif
 
 
@@ -154,6 +154,8 @@
 
 	#define DEBUG_CST_SUPPORT				0	// Set to 0 by default. Change this to 1 to check the in BIOS enabled C-States.
 
+	#define DEBUG_TSS_SUPPORT				0	// Set to 0 by default. Change this to 1 to check the T-State Clock Modulation.
+
 	#define DEBUG_CPU_TDP					0	// Set to 0 by default. Change this to 1 when you want to check the TDP.
 #endif
 
@@ -162,11 +164,11 @@
 
 #define STATIC_CPU_Vendor					CPU_VENDOR_ID
 
-#define STATIC_CPU_Signature				0x20652
+#define STATIC_CPU_Signature				0x206A7
 
-#define STATIC_CPU_Stepping					2
+#define STATIC_CPU_Stepping					7
 
-#define STATIC_CPU_Model					CPU_MODEL_DALES_32NM	// See cpu/essentials.h for others.
+#define STATIC_CPU_Model					CPU_MODEL_SB_CORE		// See cpu/essentials.h for others.
 
 #define STATIC_CPU_Family					6
 
@@ -174,27 +176,25 @@
 
 #define STATIC_CPU_ExtFamily				0
 
-#define STATIC_CPU_Type						0x901					// kSMBTypeOemProcessorType
+#define STATIC_CPU_Type						0x703					// kSMBTypeOemProcessorType
 
-#define STATIC_CPU_NumCores					2						// Formerly known as: STATIC_CPU_NoCores.
+#define STATIC_CPU_NumCores					4						// Formerly known as: STATIC_CPU_NoCores.
 
-#define STATIC_CPU_NumThreads				4						// Formerly known as: STATIC_CPU_NoThreads.
+#define STATIC_CPU_NumThreads				8						// Formerly known as: STATIC_CPU_NoThreads.
 
-#define STATIC_CPU_Features					0xbffbfbff				// use sysctl -a to obtain this value.
+#define STATIC_CPU_Features					0xbfebfbff				// use sysctl -a to obtain this value.
 
-#define STATIC_CPU_CurrCoef					17						// busratio
+#define STATIC_CPU_TSCFrequency				3411000000ULL			// 10 digits + ULL
 
-#define STATIC_CPU_MaxCoef					0
+#define STATIC_CPU_FSBFrequency				100000000ULL			// 9 digits + ULL
 
-#define STATIC_CPU_CurrDiv					0
+#define STATIC_CPU_CPUFrequency				3411000000ULL			// 10 digits + ULL
 
-#define STATIC_CPU_MaxDiv					0
+#define STATIC_CPU_MaxMultiplier			34						// Maximum non-turbo multiplier.
 
-#define STATIC_CPU_TSCFrequency				2266000000ULL			// 10 digits + ULL
+#define STATIC_CPU_MaxTurboMultiplier		38						// Maximum turbo multiplier. Examples: 38 (3.8GHz) for the i7-2600(K) 
+																	// 37 (3.7GHz) for the i5-2500(K) and 35 (3.5GHz) for the i5-2400
 
-#define STATIC_CPU_FSBFrequency				133300000ULL			// 9 digits + ULL
-
-#define STATIC_CPU_CPUFrequency				2266000000ULL			// 10 digits + ULL
 
 #define STATIC_CPU_QPISpeed					0						// kSMBTypeOemProcessorBusSpeed
 
@@ -231,10 +231,7 @@
 												//
 												// Note: Do not change this setting, unless you know what you are doing.
 
-#define STATIC_MODEL_NAME					{ 'i', 'M', 'a', 'c', '1', '2', ',', '2' }
-
-// #define STATIC_MODEL_NAME				{ 'M', 'a', 'c', 'B', 'o', 'o', 'k', 'P', 'r', 'o', '8', ',', '3' }
-// #define STATIC_MODEL_NAME				{ 'M', 'a', 'c', 'P', 'r', 'o', '5', ',', '1' }
+#define STATIC_MODEL_NAME					{ 'i', 'M', 'a, 'c, '1', ',2', ',', '2' }
 
 #define STATIC_SMSERIALNUMBER				"SOMESRLNUMBR"
 
@@ -250,9 +247,9 @@
 //------------------------------------------------------------- GRAPICS.C ------------------------------------------------------------------
 
 
-#define STATIC_SCREEN_WIDTH					1024
+#define STATIC_SCREEN_WIDTH					1600
 
-#define STATIC_SCREEN_HEIGHT				768
+#define STATIC_SCREEN_HEIGHT				1200
 
 
 //-------------------------------------------------------------- SMBIOS.C ------------------------------------------------------------------
@@ -279,9 +276,6 @@
 
 
 #define STATIC_MAC_PRODUCT_NAME				"iMac12,2"
-
-// #define STATIC_MAC_PRODUCT_NAME			"MacBookPro,8,3"
-// #define STATIC_MAC_PRODUCT_NAME			"MacPro5,1"
 
 #if USE_STATIC_SMBIOS_DATA
 // Do nothing.
