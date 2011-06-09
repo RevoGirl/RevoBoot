@@ -164,16 +164,6 @@ static int getCPUFrequency(void)
 
 //==============================================================================
 
-static int getQPISpeed(void)
-{
-	_SMBIOS_DEBUG_DUMP("In getQPISpeed() = %d\n", gPlatform.CPU.QPISpeed);
-
-	return gPlatform.CPU.QPISpeed; // QuickPath Interconnect Speed.
-}
-
-
-//==============================================================================
-
 static int getCPUType(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getCPUType() = 0x%x\n", gPlatform.CPU.Type);
