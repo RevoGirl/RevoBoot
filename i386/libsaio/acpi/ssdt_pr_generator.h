@@ -9,7 +9,6 @@
  *
  *	TODO:
  *
- *			- Turbo mode might be disabled / unsupported (take care of this).
  *			- Using one fixed turbo mode is currently not supported (take care of this).
  *			- Figure out why we need the 4 extra bytes (sorry, I forgot it).
  *
@@ -22,6 +21,9 @@
  *			- We (currently) only support Sandy Bridge processors.
  *
  */
+
+
+#include "cpu/proc_reg.h"
 
 
 extern uint8_t getTDP(void);
@@ -125,7 +127,7 @@ void generateSSDT_PR(void)
 
 	struct acpi_2_ssdt * header = (struct acpi_2_ssdt *) SSDT_PM_HEADER;
 
-	uint8_t		numberOfTurboRatios	= 0;
+	uint8_t		numberOfTurboRatios	= ((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40) ? 0 : 4;
 	uint8_t		numberOfPStates		= (gPlatform.CPU.MaxBusRatio - gPlatform.CPU.MinBusRatio) + numberOfTurboRatios + 1;
 
 	//--------------------------------------------------------------------------
@@ -182,9 +184,14 @@ void generateSSDT_PR(void)
 		gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3])
 	{
 		// Yes. Results in: Name (APSN, One).
-		NAME_APSN[ INDEX_OF_APSN ] = 1;
-		// We want to inject only one turbo P-State now.
-		numberOfTurboRatios = 1;
+		NAME_APSN[ INDEX_OF_APSN ] = 1; // DHP: We might not want to do this!
+
+		// Is Turbo enabled /supported?
+		if (numberOfTurboRatios)
+		{
+			// Yes. Limit the number of Turbo P-States to one.
+			numberOfTurboRatios = 1;
+		}
 	}
 	else
 	{
@@ -236,7 +243,6 @@ void generateSSDT_PR(void)
 		frequency	= (ratio * 100);
 		ratio		= status = (ratio << 8);
 
-		// aPSS = (struct acpi_2_pss *) PACKAGE_P_STATE;
 		aPSS->Frequency	= frequency;
 		aPSS->Power		= (uint32_t) tdp;		// Turbo States use max-power.
 		aPSS->Ratio		= ratio;
@@ -244,10 +250,10 @@ void generateSSDT_PR(void)
 		
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
-		// printf("TPSS[%d] = %d, 0x%x, 0x%x, 0x%x\n", i, frequency, tdp, ratio, status);
+		printf("TPSS[%d] = %d, 0x%x, 0x%x, 0x%x\n", i, frequency, tdp, ratio, status);
 	}
 	
-	uint8_t	maxRatio = gPlatform.CPU.MaxBusRatio;
+	uint8_t	maxRatio = gPlatform.CPU.MaxBusRatio; // Warning: This one can be 59!
 	
 	i = gPlatform.CPU.MaxBusRatio;
 
@@ -263,7 +269,6 @@ void generateSSDT_PR(void)
 		power		= (((float)ratio / maxRatio) * (m * m) * tdp);
 
 		ratio		= status = (ratio << 8);
-		printf("status: 0x%x\n", status);
 
 		aPSS->Frequency	= frequency;
 		aPSS->Power		= (uint32_t) power;
@@ -272,9 +277,10 @@ void generateSSDT_PR(void)
 	
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
-		// printf("PSS[%d] = %d, 0x%x, 0x%x, 0x%x\n", (i + numberOfTurboRatios), frequency, (int)power, ratio, status);
+		printf("PSS[%d] = %d, 0x%x, 0x%x, 0x%x\n", (i + numberOfTurboRatios), frequency, (int)power, ratio, status);
 	}
 
+	sleep(10);
 	//--------------------------------------------------------------------------
 	// This step injects the following AML code:
 	//
