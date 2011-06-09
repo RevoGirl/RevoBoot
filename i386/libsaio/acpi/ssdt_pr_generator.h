@@ -250,7 +250,6 @@ void generateSSDT_PR(void)
 		
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
-		printf("TPSS[%d] = %d, 0x%x, 0x%x, 0x%x\n", i, frequency, tdp, ratio, status);
 	}
 	
 	uint8_t	maxRatio = gPlatform.CPU.MaxBusRatio; // Warning: This one can be 59!
@@ -277,10 +276,8 @@ void generateSSDT_PR(void)
 	
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
-		printf("PSS[%d] = %d, 0x%x, 0x%x, 0x%x\n", (i + numberOfTurboRatios), frequency, (int)power, ratio, status);
 	}
 
-	sleep(10);
 	//--------------------------------------------------------------------------
 	// This step injects the following AML code:
 	//
