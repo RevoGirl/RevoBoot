@@ -1,3 +1,16 @@
+RevoBoot v1.0.12
+================
+- Automatic generation / injection of of SSDT_PR.aml added.
+- settings-template simplified (thanks to MC and flAked for mentioning it).
+- Cleanups of DHP's previous commits.
+- VERSION info updated.
+
+
+RevoBoot v1.0.11
+================
+- Not released / skipped.
+
+
 RevoBoot v1.0.10
 ================
 - Fixed Sandy Bridge CPU detection error (see 'About This Mac' dialog).

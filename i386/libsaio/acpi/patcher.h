@@ -1,8 +1,12 @@
 /*
  * Original source code (dsdt_patcher for Chameleon) by mackerintel (2008)
- * Overhaul by Master Chief in 2009
- * Refactored by DHP in 2010
- * Completely new implementation written by DHP in 2011
+ * Overhaul by Master Chief in 2009.
+ *
+ * Updates:
+ *
+ *			- Refactorized for Revolution by DHP in 2010.
+ *			- A complete new implementation written for RevoBoot by DHP in 2011.
+ *			- Automatic SSDT_PR creation added by DHP in June 2011.
  */
 
 
@@ -10,6 +14,10 @@ extern ACPI_RSDP * getACPIBaseAddress();
 
 
 #if PATCH_ACPI_TABLE_DATA
+
+#if AUTOMATIC_SSDT_PR_CREATION
+	#include "ssdt_pr_generator.h"
+#endif
 
 #if LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 //==============================================================================
@@ -53,13 +61,14 @@ int loadACPITable(int tableIndex)
 void loadACPITables(void)
 {
 	// DHP: We might want to change this and walk through the /Extra/ACPI/ folder for target tabels.
+
 #if LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(DSDT);
 #endif
 
 #if LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(SSDT);
-	loadACPITable(SSDT_PR);
+	loadACPITable(SSDT_PR);	// Overrides STATIC_SSDT_PR_TABLE_DATA / AUTOMATIC_SSDT_PR_CREATION when found!
 	loadACPITable(SSDT_USB);
 	loadACPITable(SSDT_GPU);
 	loadACPITable(SSDT_SATA);
@@ -236,6 +245,10 @@ void setupACPI(void)
 	ACPI_XSDT * factoryXSDT = (ACPI_XSDT *) ACPI_RXSDT_ADDRESS;
 
 	// _ACPI_DUMP_XSDT_TABLE(factoryXSDT, "Factory");
+
+#if AUTOMATIC_SSDT_PR_CREATION
+	generateSSDT_PR();
+#endif
 
 #if LOAD_EXTRA_ACPI_TABLES
 	loadACPITables();

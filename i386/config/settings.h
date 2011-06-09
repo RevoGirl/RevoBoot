@@ -104,9 +104,19 @@
 #define LOAD_EXTRA_ACPI_TABLES				(LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI)
 
 
+#define LOAD_SSDT_PR_TABLE_FROM_EXTRA_ACPI	0	// Set to 0 by default. Use 1 to inject an auto-generated table. 
+												//
+												// Note: This overrides LOAD_EXTRA_ACPI_TABLES.
+
+
 #define DROP_SSDT_TABLES					0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
 												//
 												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
+
+
+#define AUTOMATIC_SSDT_PR_CREATION			0	// (STATIC_SSDT_PR_TABLE_INJECTION == 0 && LOAD_SSDT_PR_TABLE_FROM_EXTRA_ACPI == 0)
+												//
+												// Note: Optional feature for 'Sandy Bridge' based configurations.
 
 
 #define REPLACE_EXISTING_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
@@ -146,6 +156,8 @@
 
 #define CPU_VENDOR_ID						CPU_VENDOR_INTEL // CPU_VENDOR_AMD
 
+#define OC_BUSRATIO_CORRECTION				0	// Set to 0 by default. Change this to busratio-100 (OC'ed systems with a changed busratio).
+
 #define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
                                                 // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
@@ -162,41 +174,15 @@
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
 
 
-#define STATIC_CPU_Vendor					CPU_VENDOR_ID
+#define STATIC_CPU_Type						0x703			// kSMBTypeOemProcessorType - used in: libsaio/SMBIOS/dynamic_data.h
 
-#define STATIC_CPU_Signature				0x206A7
+#define STATIC_CPU_NumCores					4				// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
 
-#define STATIC_CPU_Stepping					7
+#define STATIC_CPU_NumThreads				8				// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
 
-#define STATIC_CPU_Model					CPU_MODEL_SB_CORE		// See cpu/essentials.h for others.
+#define STATIC_CPU_FSBFrequency				100000000ULL	// 9 digits + ULL - used in: i386/libsaio/efi.c
 
-#define STATIC_CPU_Family					6
-
-#define STATIC_CPU_ExtModel					2
-
-#define STATIC_CPU_ExtFamily				0
-
-#define STATIC_CPU_Type						0x703					// kSMBTypeOemProcessorType
-
-#define STATIC_CPU_NumCores					4						// Formerly known as: STATIC_CPU_NoCores.
-
-#define STATIC_CPU_NumThreads				8						// Formerly known as: STATIC_CPU_NoThreads.
-
-#define STATIC_CPU_Features					0xbfebfbff				// use sysctl -a to obtain this value.
-
-#define STATIC_CPU_TSCFrequency				3411000000ULL			// 10 digits + ULL
-
-#define STATIC_CPU_FSBFrequency				100000000ULL			// 9 digits + ULL
-
-#define STATIC_CPU_CPUFrequency				3411000000ULL			// 10 digits + ULL
-
-#define STATIC_CPU_MaxMultiplier			34						// Maximum non-turbo multiplier.
-
-#define STATIC_CPU_MaxTurboMultiplier		38						// Maximum turbo multiplier. Examples: 38 (3.8GHz) for the i7-2600(K) 
-																	// 37 (3.7GHz) for the i5-2500(K) and 35 (3.5GHz) for the i5-2400
-
-
-#define STATIC_CPU_QPISpeed					0						// kSMBTypeOemProcessorBusSpeed
+#define STATIC_CPU_QPISpeed					0				// kSMBTypeOemProcessorBusSpeed (0 for Sandy Bridge / Jaketown).
 
 
 //--------------------------------------------------------------- DISK.C -------------------------------------------------------------------
@@ -275,7 +261,7 @@
 //-------------------------------------------------------------- PLATFORM.C ----------------------------------------------------------------
 
 
-#define STATIC_MAC_PRODUCT_NAME				"iMac12,2"	// Changed for Sandy Bridge configurations.
+#define STATIC_MAC_PRODUCT_NAME				"iMac12,2"	// New default for Sandy Bridge configurations.
 
 #if USE_STATIC_SMBIOS_DATA
 // Do nothing.
