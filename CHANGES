@@ -1,3 +1,10 @@
+RevoBoot v1.0.13
+================
+- Fixed compiler warning in platform.c
+- Fixed a typo in settings.h - use: DEBUG_CPU_TURBO_RATIOS
+- Fixed a typo in settings-template.h - use: DEBUG_CPU_TURBO_RATIOS 
+
+
 RevoBoot v1.0.12
 ================
 - Automatic generation / injection of of SSDT_PR.aml added.

@@ -1,10 +1,12 @@
 /*
  * Copyright (c) 2009 Master Chief. All rights reserved.
  *
- * Note: This is an essential part of the build process for RevoBoot v1.0.09 and greater.
+ * Note: This is an essential part of the build process for RevoBoot v1.0.12 and greater.
  *
  *
- * Latest cleanups and additional directives added by DHP in 2011
+ * Latest cleanups and additional directives added by DHP in 2011.
+ * Static CPU data simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
+ * Automatic creation / injection of SSDT_PR.aml added by DHP in June 2011.
  */
 
 
@@ -104,19 +106,20 @@
 #define LOAD_EXTRA_ACPI_TABLES				(LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI)
 
 
-#define LOAD_SSDT_PR_TABLE_FROM_EXTRA_ACPI	0	// Set to 0 by default. Use 1 to inject an auto-generated table. 
-												//
-												// Note: This overrides LOAD_EXTRA_ACPI_TABLES.
-
-
 #define DROP_SSDT_TABLES					0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
 												//
 												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
 
 
-#define AUTOMATIC_SSDT_PR_CREATION			0	// (STATIC_SSDT_PR_TABLE_INJECTION == 0 && LOAD_SSDT_PR_TABLE_FROM_EXTRA_ACPI == 0)
+#define AUTOMATIC_SSDT_PR_CREATION			0	// Set to 0 by default. Change to 1 when you want RevoBoot to generate and inject SSDT_PR for you. 
 												//
 												// Note: Optional feature for 'Sandy Bridge' based configurations.
+
+
+#define AUTOMATIC_PROCESSOR_BLOCK_CREATION      0       // Set to 0 by default. Change to 1 when you want to inject processor blocks into SSDT_PR.
+                                                                                                //
+                                                                                                // Note: You can have Processor() {} blocks in your DSDT / SSDT so there is really
+                                                                                                //               no reliable way of knowing when to inject them automatically.
 
 
 #define REPLACE_EXISTING_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
@@ -162,7 +165,7 @@
                                                 // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
 #if DEBUG_CPU
-	#define DEBUG_CPU_TURBO_RATIO			0	// Set to 0 by default. Change this to 1 when you want to check the core ratio.
+	#define DEBUG_CPU_TURBO_RATIOS			0	// Set to 0 by default. Change this to 1 when you want to check the core ratio.
 
 	#define DEBUG_CST_SUPPORT				0	// Set to 0 by default. Change this to 1 to check the in BIOS enabled C-States.
 

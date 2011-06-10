@@ -230,10 +230,12 @@ void initPlatform(int biosDevice)
 #endif
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_TURBO_RATIOS
+	int cpu = 0;
+
 	// Blank CPU core ratio limits.
-	for (; i < 6; i++)
+	for (; cpu < 6; cpu++)
 	{
-		gPlatform.CPU.CoreTurboRatio[i] = 0; // Gets updated in: i386/libsaio/Intel/cpu.c
+		gPlatform.CPU.CoreTurboRatio[cpu] = 0; // Gets updated in: i386/libsaio/Intel/cpu.c
 	}
 #endif
 
