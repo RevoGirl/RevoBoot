@@ -158,10 +158,10 @@ void generateSSDT_PR(void)
 		numberOfTurboStates	= 4;					// Default for AICPUPM.
 
 		// Getting the turbo range.
-		uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[3]) + 1;
+		uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[3]);
 		
 		// Should we extend the number of P-States?
-		if (turboRange > numberOfTurboStates)
+		if ((turboRange + 1) > numberOfTurboStates)
 		{
 			// Yes we do.
 			numberOfTurboStates = turboRange;
