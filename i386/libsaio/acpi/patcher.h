@@ -60,11 +60,13 @@ int loadACPITable(int tableIndex)
 
 void loadACPITables(void)
 {
-	// DHP: We might want to change this and walk through the /Extra/ACPI/ folder for target tabels.
+// DHP: We might want to change this and walk through the /Extra/ACPI/ folder for target tabels.
+
+#if LOAD_EXTRA_ACPI_TABLES	// Works like a master switch.
 
 #if LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(DSDT);
-#endif
+#endif	// LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
 
 #if LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(SSDT);
@@ -72,10 +74,10 @@ void loadACPITables(void)
 	loadACPITable(SSDT_USB);
 	loadACPITable(SSDT_GPU);
 	loadACPITable(SSDT_SATA);
-#endif
+#endif	// LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 
 }
-#endif // LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
+#endif //LOAD_EXTRA_ACPI_TABLES
 
 
 

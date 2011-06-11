@@ -4,6 +4,7 @@
  * Refactored (static and dynamic CPU data gathering) by DHP in 2010.
  * Expanded (requestMaxTurbo added) by DHP in May 2011.
  * Simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
+ * Bug fix: gPlatform.CPU.minBusRatio/maxBusRatio added by Jeroen (Juni 2011).
  */
 
 #ifndef __LIBSAIO_CPU_STATIC_CPU_DATA_H
@@ -22,7 +23,11 @@ void initCPUStruct(void)
 
 	gPlatform.CPU.QPISpeed		= STATIC_CPU_QPISpeed;		// QuickPath Interconnect - used in: libsaio/SMBIOS/dynamic_data.h
 
-	requestMaxTurbo(0);
+	uint64_t msr = rdmsr64(MSR_PLATFORM_INFO);				// Copied over from i386/libsaio/cpu/Intel/dynamic_data.h
+	gPlatform.CPU.MinBusRatio = ((msr >> 40) & 0xff);		// Example: 16 with Intel i7-2600 processor.
+	gPlatform.CPU.MaxBusRatio = ((msr >> 8) & 0xff);		// Example: 34 with Intel i7-2600 processor and 33 with Intel i7-2500.
+
+	requestMaxTurbo(0);										// Using 0 as argument - turbo boost will be determine automatically.
 }
 
 #endif /* !__LIBSAIO_CPU_STATIC_CPU_DATA_H */

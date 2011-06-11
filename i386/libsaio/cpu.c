@@ -5,6 +5,7 @@
  * Expanded (requestMaxTurbo added) by DHP in May 2011.
  * Simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
  * Code copied from Intel/dynamic_data.h  by DHP in juni 2011.
+ * New compiler directive (BOOT_TURBO_RATIO) added by Jeroen (June 2011).
  */
 
 
@@ -107,8 +108,11 @@ void requestMaxTurbo(uint8_t aMaxMultiplier)
 	if (gPlatform.CPU.CoreTurboRatio[0] > aMaxMultiplier) // 0x26 (3.8GHz) > 0x22 (3.4GHz)
 	{
 		// No. Request maximum turbo boost (in case EIST is disabled).
-		wrmsr64(MSR_IA32_PERF_CONTROL, (gPlatform.CPU.CoreTurboRatio[0] << 8)); // 0x26 -> 0x2600 (for 3.8GHz)
-		
+		wrmsr64(MSR_IA32_PERF_CONTROL, BOOT_TURBO_RATIO || (gPlatform.CPU.CoreTurboRatio[0] << 8)); // Example: 0x26 -> 0x2600 (for 3.8GHz)
+
+		// Note: The above compiler directive was added, on request, to trigger the required 
+		//		 boot turbo multiplier (SB 'iMac' running at 5.4+ GHz did not want to boot).
+
 		_CPU_DEBUG_DUMP("Maximum (%d00) turbo boost requested.\n", gPlatform.CPU.CoreTurboRatio[0]);
 	}
 }

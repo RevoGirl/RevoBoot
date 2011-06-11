@@ -1,30 +1,33 @@
 /*
- *	Original source code developed by DHP in May 2011.
+ *	Original source code developed by DHP in May-June 2011.
  *
  *	Updates:
  *
- *			- First bug fixes / comments added by DHP in June 2011.
- *			- ...
- *			- ...
+ *			- First bug fixes / comments added by DHP (June 2011).
+ *			- CPU specs gathering / added by Jeroen (June 2011).
+ *			- Turbo range detection implemented by DHP (June 2011).
+ *			- P-State number limitation implemented by DHP (June 2011).
+ *			- Single turbo state support (TODO list) implemented by DHP (June 2011).
  *
  *	TODO:
+ *			- Factory DSDT with dropped SSDT tables should work (work in progress).
  *
- *			- Using one fixed turbo mode is currently not supported (take care of this).
- *			- Figure out why we need the 4 extra bytes (sorry, I forgot it).
  *
  *	Credits:
- *			- Thanks to flAked for helping me with tiny ssdt_pr.dsl
- *			- Jeroen and Mike (testers).
+ *			- Intel's ACPICA project.
+ *			- Mozodojo (for Scope/Package size calculations).
+ *
+ *			- Thanks to flAked et all for helping me with tiny ssdt_pr.dsl
+ *			- flAked, Jeroen and Pike (testers).
  *
  *	Notes:
  *
- *			- We (currently) only support Sandy Bridge processors.
+ *			- We only support Sandy Bridge processors.
  *
  */
 
 
 #include "cpu/proc_reg.h"
-
 
 extern uint8_t getTDP(void);
 
@@ -33,8 +36,27 @@ extern uint8_t getTDP(void);
 
 void generateSSDT_PR(void)
 {
+	#define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
+	
+	#define MAX_NUMBER_OF_P_STATES	17				// Default of 16 normal plus 4 turbo P-States (for desktop).
+													// Result(16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi.
+													// Low power (mobility) processors might want a more extended range!
+
 	//--------------------------------------------------------------------------
 	// Our AML data blocks.
+
+#if AUTOMATIC_PROCESSOR_BLOCK_CREATION
+
+	uint8_t PROCESSOR_DEF_BLOCK[] =
+	{
+		/* 0000 */	0x5B, 0x83, 0x0B, _CPU_LABEL_REPLACEMENT, 0x01, 
+		/* 0008 */	0x10, 0x04, 0x00, 0x00, 0x06
+	};
+
+	#define INDEX_OF_CPU_NUMBER			0x06		// Points to 0x30 in _CPU_LABEL_REPLACEMENT
+	#define INDEX_OF_PROCESSOR_NUMBER	0x07		// Points to 0x01
+
+#endif
 
 	uint8_t SSDT_PM_HEADER[] =
 	{
@@ -48,35 +70,35 @@ void generateSSDT_PR(void)
 	uint8_t SCOPE_PR_CPU0[] =						// Scope (\_PR.CPU0) { }
 	{
 		/* 0000 */	0x10, 0xFF, 0xFF, 0x2E, 0x5F, 0x50, 0x52, 0x5F, 
-		/* 0008 */	0x43, 0x50, 0x55, 0x30
+		/* 0008 */	_CPU_LABEL_REPLACEMENT
 	};
 	
-	#define INDEX_OF_SCOPE_LENGTH		0x01	// Points to 0xFF 0xFF in SCOPE_PR_CPU0
+	#define INDEX_OF_SCOPE_LENGTH		0x01		// Points to 0xFF 0xFF in SCOPE_PR_CPU0
 
-	uint8_t NAME_APSN[] =						// Name (APSN, 0xFF)
+	uint8_t NAME_APSN[] =							// Name (APSN, 0xFF)
 	{
 		/* 0000 */	0x08, 0x41, 0x50, 0x53, 0x4E, 0x0A, 0xFF
 	};
 
-	#define INDEX_OF_APSN				0x06	// Points to 0xFF in NAME_APSN
+	#define INDEX_OF_APSN				0x06		// Points to 0xFF in NAME_APSN
 
-	uint8_t NAME_APSS[] =						// Name (APSS, Package(0xFF) { })
+	uint8_t NAME_APSS[] =							// Name (APSS, Package(0xFF) { })
 	{
 		/* 0000 */	0x08, 0x41, 0x50, 0x53, 0x53, 0x12, 0xFF, 0xFF, 
 		/* 0008 */	0xFF
 	};
 
-	#define INDEX_OF_PACKAGE_LENGTH		0x06	// Points to 0xFF 0xFF in NAME_APSS
-	#define INDEX_OF_P_STATES			0x08	// Points to 0xFF (first one) in NAME_APSS
+	#define INDEX_OF_PACKAGE_LENGTH		0x06		// Points to 0xFF 0xFF in NAME_APSS
+	#define INDEX_OF_P_STATES			0x08		// Points to 0xFF (first one) in NAME_APSS
 
-	uint8_t PACKAGE_P_STATE[] =					// Package(0x06) { ... }
+	uint8_t PACKAGE_P_STATE[] =						// Package(0x06) { ... }
 	{
 		/* 0000 */	0x12, 0x14, 0x06, 0x0B, 0x00, 0x00, 0x0C, 0x00, 
 		/* 0008 */	0x00, 0x00, 0x00, 0x0A, 0x0A, 0x0A, 0x0A, 0x0B, 
 		/* 0010 */	0x00, 0x00, 0x0B, 0x00, 0x00
 	};
 	
-	uint8_t METHOD_ACST[] =						// Method (ACST, Package(NN) { ... }
+	uint8_t METHOD_ACST[] =							// Method (ACST, Package(NN) { ... }
 	{
 		/* 0000 */	0x14, 0x49, 0x08, 0x41, 0x43, 0x53, 0x54, 0x00,
 		/* 0008 */	0xA4, 0x12, 0x40, 0x08, 0x06, 0x01, 0x0A, 0x04, 
@@ -98,40 +120,118 @@ void generateSSDT_PR(void)
 		/* 0088 */	0x0A, 0xC8
 	};
 	
-	uint8_t SCOPE_CPU_N[] =						// Scope (\_PR.CPUn) { ... }
+	uint8_t SCOPE_CPU_N[] =							// Scope (\_PR.CPUn) { ... }
 	{
 		/* 0000 */	0x10, 0x22, 0x5C, 0x2E, 0x5F, 0x50, 0x52, 0x5F, 
-		/* 0008 */	0x43, 0x50, 0x55, 0x31, 0x14, 0x16, 0x41, 0x50, 
+		/* 0008 */	_CPU_LABEL_REPLACEMENT, 0x14, 0x16, 0x41, 0x50, 
 		/* 0010 */	0x53, 0x53, 0x00, 0xA4, 0x5C, 0x2F, 0x03, 0x5F, 
-		/* 0018 */	0x50, 0x52, 0x5F, 0x43, 0x50, 0x55, 0x30, 0x41, 
+		/* 0018 */	0x50, 0x52, 0x5F, _CPU_LABEL_REPLACEMENT, 0x41, 
 		/* 0020 */	0x50, 0x53, 0x53
 	};
 
+	#define INDEX_OF_CPU_NUMER			0x0b		// Points to 0x30 in SCOPE_CPU_N (in second _CPU_LABEL_REPLACEMENT).
+
 	typedef struct acpi_2_pss
 	{
-		char		ignored_1[4];				// type, length and package items.
+		char		ignored_1[4];					// type, length and package items.
 		uint16_t	Frequency;
-		char		ignored_2;					// var type
+		char		ignored_2;						// var type
 		uint32_t	Power;
-		char		ignored_3[5];				// var type, latency, var type, latency, var type.
+		char		ignored_3[5];					// var type, latency, var type, latency, var type.
 		uint16_t	Ratio;
-		char		ignored_4;					// var type
+		char		ignored_4;						// var type
 		uint16_t	Status;
 	} __attribute__((packed)) ACPI_PSS;
 
 	//--------------------------------------------------------------------------
 	// Initialization.
 
+	uint8_t		numberOfTurboStates	= 0;
 	uint16_t	i	= 0;
-	uint32_t	tdp = (getTDP() * 1000); // See: i386/libsaio/cpu/Intel/cpu.c
+	uint32_t	tdp = (getTDP() * 1000);			// See: i386/libsaio/cpu/Intel/cpu.c
 
 	struct acpi_2_ssdt * header = (struct acpi_2_ssdt *) SSDT_PM_HEADER;
 
-	uint8_t		numberOfTurboRatios	= ((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40) ? 0 : 4;
-	uint8_t		numberOfPStates		= (gPlatform.CPU.MaxBusRatio - gPlatform.CPU.MinBusRatio) + numberOfTurboRatios + 1;
+	// Is turbo enabled?
+	if (!((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40))
+	{
+		numberOfTurboStates	= 4;					// Default for AICPUPM.
+
+		// Getting the turbo range.
+		uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[3]) + 1;
+		
+		// Should we extend the number of P-States?
+		if (turboRange > numberOfTurboStates)
+		{
+			// Yes we do.
+			numberOfTurboStates = turboRange;
+		}
+
+		//----------------------------------------------------------------------
+		// Intel's 2nd generation i5 Desktop Processors (with Turbo 2.0)
+		//
+		// i5-2300  @2.8 - 3.1 GHz / TDP 95 W /  3 banks (each bank represents a 100 MHz speed jump)
+		// i5-2310  @2.9 - 3.2 GHz / TDP 95 W /  3
+		// i5-2390T @2.7 - 3.5 GHz / TDP 35 W /  8
+		// i5-2400  @3.1 - 3.4 GHz / TDP 95 W /  3
+		// i5-2400S @2.5 - 3.3 GHz / TDP 65 W /  8
+		// i5-2405S @2.5 - 3.3 GHz / TDP 65 W /  8
+		// i5-2500  @3.3 - 3.7 GHz / TDP 95 W /  4
+		// i5-2500T @2.3 - 3.3 GHz / TDP 45 W / 10
+		// i5-2500S @2.7 - 3.7 GHz / TDP 65 W / 10
+		// i5-2500K @3.3 - 3.7 GHz / TDP 95 W /  4
+		//	
+		//----------------------------------------------------------------------
+		// Intel's 2nd generation i7 Desktop Processors (with Turbo 2.0)
+		//
+		// i7-2600  @3.4 - 3.8 GHz / TDP 95 W /  4	banks
+		// i7-2600S @2.8 - 3.8 GHz / TDP 65 W / 10
+		// i7-2600K @3.4 - 3.8 GHz / TDP 95 W /  4
+		//
+		//----------------------------------------------------------------------
+		// Intel's 2nd generation i5 Mobility Processors (with Turbo 2.0)
+		//
+		// i5-2410M @2.3 - 2.9 GHz / TDP 35 W / 6	banks
+		// i5-2510E @2.5 - 3.1 GHz / TDP 35 W / 6
+		// i5-2520M @2.5 - 3.2 GHz / TDP 35 W / 7
+		// i5-2537M @1.4 - 2.3 GHz / TDP 17 W / 9
+		// i5-2540M @2.6 - 3.3 GHz / TDP 35 W / 7
+		//	
+		//----------------------------------------------------------------------
+		// Intel's 2nd generation i7 Mobility Processors (with Turbo 2.0)
+		//
+		// i7-2820QM @2.3 - 3.4 GHz / TDP 45 W /  3	banks
+		// i7-2720QM @2.2 - 3.3 GHz / TDP 45 W / 11
+		// i7-2710QE @2.1 - 3.0 GHz / TDP 45 W /  9
+		// i7-2657M  @1.6 - 2.7 GHz / TDP 17 W / 11
+		// i7-26349M @2.3 - 3.2 GHz / TDP 25 W /  9
+		// i7-2635QM @2.0 - 2.9 GHz / TDP 45 W /  9
+		// i7-2630QM @2.0 - 2.9 GHz / TDP 45 W /  9
+		// i7-2629M  @2.1 - 3.0 GHz / TDP 25 W /  9
+		// i7-2620M  @2.7 - 3.4 GHz / TDP 35 W /  7
+		// i7-2617M  @1.5 - 2.6 GHz / TDP 17 W / 11
+
+		// Are all core ratios set to the same value?
+		if (gPlatform.CPU.CoreTurboRatio[0] == gPlatform.CPU.CoreTurboRatio[1] == 
+			gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3])
+		{
+			// Yes. Limit the number of Turbo P-States to one.
+			numberOfTurboStates = 1;
+			// Use maxBusRatio as multiplier for a single Turbo P-State.
+			gPlatform.CPU.CoreTurboRatio[0] = gPlatform.CPU.MaxBusRatio;
+		}
+	}
+
+	uint8_t numberOfPStates = (gPlatform.CPU.MaxBusRatio - gPlatform.CPU.MinBusRatio) + numberOfTurboStates + 1;
+
+	// Limit number of P-States.
+	if (numberOfPStates > MAX_NUMBER_OF_P_STATES)
+	{
+		numberOfPStates = MAX_NUMBER_OF_P_STATES;
+	}
 
 	//--------------------------------------------------------------------------
-	// The first step is to calculate the length of the buffer for the AML code.
+	// Calculate the buffer size for the AML code.
 	
 	uint32_t bufferSize =	header->Length + 
 							sizeof(SCOPE_PR_CPU0) + 
@@ -141,13 +241,18 @@ void generateSSDT_PR(void)
 							sizeof(METHOD_ACST) + 
 							(sizeof(SCOPE_CPU_N) * (gPlatform.CPU.NumThreads - 1));
 
+#if AUTOMATIC_PROCESSOR_BLOCK_CREATION
+	// Increase buffer for the processor blocks, or we run out of space.
+	bufferSize += (sizeof(PROCESSOR_DEF_BLOCK) * (gPlatform.CPU.NumThreads - 1));
+#endif
+
 	void * buffer = malloc(bufferSize);
 	void * bufferPointer = buffer;
 
-	bzero(buffer, bufferSize); // Clear AML buffer.
+	bzero(buffer, bufferSize);						// Clear buffer.
 
 	//--------------------------------------------------------------------------
-	// Here we copy the header into the newly created buffer.
+	// Copy SSDT header into the newly created buffer.
 	
 	bcopy(SSDT_PM_HEADER, buffer, sizeof(SSDT_PM_HEADER));
 	bufferPointer += sizeof(SSDT_PM_HEADER);
@@ -178,35 +283,25 @@ void generateSSDT_PR(void)
 	// This step adds the following AML code:
 	//
 	//		Name (APSN, NN)
-	
-	// Are all core ratios set to the same value?
-	if (gPlatform.CPU.CoreTurboRatio[0] == gPlatform.CPU.CoreTurboRatio[1] == 
-		gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3])
-	{
-		// Yes. Results in: Name (APSN, One).
-		NAME_APSN[ INDEX_OF_APSN ] = 1; // DHP: We might not want to do this!
 
-		// Is Turbo enabled /supported?
-		if (numberOfTurboRatios)
-		{
-			// Yes. Limit the number of Turbo P-States to one.
-			numberOfTurboRatios = 1;
-		}
-	}
-	else
-	{
-		// Setting NN in: Name (APSN, NN)
-		NAME_APSN[ INDEX_OF_APSN ] = numberOfTurboRatios;
-	}
+	// Setting NN in: Name (APSN, NN)
+	NAME_APSN[ INDEX_OF_APSN ] = numberOfTurboStates;
 
 	bcopy(NAME_APSN, bufferPointer, sizeof(NAME_APSN));
 	bufferPointer += sizeof(NAME_APSN);
 
 	//--------------------------------------------------------------------------
 	// Taking care of the Package size.
-	
-	size = (sizeof(PACKAGE_P_STATE) * numberOfPStates) + 4; // DHP: Why do we need the 4 extra bytes here?
-	
+
+	size = (sizeof(PACKAGE_P_STATE) * numberOfPStates) + 4; // See note below!
+
+	// Note: The addition of the 4 extra bytes above is as follow:
+	//
+	// Scope/Package with content length + 1 <= 0x3f		= 1
+	// Scope/Package with content length + 2 <= 0x3fff		= 2
+	// Scope/Package with content length + 3 <= 0x3fffff	= 3
+	// Scope/Package with content length + 3  > 0x3fffff	= 4;
+
 	NAME_APSS[ INDEX_OF_PACKAGE_LENGTH ]		= (0x40 | (size & 0x0f)) - 1;
 	NAME_APSS[ INDEX_OF_PACKAGE_LENGTH + 1 ]	= ((size >> 4) & 0xff);
 
@@ -228,39 +323,59 @@ void generateSSDT_PR(void)
 	//		Package (0x06) { 0xNNNN, 0xNNNN, 10, 10, 0xNN00, 0xNN00 }
 	//		../..
 
-	uint16_t	ratio, frequency, status;
+	uint8_t	aPSSPackageCount = 0;
+
+	uint16_t ratio, frequency, status;
 
 	float m, power;
 
 	struct acpi_2_pss * aPSS = (struct acpi_2_pss *) PACKAGE_P_STATE;
 
+	uint8_t	maxRatio = gPlatform.CPU.MaxBusRatio;	// Max non-turbo frequency (see CPU specs).
+
 	//--------------------------------------------------------------------------
 	// First the turbo P-States.
 
-	for (i = 0; i < numberOfTurboRatios; i++)
+	for (i = 0; i < numberOfTurboStates; i++)
 	{
-		ratio		= gPlatform.CPU.CoreTurboRatio[i];
-		frequency	= (ratio * 100);
-		ratio		= status = (ratio << 8);
+		ratio = gPlatform.CPU.CoreTurboRatio[i];
+		
+		/* Should we do something like this?
+		if (numberOfTurboStates == 1)
+		{
+			frequency = (maxRatio * 100) + 1;		// See also: biosbits.org
+		}
+		else
+		{ */
+			frequency = (ratio * 100);
+		/* } */
+
+		ratio = status = (ratio << 8);
 
 		aPSS->Frequency	= frequency;
-		aPSS->Power		= (uint32_t) tdp;		// Turbo States use max-power.
+		aPSS->Power		= (uint32_t) tdp;			// Turbo States use TDP.
 		aPSS->Ratio		= ratio;
 		aPSS->Status	= ratio;
-		
+
+		aPSSPackageCount++;
+
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
 	}
 	
-	uint8_t	maxRatio = gPlatform.CPU.MaxBusRatio; // Warning: This one can be 59!
-	
 	i = gPlatform.CPU.MaxBusRatio;
-
+	
 	//--------------------------------------------------------------------------
 	// And now the normal P-States.
 
 	for (; i >= gPlatform.CPU.MinBusRatio; i--)
 	{
+		// Do we need to limit the number of P-States?
+		if (i != gPlatform.CPU.MinBusRatio && aPSSPackageCount >= (MAX_NUMBER_OF_P_STATES - 1))
+		{
+			continue;
+		}
+
 		ratio		= i;
 		frequency	= (i * 100);
 
@@ -274,6 +389,8 @@ void generateSSDT_PR(void)
 		aPSS->Ratio		= ratio;
 		aPSS->Status	= ratio;
 	
+		aPSSPackageCount++;
+
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
 	}
@@ -373,7 +490,7 @@ void generateSSDT_PR(void)
 
 	for (i = 1; i < gPlatform.CPU.NumThreads; i++)
 	{
-		SCOPE_CPU_N[0x0B] = (0x30 + i);			// Set CPU number.
+		SCOPE_CPU_N[INDEX_OF_CPU_NUMER] = (0x30 + i);		// Setting CPU number.
 		bcopy(SCOPE_CPU_N, bufferPointer, sizeof(SCOPE_CPU_N));
 		bufferPointer += sizeof(SCOPE_CPU_N);
 	}
@@ -393,5 +510,5 @@ void generateSSDT_PR(void)
 
 	customTables[SSDT_PR].table			= (void *)(uint32_t)buffer;
 	customTables[SSDT_PR].tableLength	= bufferSize;
-	customTables[SSDT_PR].loaded		= true;	// Simulate a file load - to let it call free()
+	customTables[SSDT_PR].loaded		= true;		// Simulate a file load - to let it call free()
 }

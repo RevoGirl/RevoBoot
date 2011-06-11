@@ -1,3 +1,30 @@
+RevoBoot v1.0.15
+================
+- Static CPU use fixed a(was bored due to lack of proper testing).
+- New compiler directive (BOOT_TURBO_BOOST_RATIO) added to settings.h / settings-template.h
+- Debug output added to ACPI patcher to show the address used as static ACPI address.
+- Indentation errors fixed in platform.c
+- VERSION info updated.
+
+About the latest ssdt_pr_genetaro.h changes:
+--------------------------------------------
+- CPU specs gathering / added by Jeroen.
+- Turbo range detection implemented.
+- P-State number limitation implemented.
+- Single turbo state support implemented.
+
+
+Note: 
+
+Make sure to set LOAD_EXTRA_ACPI_TABLES in combination with LOAD_DSDT_TABLE_FROM_EXTRA_ACPI 
+and/or LOAD_SSDT_TABLE_FROM_EXTRA_ACPI or your tables in /Extra/ACPI/ won't get loaded!
+
+
+RevoBoot v1.0.14
+================
+- Fixed a bug in platform.c wiping data after initialization.
+
+
 RevoBoot v1.0.13
 ================
 - Fixed compiler warning in platform.c

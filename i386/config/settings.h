@@ -1,12 +1,13 @@
 /*
  * Copyright (c) 2009 Master Chief. All rights reserved.
  *
- * Note: This is an essential part of the build process for RevoBoot v1.0.12 and greater.
+ * Note: This is an essential part of the build process for RevoBoot v1.0.14 and greater.
  *
  *
  * Latest cleanups and additional directives added by DHP in 2011.
  * Static CPU data simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
  * Automatic creation / injection of SSDT_PR.aml added by DHP in June 2011.
+ * New compiler directive (BOOT_TURBO_BOOST_RATIO) added by Jeroen (June 2011).
  */
 
 
@@ -32,10 +33,16 @@
 												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
 
 
+#if USE_STATIC_ACPI_BASE_ADDRESS
+	#define	STATIC_ACPI_BASE_ADDRESS		0x000f0420	// Set DEBUG_ACPI to 1 to get this address.
+#endif
+
+
 #define STATIC_APIC_TABLE_INJECTION			0	// Set to 0 by default. Use 1 when you want to inject a modified copy 
 												// with say stripped out unused CPU's or other required modifications.
 												//
 												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
+
 
 #define STATIC_APIC2_TABLE_INJECTION		0	// Set to 0 by default. Use 1 when you want to inject a second APIC 
 												// (ACPI-1) table data for additional CPU core support.
@@ -160,6 +167,10 @@
 #define CPU_VENDOR_ID						CPU_VENDOR_INTEL // CPU_VENDOR_AMD is not supported.
 
 #define OC_BUSRATIO_CORRECTION				0	// Set to 0 by default. Change this to busratio-100 (OC'ed systems with a changed busratio).
+
+#define BOOT_TURBO_RATIO					0	// Set to 0 by default. Change this to the desired (and supported) turbo multiplier.
+												//
+												// Example:  0x2800 for 4.0 GHz on a i7-2600.
 
 #define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
                                                 // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
