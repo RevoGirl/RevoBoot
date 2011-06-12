@@ -23,7 +23,7 @@ RevoBoot v1.0.16
 
 RevoBoot v1.0.15
 ================
-- Static CPU use fixed a(was bored due to lack of proper testing).
+- Static CPU use fixed a(was borked due to lack of proper testing).
 - New compiler directive (BOOT_TURBO_BOOST_RATIO) added to settings.h / settings-template.h
 - Debug output added to ACPI patcher to show the address used as static ACPI address.
 - Indentation errors fixed in platform.c
