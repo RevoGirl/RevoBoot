@@ -115,7 +115,7 @@ void initPlatform(int biosDevice)
 
 	gPlatform.RevoBootVersionInfo = strdup(REVOBOOT_VERSION_INFO);	// Example: "RevoBoot v1.0.04"
 
-	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevolutionVersionInfo);
+	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevoBootVersionInfo);
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_TURBO_RATIOS
 	uint8_t cpu = 0;
