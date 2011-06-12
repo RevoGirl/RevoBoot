@@ -1,3 +1,11 @@
+RevoBoot v1.0.17
+================
+- FIxed a bug in i386/libsaio/cpu.c (if claused that failed to work).
+- Fixed newly introduced regressions in ssdt_pr_generator.h
+- Core count in ssdt_pr_generator.h is now also scalable (supports different kinds of setups).
+- VERSION info updated.
+
+
 RevoBoot v1.0.16
 ================
 - Fixed a problem in ssdt_pr_generator.h - extra/blank turbo P-State.

@@ -74,11 +74,16 @@ void initTurboRatios()
 	}
 	
 	// Are all core ratios set to the same value?
-	if (gPlatform.CPU.CoreTurboRatio[0] == gPlatform.CPU.CoreTurboRatio[1] == 
-		gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3])
+	//
+	// DHP: This should follow the same route as what I did for ssdt_pr_generator.h 
+	//		i.e. don't assume that all installations have 4 cores (think scalable).
+	//
+	if ((gPlatform.CPU.CoreTurboRatio[0] == gPlatform.CPU.CoreTurboRatio[1]) &&
+		(gPlatform.CPU.CoreTurboRatio[1] == gPlatform.CPU.CoreTurboRatio[2]) &&
+		(gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3]))
 	{
-		// Yes. We only need one so let's just wipe the rest.
-		gPlatform.CPU.CoreTurboRatio[1] = gPlatform.CPU.CoreTurboRatio[2] = gPlatform.CPU.CoreTurboRatio[3] = 0;
+		// Yes. We only need one so wipe the rest (keeping the one for max cores).
+		gPlatform.CPU.CoreTurboRatio[0] = gPlatform.CPU.CoreTurboRatio[1] = gPlatform.CPU.CoreTurboRatio[2] = 0;
 	}
 #else
 	gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);

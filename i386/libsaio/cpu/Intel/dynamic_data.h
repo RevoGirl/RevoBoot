@@ -494,35 +494,35 @@ void initCPUStruct(void)
 	gPlatform.CPU.CPUFrequency	= cpuFrequency;
 	gPlatform.CPU.QPISpeed		= qpiSpeed;
 
-	_CPU_DEBUG_DUMP("                            123456789 123456789 123456789 123456789 12345678\n");
-	_CPU_DEBUG_DUMP("CPU: Brandstring          : %s\n",				gPlatform.CPU.BrandString);
-	_CPU_DEBUG_DUMP("CPU: Vendor/Model/ExtModel: 0x%x/0x%x/0x%x\n",	gPlatform.CPU.Vendor, gPlatform.CPU.Model, gPlatform.CPU.ExtModel);
-	_CPU_DEBUG_DUMP("CPU: Stepping / Signature : 0x%x/0x%x\n",		gPlatform.CPU.Stepping, gPlatform.CPU.Signature);
-	_CPU_DEBUG_DUMP("CPU: Family/ExtFamily     : 0x%x/0x%x\n",		gPlatform.CPU.Family, gPlatform.CPU.ExtFamily);
-	_CPU_DEBUG_DUMP("CPU: Type                 : 0x%x\n",			gPlatform.CPU.Type);
+	_CPU_DEBUG_DUMP("                             123456789 123456789 123456789 123456789 12345678\n");
+	_CPU_DEBUG_DUMP("CPU: Brandstring           : %s\n",				gPlatform.CPU.BrandString);
+	_CPU_DEBUG_DUMP("CPU: Vendor/Model/ExtModel : 0x%x/0x%x/0x%x\n",	gPlatform.CPU.Vendor, gPlatform.CPU.Model, gPlatform.CPU.ExtModel);
+	_CPU_DEBUG_DUMP("CPU: Stepping / Signature  : 0x%x/0x%x\n",			gPlatform.CPU.Stepping, gPlatform.CPU.Signature);
+	_CPU_DEBUG_DUMP("CPU: Family/ExtFamily      : 0x%x/0x%x\n",			gPlatform.CPU.Family, gPlatform.CPU.ExtFamily);
+	_CPU_DEBUG_DUMP("CPU: Type                  : 0x%x\n",				gPlatform.CPU.Type);
 
 	if (gPlatform.CPU.Mobile)
 	{
-		_CPU_DEBUG_DUMP("CPU: Mobile CPU           : true\n");
+		_CPU_DEBUG_DUMP("CPU: Mobile CPU            : true\n");
 	}
 
-	_CPU_DEBUG_DUMP("CPU: NumCores/NumThreads  : %d/%d\n",			gPlatform.CPU.NumCores, gPlatform.CPU.NumThreads);
+	_CPU_DEBUG_DUMP("CPU: NumCores/NumThreads   : %d/%d\n",				gPlatform.CPU.NumCores, gPlatform.CPU.NumThreads);
 
 	if (SandyBridge)
 	{
-		_CPU_DEBUG_DUMP("CPU: Min/Max busratio     : %d/%d\n",		gPlatform.CPU.MinBusRatio, gPlatform.CPU.MaxBusRatio);
+		_CPU_DEBUG_DUMP("CPU: Min/Max busratio      : %d/%d\n",			gPlatform.CPU.MinBusRatio, gPlatform.CPU.MaxBusRatio);
 	}
 	else
 	{
-		_CPU_DEBUG_DUMP("CPU: MaxCoef/CurrCoef     : %d%s/%d%s\n",		gPlatform.CPU.MaxCoef, gPlatform.CPU.MaxDiv ? ".5" : "",
+		_CPU_DEBUG_DUMP("CPU: MaxCoef/CurrCoef      : %d%s/%d%s\n",		gPlatform.CPU.MaxCoef, gPlatform.CPU.MaxDiv ? ".5" : "",
 																		gPlatform.CPU.CurrCoef, gPlatform.CPU.CurrDiv ? ".5" : "");
-		_CPU_DEBUG_DUMP("CPU: MaxDiv/CurrDiv       : 0x%x/0x%x\n",		gPlatform.CPU.MaxDiv, gPlatform.CPU.CurrDiv);
+		_CPU_DEBUG_DUMP("CPU: MaxDiv/CurrDiv        : 0x%x/0x%x\n",		gPlatform.CPU.MaxDiv, gPlatform.CPU.CurrDiv);
 	}
 
 #if DEBUG_CPU_TURBO_RATIOS
 	int core = 0;
 	char div[] = "-------------------------------------\n";
-	
+
 	_CPU_DEBUG_DUMP("%s", div);
 	
 	for (; core < gPlatform.CPU.NumCores; core++)
@@ -537,14 +537,14 @@ void initCPUStruct(void)
 	_CPU_DEBUG_DUMP("%s", div);
 #endif
 
-	_CPU_DEBUG_DUMP("CPU: Features             : 0x%08x\n",			gPlatform.CPU.Features);
-	_CPU_DEBUG_DUMP("CPU: TSCFreq              : %dMHz\n",			gPlatform.CPU.TSCFrequency / 1000000);
-	_CPU_DEBUG_DUMP("CPU: FSBFreq              : %dMHz\n",			gPlatform.CPU.FSBFrequency ? (gPlatform.CPU.FSBFrequency / 1000000) : 100);
-	_CPU_DEBUG_DUMP("CPU: CPUFreq              : %dMHz\n",			gPlatform.CPU.CPUFrequency / 1000000);
+	_CPU_DEBUG_DUMP("CPU: Features              : 0x%08x\n",	gPlatform.CPU.Features);
+	_CPU_DEBUG_DUMP("CPU: TSCFreq               : %dMHz\n",		gPlatform.CPU.TSCFrequency / 1000000);
+	_CPU_DEBUG_DUMP("CPU: FSBFreq               : %dMHz\n",		gPlatform.CPU.FSBFrequency ? (gPlatform.CPU.FSBFrequency / 1000000) : 100);
+	_CPU_DEBUG_DUMP("CPU: CPUFreq               : %dMHz\n",		gPlatform.CPU.CPUFrequency / 1000000);
 
 	if (gPlatform.CPU.QPISpeed)
 	{
-		_CPU_DEBUG_DUMP("CPU: QPISpeed             : %x\n",				gPlatform.CPU.QPISpeed);
+		_CPU_DEBUG_DUMP("CPU: QPISpeed              : %x\n",	gPlatform.CPU.QPISpeed);
 	}
 
 	_CPU_DEBUG_SLEEP(10);

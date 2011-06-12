@@ -38,7 +38,7 @@ void generateSSDT_PR(void)
 {
 	#define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
 	
-	#define MAX_NUMBER_OF_P_STATES	17				// Default of 16 normal plus 4 turbo P-States (for desktop).
+	#define MAX_NUMBER_OF_P_STATES	16				// Default of 16 normal plus 4 turbo P-States (for desktop).
 													// Result(16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi.
 													// Low power (mobility) processors might want a more extended range!
 
@@ -152,19 +152,51 @@ void generateSSDT_PR(void)
 
 	struct acpi_2_ssdt * header = (struct acpi_2_ssdt *) SSDT_PM_HEADER;
 
-	// Is turbo enabled?
+	// Is turbo mode enabled?
 	if (!((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40))
 	{
-		numberOfTurboStates	= 4;					// Default for AICPUPM.
+		uint8_t numberOfCores = (gPlatform.CPU.NumCores - 1);
 
-		// Getting the turbo range.
-		uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[3]);
-		
-		// Should we extend the number of P-States?
-		if ((turboRange + 1) > numberOfTurboStates)
+		// We need to have something to work with so check for it, and the 
+		// way we do that (trying go be smart) supports any number of cores.
+		if (gPlatform.CPU.CoreTurboRatio[numberOfCores] != 0)
 		{
-			// Yes we do.
-			numberOfTurboStates = turboRange;
+			// Simple check to see if all ratios are the same.
+			for (; i < gPlatform.CPU.NumCores; i++)
+			{
+				if (gPlatform.CPU.CoreTurboRatio[i] != 0)
+				{
+					break;
+				}
+			}
+
+			// Should we add only one turbo P-State?
+			if (i == numberOfCores)
+			{
+				// Yes. Limit number of injectable turbo P-States to 1.
+				numberOfTurboStates = 1;
+				// Copy multiplier (we're only checking the first one).
+				gPlatform.CPU.CoreTurboRatio[0] = gPlatform.CPU.CoreTurboRatio[numberOfCores];
+				// Clear that one now.
+				gPlatform.CPU.CoreTurboRatio[numberOfCores] = 0;
+			}
+			else
+			{
+				// Get turbo range from multipliers.
+				uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[numberOfCores]);
+
+				// Do we have an extended range of P-States?
+				if ((turboRange + 1) > 4)
+				{
+					// Yes we do.
+					numberOfTurboStates = turboRange;
+				}
+				else
+				{
+					// No. Use the default 4 for AICPUPM.
+					numberOfTurboStates	= 4;
+				}
+			}
 		}
 
 		//----------------------------------------------------------------------
@@ -210,16 +242,6 @@ void generateSSDT_PR(void)
 		// i7-2629M  @2.1 - 3.0 GHz / TDP 25 W /  9
 		// i7-2620M  @2.7 - 3.4 GHz / TDP 35 W /  7
 		// i7-2617M  @1.5 - 2.6 GHz / TDP 17 W / 11
-
-		// Are all core ratios set to the same value?
-		if (gPlatform.CPU.CoreTurboRatio[0] == gPlatform.CPU.CoreTurboRatio[1] == 
-			gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3])
-		{
-			// Yes. Limit the number of Turbo P-States to one.
-			numberOfTurboStates = 1;
-			// Use maxBusRatio as multiplier for a single Turbo P-State.
-			gPlatform.CPU.CoreTurboRatio[0] = gPlatform.CPU.MaxBusRatio;
-		}
 	}
 
 	uint8_t numberOfPStates = (gPlatform.CPU.MaxBusRatio - gPlatform.CPU.MinBusRatio) + numberOfTurboStates + 1;
@@ -340,15 +362,15 @@ void generateSSDT_PR(void)
 	{
 		ratio = gPlatform.CPU.CoreTurboRatio[i];
 		
-		/* Should we do something like this?
-		if (numberOfTurboStates == 1)
+		// Check multiplier to prevent out-of-bound frequency - following BITS here. See also: biosbits.org
+		if (ratio = 59 && numberOfTurboStates == 1)
 		{
-			frequency = (maxRatio * 100) + 1;		// See also: biosbits.org
+			frequency = (maxRatio * 100) + 1;		// Example: 3400 + 1 makes 3401 MHz (instead of 5900)
 		}
 		else
-		{ */
+		{
 			frequency = (ratio * 100);
-		/* } */
+		}
 
 		ratio = status = (ratio << 8);
 
