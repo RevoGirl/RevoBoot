@@ -363,7 +363,7 @@ void generateSSDT_PR(void)
 		ratio = gPlatform.CPU.CoreTurboRatio[i];
 		
 		// Check multiplier to prevent out-of-bound frequency - following BITS here. See also: biosbits.org
-		if (ratio = 59 && numberOfTurboStates == 1)
+		if (ratio == 59 && numberOfTurboStates == 1)
 		{
 			frequency = (maxRatio * 100) + 1;		// Example: 3400 + 1 makes 3401 MHz (instead of 5900)
 		}
