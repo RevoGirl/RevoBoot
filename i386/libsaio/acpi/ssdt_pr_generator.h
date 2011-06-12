@@ -10,7 +10,7 @@
  *			- Single turbo state support (TODO list) implemented by DHP (June 2011).
  *
  *	TODO:
- *			- Factory DSDT with dropped SSDT tables should work (work in progress).
+ *			- Factory DSDT with dropped SSDT tables should also work (work in progress).
  *
  *
  *	Credits:
@@ -22,8 +22,12 @@
  *
  *	Notes:
  *
- *			- We only support Sandy Bridge processors.
+ *			- We only want to support Sandy Bridge processors.
  *
+ *			- Wrong UEFI settings will lead to:
+ *			-	AppleIntelCPUPowerManagement: Turbo Ratio 19999
+ *			-	AppleIntelCPUPowerManagement: Turbo Ratio DEF0
+ *			- This can be fixed by changing your settings.
  */
 
 
@@ -38,10 +42,12 @@ void generateSSDT_PR(void)
 {
 	#define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
 	
-	#define MAX_NUMBER_OF_P_STATES	16				// Default of 16 normal plus 4 turbo P-States (for desktop).
+	//--------------------------------------------------------------------------
+	// Move this to settings.h when you're done testing!
+	//--------------------------------------------------------------------------
+	#define MAX_NUMBER_OF_P_STATES	21				// Default of 16 normal plus 4 turbo P-States (for desktop setups).
 													// Result(16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi.
-													// Low power (mobility) processors might want a more extended range!
-
+													// Low power (mobility) processors might need an extended range!
 	//--------------------------------------------------------------------------
 	// Our AML data blocks.
 
@@ -146,58 +152,35 @@ void generateSSDT_PR(void)
 	//--------------------------------------------------------------------------
 	// Initialization.
 
+	uint8_t		i = 0;
 	uint8_t		numberOfTurboStates	= 0;
-	uint16_t	i	= 0;
 	uint32_t	tdp = (getTDP() * 1000);			// See: i386/libsaio/cpu/Intel/cpu.c
 
 	struct acpi_2_ssdt * header = (struct acpi_2_ssdt *) SSDT_PM_HEADER;
 
-	// Is turbo mode enabled?
-	if (!((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40))
+	// When this is false then initTurboRatios (in cpu.c) didn't find any.
+	if (gPlatform.CPU.NumberOfTurboRatios > 0)
 	{
+#if NUMBER_OF_TURBO_STATES > 4
+
 		uint8_t numberOfCores = (gPlatform.CPU.NumCores - 1);
+		// Get turbo range from multipliers.
+		uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[numberOfCores]);
 
-		// We need to have something to work with so check for it, and the 
-		// way we do that (trying go be smart) supports any number of cores.
-		if (gPlatform.CPU.CoreTurboRatio[numberOfCores] != 0)
+		// Do we have an extended range of P-States?
+		if (turboRange > 3) // 3 means 4 P-States [0 - 3].
 		{
-			// Simple check to see if all ratios are the same.
-			for (; i < gPlatform.CPU.NumCores; i++)
-			{
-				if (gPlatform.CPU.CoreTurboRatio[i] != 0)
-				{
-					break;
-				}
-			}
-
-			// Should we add only one turbo P-State?
-			if (i == numberOfCores)
-			{
-				// Yes. Limit number of injectable turbo P-States to 1.
-				numberOfTurboStates = 1;
-				// Copy multiplier (we're only checking the first one).
-				gPlatform.CPU.CoreTurboRatio[0] = gPlatform.CPU.CoreTurboRatio[numberOfCores];
-				// Clear that one now.
-				gPlatform.CPU.CoreTurboRatio[numberOfCores] = 0;
-			}
-			else
-			{
-				// Get turbo range from multipliers.
-				uint8_t	turboRange = (gPlatform.CPU.CoreTurboRatio[0] - gPlatform.CPU.CoreTurboRatio[numberOfCores]);
-
-				// Do we have an extended range of P-States?
-				if ((turboRange + 1) > 4)
-				{
-					// Yes we do.
-					numberOfTurboStates = turboRange;
-				}
-				else
-				{
-					// No. Use the default 4 for AICPUPM.
-					numberOfTurboStates	= 4;
-				}
-			}
+			// Yes we do.
+			numberOfTurboStates = (turboRange + 1);
 		}
+		else
+		{
+			// No. Use the default 4 for AICPUPM.
+			numberOfTurboStates	= NUMBER_OF_TURBO_STATES;
+		}
+#else
+		numberOfTurboStates	= gPlatform.CPU.NumberOfTurboRatios;
+#endif
 
 		//----------------------------------------------------------------------
 		// Intel's 2nd generation i5 Desktop Processors (with Turbo 2.0)
@@ -317,7 +300,7 @@ void generateSSDT_PR(void)
 
 	size = (sizeof(PACKAGE_P_STATE) * numberOfPStates) + 4; // See note below!
 
-	// Note: The addition of the 4 extra bytes above is as follow:
+	// Note: The explanation for the additional 4 bytes above is as follow:
 	//
 	// Scope/Package with content length + 1 <= 0x3f		= 1
 	// Scope/Package with content length + 2 <= 0x3fff		= 2
@@ -360,10 +343,20 @@ void generateSSDT_PR(void)
 
 	for (i = 0; i < numberOfTurboStates; i++)
 	{
-		ratio = gPlatform.CPU.CoreTurboRatio[i];
+		if (numberOfTurboStates	<= 4)
+		{
+			ratio = gPlatform.CPU.CoreTurboRatio[i];
+		}
+		else
+		{
+			// Having more than the usual four P-States means that we have to 
+			// inject additional P-States (like a MacBookPro8,3) but in this 
+			// case we can't just use <i>i</i> but (have to) do it like this:
+			ratio = (gPlatform.CPU.CoreTurboRatio[0] - i);
+		}
 		
 		// Check multiplier to prevent out-of-bound frequency - following BITS here. See also: biosbits.org
-		if (ratio = 59 && numberOfTurboStates == 1)
+		if (ratio == 59 && numberOfTurboStates == 1)
 		{
 			frequency = (maxRatio * 100) + 1;		// Example: 3400 + 1 makes 3401 MHz (instead of 5900)
 		}
@@ -384,11 +377,11 @@ void generateSSDT_PR(void)
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
 	}
-	
+
 	i = gPlatform.CPU.MaxBusRatio;
 	
 	//--------------------------------------------------------------------------
-	// And now the normal P-States.
+	// And now the 'normal' P-States.
 
 	for (; i >= gPlatform.CPU.MinBusRatio; i--)
 	{

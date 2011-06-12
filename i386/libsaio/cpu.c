@@ -62,32 +62,82 @@ void initTurboRatios()
 	{
 		gPlatform.CPU.CoreTurboRatio[2] = bitfield32(msr, 23, 16);
 		gPlatform.CPU.CoreTurboRatio[3] = bitfield32(msr, 31, 24);
-		
+
+#if STATIC_CPU_NumCores == 6
 		// For the lucky few with a six core Gulftown CPU.
-		if (gPlatform.CPU.NumCores >= 6)
+		if (gPlatform.CPU.NumCores == 6)
 		{
 			// bitfield32() supports 32 bit values only and thus we 
 			// have to do it a little different here (bit shifting).
 			gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
 			gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
 		}
-	}
-	
-	// Are all core ratios set to the same value?
-	//
-	// DHP: This should follow the same route as what I did for ssdt_pr_generator.h 
-	//		i.e. don't assume that all installations have 4 cores (think scalable).
-	//
-	if ((gPlatform.CPU.CoreTurboRatio[0] == gPlatform.CPU.CoreTurboRatio[1]) &&
-		(gPlatform.CPU.CoreTurboRatio[1] == gPlatform.CPU.CoreTurboRatio[2]) &&
-		(gPlatform.CPU.CoreTurboRatio[2] == gPlatform.CPU.CoreTurboRatio[3]))
-	{
-		// Yes. We only need one so wipe the rest (keeping the one for max cores).
-		gPlatform.CPU.CoreTurboRatio[0] = gPlatform.CPU.CoreTurboRatio[1] = gPlatform.CPU.CoreTurboRatio[2] = 0;
-	}
-#else
-	gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);
 #endif
+	}
+
+	// Jeroen:	This code snippet was copied from ACPI/ssdt_pr_generator.h 
+	//			so that the call to initTurboRatios from Intel/dynamic_data.h 
+	//			or Intel/static_data.h ready the data for generateSSDT_PR.
+	//
+	// Note:	Let's use this to our advantage for DEBUG_CPU_TURBO_RATIOS!
+
+	// We need to have something to work with so check for it, and the 
+	// way we do that (trying go be smart) supports any number of cores.
+
+	if (gPlatform.CPU.CoreTurboRatio[0] != 0)
+	{
+		uint8_t i, duplicatedRatios = 0;
+		uint8_t	numberOfCores = gPlatform.CPU.NumCores;
+
+		// Simple check to see if all ratios are the same.
+		for (i = 0; i < numberOfCores; i++)
+		{
+			// First check for duplicates (against the previous value).
+			if (gPlatform.CPU.CoreTurboRatio[i] == gPlatform.CPU.CoreTurboRatio[i + 1])
+			{
+				duplicatedRatios++;
+				continue;
+			}
+
+			if (gPlatform.CPU.CoreTurboRatio[i] != gPlatform.CPU.CoreTurboRatio[0])
+			{
+				break;
+			}
+		}
+
+		// Should we add only one turbo P-State?
+		if (duplicatedRatios == 0)
+		{
+			gPlatform.CPU.NumberOfTurboRatios = NUMBER_OF_TURBO_STATES;	// Default for AICPUPM.
+		}
+		else // Meaning that we found duplicated ratios.
+		{
+			// Do we need to inject one Turbo P-State only?
+			if (duplicatedRatios == NUMBER_OF_TURBO_STATES)
+			{
+				// Yes. Wipe the rest (keeping the one with the highest value).
+				for (i = 1; i < numberOfCores; i++)		// i set to 1 to preserve the highest value.
+				{
+					gPlatform.CPU.CoreTurboRatio[i] = 0;
+				}
+			}
+			else
+			{
+				// There are only 3 Turbo ratios on the i5-2400, and people 
+				// may make mistakes, or want to use duplicated ratios, but  
+				// we'll have to ignore that for now because I have no idea 
+				// what we should be doing in this case.
+			}
+		}
+
+		// Jeroen: Used in ACPI/ssdt_pr_generator.h / for DEBUG_CPU_TURBO_RATIOS.
+		gPlatform.CPU.NumberOfTurboRatios = (NUMBER_OF_TURBO_STATES - duplicatedRatios);
+		
+		// _CPU_DEBUG_DUMP("Turbo Ratios: %d (%d dups)\n", gPlatform.CPU.NumberOfTurboRatios, duplicatedRatios);
+	}
+#else	// AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU_TURBO_RATIOS
+	gPlatform.CPU.CoreTurboRatio[0] = bitfield32(msr, 7, 0);
+#endif	// AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU_TURBO_RATIOS
 }
 
 
@@ -96,17 +146,8 @@ void initTurboRatios()
 void requestMaxTurbo(uint8_t aMaxMultiplier)
 {
 	// Testing with MSRDumper.kext confirmed that the CPU isn't always running at top speed,
-	// up to 5.9 GHz on a good i7-2500K, which is why we check for it here (a quicker boot).
+	// up to 5.9 GHz on a good i7-2600K, which is why we check for it here (a quicker boot).
 	
-#if USE_STATIC_CPU_DATA
-	// Turbo Disabled?
-	if ((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40)
-	{
-		return; // Yes.
-	}
-
-	aMaxMultiplier = ((rdmsr64(MSR_PLATFORM_INFO) >> 8) && 0xff);
-#endif
 	initTurboRatios();
 
 	// Is the maximum turbo ratio reached already?

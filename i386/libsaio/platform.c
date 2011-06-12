@@ -113,19 +113,23 @@ void initPlatform(int biosDevice)
     setVideoMode(0); // Switch to VGA_TEXT_MODE
 #endif
 
-	gPlatform.RevolutionVersionInfo = strdup(REVOBOOT_VERSION_INFO);	// Example: "RevoBoot v1.0.04"
+	gPlatform.RevoBootVersionInfo = strdup(REVOBOOT_VERSION_INFO);	// Example: "RevoBoot v1.0.04"
 
 	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevolutionVersionInfo);
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_TURBO_RATIOS
-	int cpu = 0;
+	uint8_t cpu = 0;
+	uint8_t numberOfCores = STATIC_CPU_NumCores;
 
 	// Blank CPU core ratio limits.
-	for (; cpu < 6; cpu++)
+	for (; cpu < numberOfCores; cpu++)
 	{
-		gPlatform.CPU.CoreTurboRatio[cpu] = 0; // Gets updated in: i386/libsaio/Intel/cpu.c
+		gPlatform.CPU.CoreTurboRatio[cpu] = 0; // Get updated later on in: i386/libsaio/Intel/cpu.c
 	}
 #endif
+
+	// Jeroen: Initialized in cpu.c and used in ssdt_pr_generator.h
+	gPlatform.CPU.NumberOfTurboRatios = 0;
 
 	initCPUStruct();
 

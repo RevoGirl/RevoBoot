@@ -29,77 +29,85 @@ static uint64_t getTSCFrequency(void)
 {
 	// DFE: This constant comes from older xnu:
 	#define CLKNUM					1193182	// formerly 1193167
-	
+
 	// DFE: These two constants come from Linux except CLOCK_TICK_RATE replaced with CLKNUM
 	#define CALIBRATE_TIME_MSEC		30
 	#define CALIBRATE_LATCH ((CLKNUM * CALIBRATE_TIME_MSEC + 1000/2)/1000)
 
-    uint64_t tscStart;
-    uint64_t tscEnd;
-    uint64_t tscDelta = 0xffffffffffffffffULL;
-    unsigned long pollCount;
-    uint64_t retval = 0;
-    int i;
+	uint64_t tscStart;
+	uint64_t tscEnd;
+	uint64_t tscDelta = 0xffffffffffffffffULL;
+	unsigned long pollCount;
+	uint64_t retval = 0;
+	int i;
 
-    /* Time how many TSC ticks elapse in 30 msec using the 8254 PIT
-     * counter 2.  We run this loop 3 times to make sure the cache
-     * is hot and we take the minimum delta from all of the runs.
-     * That is to say that we're biased towards measuring the minimum
-     * number of TSC ticks that occur while waiting for the timer to
-     * expire.  That theoretically helps avoid inconsistencies when
-     * running under a VM if the TSC is not virtualized and the host
-     * steals time.  The TSC is normally virtualized for VMware.
-     */
-    for (i = 0; i < 10; ++i)
-    {
-        enable_PIT2();
-        set_PIT2_mode0(CALIBRATE_LATCH);
-        tscStart = rdtsc64();
-        pollCount = poll_PIT2_gate();
-        tscEnd = rdtsc64();
-        /* The poll loop must have run at least a few times for accuracy */
+	/* Time how many TSC ticks elapse in 30 msec using the 8254 PIT
+	 * counter 2.  We run this loop 3 times to make sure the cache
+	 * is hot and we take the minimum delta from all of the runs.
+	 * That is to say that we're biased towards measuring the minimum
+	 * number of TSC ticks that occur while waiting for the timer to
+	 * expire.  That theoretically helps avoid inconsistencies when
+	 * running under a VM if the TSC is not virtualized and the host
+	 * steals time.  The TSC is normally virtualized for VMware.
+	 */
 
-        if (pollCount <= 1)
-		{
-            continue;
-		}
-        /* The TSC must increment at LEAST once every millisecond.  We
-         * should have waited exactly 30 msec so the TSC delta should
-         * be >= 30.  Anything less and the processor is way too slow.
-         */
-        if ((tscEnd - tscStart) <= CALIBRATE_TIME_MSEC)
-		{
-            continue;
-		}
-        // tscDelta = min(tscDelta, (tscEnd - tscStart))
-        if ((tscEnd - tscStart) < tscDelta)
-		{
-            tscDelta = tscEnd - tscStart;
-		}
-    }
-    /* tscDelta is now the least number of TSC ticks the processor made in
-     * a timespan of 0.03 s (e.g. 30 milliseconds)
-     * Linux thus divides by 30 which gives the answer in kiloHertz because
-     * 1 / ms = kHz.  But we're xnu and most of the rest of the code uses
-     * Hz so we need to convert our milliseconds to seconds.  Since we're
-     * dividing by the milliseconds, we simply multiply by 1000.
-     */
-
-    /* Unlike linux, we're not limited to 32-bit, but we do need to take care
-     * that we're going to multiply by 1000 first so we do need at least some
-     * arithmetic headroom.  For now, 32-bit should be enough.
-     * Also unlike Linux, our compiler can do 64-bit integer arithmetic.
-     */
-    if (tscDelta > (1ULL << 32))
+	for (i = 0; i < 10; ++i)
 	{
-        retval = 0;
+		enable_PIT2();
+		set_PIT2_mode0(CALIBRATE_LATCH);
+		tscStart = rdtsc64();
+		pollCount = poll_PIT2_gate();
+		tscEnd = rdtsc64();
+		/* The poll loop must have run at least a few times for accuracy */
+
+		if (pollCount <= 1)
+		{
+			continue;
+		}
+
+		/* The TSC must increment at LEAST once every millisecond.  We
+		 * should have waited exactly 30 msec so the TSC delta should
+		 * be >= 30.  Anything less and the processor is way too slow.
+		 */
+
+		if ((tscEnd - tscStart) <= CALIBRATE_TIME_MSEC)
+		{
+			continue;
+		}
+
+		// tscDelta = min(tscDelta, (tscEnd - tscStart))
+		if ((tscEnd - tscStart) < tscDelta)
+		{
+			tscDelta = tscEnd - tscStart;
+		}
 	}
-    else
-    {
-        retval = tscDelta * 1000 / 30;
-    }
-    disable_PIT2();
-    return retval;
+
+	/* tscDelta is now the least number of TSC ticks the processor made in
+	 * a timespan of 0.03 s (e.g. 30 milliseconds)
+	 * Linux thus divides by 30 which gives the answer in kiloHertz because
+	 * 1 / ms = kHz.  But we're xnu and most of the rest of the code uses
+	 * Hz so we need to convert our milliseconds to seconds.  Since we're
+	 * dividing by the milliseconds, we simply multiply by 1000.
+	 */
+
+	/* Unlike linux, we're not limited to 32-bit, but we do need to take care
+	 * that we're going to multiply by 1000 first so we do need at least some
+	 * arithmetic headroom.  For now, 32-bit should be enough.
+	 * Also unlike Linux, our compiler can do 64-bit integer arithmetic.
+	 */
+
+	if (tscDelta > (1ULL << 32))
+	{
+		retval = 0;
+	}
+	else
+	{
+		retval = tscDelta * 1000 / 30;
+	}
+
+	disable_PIT2();
+
+	return retval;
 }
 
 
@@ -522,7 +530,7 @@ void initCPUStruct(void)
 #if DEBUG_CPU_TURBO_RATIOS
 	int core = 0;
 	char div[] = "-------------------------------------\n";
-
+	
 	_CPU_DEBUG_DUMP("%s", div);
 	
 	for (; core < gPlatform.CPU.NumCores; core++)

@@ -1,6 +1,15 @@
+RevoBoot v1.0.18
+================
+- Fixed a number of bugs.
+- Made ssdt_pr_generator.h more robust.
+- VERSION info updated.
+
+Note: Thanks to STLVNUB, blackosx and flAked for reporting bugs (via issues). Keep up the good work!
+
+
 RevoBoot v1.0.17
 ================
-- FIxed a bug in i386/libsaio/cpu.c (if claused that failed to work).
+- Fixed a bug in i386/libsaio/cpu.c (if clause that failed to work).
 - Fixed newly introduced regressions in ssdt_pr_generator.h
 - Core count in ssdt_pr_generator.h is now also scalable (supports different kinds of setups).
 - VERSION info updated.
@@ -20,7 +29,7 @@ RevoBoot v1.0.15
 - Indentation errors fixed in platform.c
 - VERSION info updated.
 
-About the latest ssdt_pr_genetaro.h changes:
+About the latest ssdt_pr_generator.h changes:
 --------------------------------------------
 - CPU specs gathering / added by Jeroen.
 - Turbo range detection implemented.

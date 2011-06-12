@@ -142,11 +142,6 @@
 #define DEBUG_ACPI							0	// Set to 0 by default. Use 1 when things don't seem to work for you.
 
 
-#if USE_STATIC_ACPI_BASE_ADDRESS
-	#define	STATIC_ACPI_BASE_ADDRESS		0x000fe020	// Set DEBUG_ACPI to 1 to get this address.
-#endif
-
-
 //--------------------------------------------------------------- BOOT.C -------------------------------------------------------------------
 
 
@@ -167,6 +162,8 @@
 #define CPU_VENDOR_ID						CPU_VENDOR_INTEL // CPU_VENDOR_AMD is not supported.
 
 #define OC_BUSRATIO_CORRECTION				0	// Set to 0 by default. Change this to busratio-100 (OC'ed systems with a changed busratio).
+
+#define NUMBER_OF_TURBO_STATES				4	// Set to 4 by default.
 
 #define BOOT_TURBO_RATIO					0	// Set to 0 by default. Change this to the desired (and supported) turbo multiplier.
 												//
@@ -191,6 +188,8 @@
 #define STATIC_CPU_Type						0x703			// kSMBTypeOemProcessorType - used in: libsaio/SMBIOS/dynamic_data.h
 
 #define STATIC_CPU_NumCores					4				// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
+															//
+															// Note: Also used in cpu.c and platform.c for both static / dynamic CPU data.
 
 #define STATIC_CPU_NumThreads				8				// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
 

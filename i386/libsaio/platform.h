@@ -95,7 +95,7 @@ typedef struct _PlatformInfo_t
 
 	long				LastKernelAddr;				// Used in AllocateKernelMemory
 	
-	char *				RevolutionVersionInfo;		// Introduced in Revolution v0.6.45
+	char *				RevoBootVersionInfo;		// Introduced in Revolution v0.6.45
 
 	int					OSType;						// Type of Operating System.
 
@@ -153,7 +153,9 @@ typedef struct _PlatformInfo_t
 
 		uint32_t	QPISpeed;				// QuickPath Interconnect Bus Speed
 
-		uint8_t		CoreTurboRatio[6];		// Expanded in: i386/libsaio/cpu/Intel/dynamic_data.h
+		uint8_t		NumberOfTurboRatios;	// Jeroen: initialized in cpu.c and used in ACPI/ssdt_pr_generator.h
+
+		uint8_t		CoreTurboRatio[STATIC_CPU_NumCores]; // Used in cpu Intel/dynamic_data.h and ACPI/ssdt_pr_generator.h
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU
 		uint8_t		MinBusRatio;			// Used in ACPI/apss_generator.h

@@ -19,7 +19,7 @@ extern ACPI_RSDP * getACPIBaseAddress();
 	#include "ssdt_pr_generator.h"
 #endif
 
-#if LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
+#if LOAD_EXTRA_ACPI_TABLES && (LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI)
 //==============================================================================
 
 int loadACPITable(int tableIndex)
@@ -60,13 +60,11 @@ int loadACPITable(int tableIndex)
 
 void loadACPITables(void)
 {
-// DHP: We might want to change this and walk through the /Extra/ACPI/ folder for target tabels.
-
-#if LOAD_EXTRA_ACPI_TABLES	// Works like a master switch.
+	// DHP: We might want to change this and walk through the /Extra/ACPI/ folder for target tabels.
 
 #if LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(DSDT);
-#endif	// LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
+#endif // LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
 
 #if LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 	loadACPITable(SSDT);
@@ -77,7 +75,7 @@ void loadACPITables(void)
 #endif	// LOAD_SSDT_TABLE_FROM_EXTRA_ACPI
 
 }
-#endif //LOAD_EXTRA_ACPI_TABLES
+#endif // LOAD_EXTRA_ACPI_TABLES && (LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI)
 
 
 
@@ -109,7 +107,7 @@ bool replaceTable(ENTRIES * xsdtEntries, int entryIndex, int tableIndex)
 			}
 		}
 	}
-#endif
+#endif	// REPLACE_EXISTING_SSDT_TABLES
 
 	// Check address to prevent a KP.
 	if (customTables[type].tableAddress)
@@ -176,10 +174,10 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 	{
 		printf(".\n");	
 	}
-#endif
+#endif	// DEBUG_ACPI
 
 		
-#if STATIC_DSDT_TABLE_INJECTION || LOAD_DSDT_TABLE_FROM_EXTRA_ACPI
+#if STATIC_DSDT_TABLE_INJECTION || (LOAD_EXTRA_ACPI_TABLES && LOAD_DSDT_TABLE_FROM_EXTRA_ACPI)
 	patchedFADT->DSDT = (uint32_t)customTables[DSDT].tableAddress; // The original DSDT without DSDT table injection!
 		
 	_ACPI_DEBUG_DUMP("Replacing factory DSDT with ");
@@ -190,7 +188,7 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 		_ACPI_DEBUG_DUMP("static DSDT data");
 #else
 		_ACPI_DEBUG_DUMP("loaded DSDT.aml");
-#endif
+#endif	// STATIC_DSDT_TABLE_INJECTION
 		_ACPI_DEBUG_DUMP(" @ 0x%x\n", customTables[DSDT].tableAddress);
 
 		patchedFADT->X_DSDT = (uint32_t)customTables[DSDT].tableAddress;
@@ -202,9 +200,9 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 	{
 		_ACPI_DEBUG_DUMP("Failed to locate DSDT replacement!\n");
 	}
-#endif
+#endif	// DEBUG_ACPI
 	
-#endif
+#endif	// STATIC_DSDT_TABLE_INJECTION || (LOAD_EXTRA_ACPI_TABLES && LOAD_DSDT_TABLE_FROM_EXTRA_ACPI)
 
 #if STATIC_FACS_TABLE_INJECTION
 	// Replace the factory FACS table.
@@ -215,7 +213,7 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 	patchedFADT->X_FIRMWARE_CTRL = (uint64_t) 0;
 
 	customTables[FACS].table = NULL;
-#endif
+#endif	// STATIC_FACS_TABLE_INJECTION
 	patchedFADT->Checksum = 0;
 	patchedFADT->Checksum = 256 - checksum8(patchedFADT, sizeof(ACPI_FADT));
 		
@@ -240,6 +238,9 @@ void setupACPI(void)
 	
 	ACPI_RSDP * factoryRSDP = getACPIBaseAddress();
 
+	_ACPI_DEBUG_DUMP("factoryRSDP: 0x%x\n", factoryRSDP);
+	_ACPI_DEBUG_SLEEP(5);
+
 	// _ACPI_DUMP_RSDP_TABLE(factoryRSDP, "Factory");
 
 #if PATCH_ACPI_TABLE_DATA
@@ -250,11 +251,11 @@ void setupACPI(void)
 
 #if AUTOMATIC_SSDT_PR_CREATION
 	generateSSDT_PR();
-#endif
+#endif	// AUTOMATIC_SSDT_PR_CREATION
 
 #if LOAD_EXTRA_ACPI_TABLES
 	loadACPITables();
-#endif
+#endif	// LOAD_EXTRA_ACPI_TABLES
 
 	_ACPI_DEBUG_DUMP("\n");
 
