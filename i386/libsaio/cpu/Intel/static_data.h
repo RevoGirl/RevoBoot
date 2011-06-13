@@ -24,7 +24,11 @@ void initCPUStruct(void)
 	gPlatform.CPU.QPISpeed		= STATIC_CPU_QPISpeed;		// QuickPath Interconnect - used in: libsaio/SMBIOS/dynamic_data.h
 
 	uint64_t msr = rdmsr64(MSR_PLATFORM_INFO);				// Jeroen: Copied over from i386/libsaio/cpu/Intel/dynamic_data.h
+
+#if AUTOMATIC_SSDT_PR_CREATION
 	gPlatform.CPU.MinBusRatio = ((msr >> 40) & 0xff);		// Example: 16 with Intel i7-2600 processor.
+#endif
+
 	gPlatform.CPU.MaxBusRatio = ((msr >> 8) & 0xff);		// Example: 34 with Intel i7-2600 processor and 33 with Intel i7-2500.
 
 	// Is Turbo Mode Enabled?
