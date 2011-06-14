@@ -58,12 +58,12 @@ void initTurboRatios()
 	gPlatform.CPU.CoreTurboRatio[1] = bitfield32(msr, 15, 8);
 	
 	// Additionally for quad and six core CPU's.
-	if (gPlatform.CPU.NumCores >= 4)
+	if (gPlatform.CPU.NumCores >= 4)	// Up to 8 threads.
 	{
 		gPlatform.CPU.CoreTurboRatio[2] = bitfield32(msr, 23, 16);
 		gPlatform.CPU.CoreTurboRatio[3] = bitfield32(msr, 31, 24);
 
-#if STATIC_CPU_NumCores == 6
+#if STATIC_CPU_NumCores >= 6			// 12 threads.
 		// For the lucky few with a six core Gulftown CPU.
 		if (gPlatform.CPU.NumCores == 6)
 		{
@@ -72,6 +72,12 @@ void initTurboRatios()
 			gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
 			gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
 		}
+#endif
+
+#if STATIC_CPU_NumCores == 8			// 16 threads.
+		// Westmere-EX support (E7-2820/E7-2830).
+		gPlatform.CPU.CoreTurboRatio[6] = ((msr >> 48) & 0xff);
+		gPlatform.CPU.CoreTurboRatio[7] = ((msr >> 56) & 0xff);
 #endif
 	}
 
@@ -92,17 +98,13 @@ void initTurboRatios()
 		// Simple check to see if all ratios are the same.
 		for (i = 0; i < numberOfCores; i++)
 		{
-			// First check for duplicates (against the previous value).
-			if (gPlatform.CPU.CoreTurboRatio[i] == gPlatform.CPU.CoreTurboRatio[i + 1])
-			{
-				duplicatedRatios++;
-				continue;
-			}
-
-			if (gPlatform.CPU.CoreTurboRatio[i] != gPlatform.CPU.CoreTurboRatio[0])
+			// First check for duplicates (against the next value).
+			if (gPlatform.CPU.CoreTurboRatio[i] != gPlatform.CPU.CoreTurboRatio[i + 1])
 			{
 				break;
 			}
+
+			duplicatedRatios++;
 		}
 
 		// Should we add only one turbo P-State?
