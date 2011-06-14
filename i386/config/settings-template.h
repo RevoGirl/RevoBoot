@@ -123,6 +123,13 @@
 												// Note: Optional feature for 'Sandy Bridge' based configurations.
 
 
+#if AUTOMATIC_SSDT_PR_CREATION
+	#define MAX_NUMBER_OF_P_STATES			19	// Default of 15 normal plus 4 Turbo P-States (for desktop setups).
+												// MSRDumper(@16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi (YMMV).
+												// Low power (mobility) processors might need an extended range!
+#endif
+
+
 #define AUTOMATIC_PROCESSOR_BLOCK_CREATION	0	// Set to 0 by default. Change to 1 when you want to inject processor blocks into SSDT_PR.
 												//
 												// Note: You can have Processor() {} blocks in your DSDT / SSDT so there is really 
