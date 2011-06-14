@@ -9,10 +9,6 @@
  *			- P-State number limitation implemented by DHP (June 2011).
  *			- Single turbo state support (TODO list) implemented by DHP (June 2011).
  *
- *	TODO:
- *			- Factory DSDT with dropped SSDT tables should also work (work in progress).
- *
- *
  *	Credits:
  *			- Intel's ACPICA project.
  *			- Mozodojo (for Scope/Package size calculations).
@@ -43,26 +39,7 @@ void generateSSDT_PR(void)
 	#define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
 	
 	//--------------------------------------------------------------------------
-	// Move this to settings.h when you're done testing!
-	//--------------------------------------------------------------------------
-	#define MAX_NUMBER_OF_P_STATES	21				// Default of 16 normal plus 4 turbo P-States (for desktop setups).
-													// Result(16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi.
-													// Low power (mobility) processors might need an extended range!
-	//--------------------------------------------------------------------------
 	// Our AML data blocks.
-
-#if AUTOMATIC_PROCESSOR_BLOCK_CREATION
-
-	uint8_t PROCESSOR_DEF_BLOCK[] =
-	{
-		/* 0000 */	0x5B, 0x83, 0x0B, _CPU_LABEL_REPLACEMENT, 0x01, 
-		/* 0008 */	0x10, 0x04, 0x00, 0x00, 0x06
-	};
-
-	#define INDEX_OF_CPU_NUMBER			0x06		// Points to 0x30 in _CPU_LABEL_REPLACEMENT
-	#define INDEX_OF_PROCESSOR_NUMBER	0x07		// Points to 0x01
-
-#endif
 
 	uint8_t SSDT_PM_HEADER[] =
 	{
@@ -73,6 +50,24 @@ void generateSSDT_PR(void)
 		/* 0020 */	0x16, 0x03, 0x11, 0x20
 	};
 	
+#if AUTOMATIC_PROCESSOR_BLOCK_CREATION
+	
+	uint8_t SCOPE_PR[] =						// Scope (\_PR) { }
+	{
+		/* 0000 */	0x10, 0xFF, 0xFF, 0x5C, 0x5F, 0x50, 0x52, 0x5F
+	};
+
+	uint8_t PROCESSOR_DEF_BLOCK[] =
+	{
+		/* 0000 */	0x5B, 0x83, 0x0B, _CPU_LABEL_REPLACEMENT, 0xFF, 
+		/* 0008 */	0x10, 0x04, 0x00, 0x00, 0x06
+	};
+	
+#define INDEX_OF_PROCESSOR_CPU_ID	0x06		// Points to 0x30 in _CPU_LABEL_REPLACEMENT
+#define INDEX_OF_PROCESSOR_NUMBER	0x07		// Points to 0x01
+	
+#endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
+
 	uint8_t SCOPE_PR_CPU0[] =						// Scope (\_PR.CPU0) { }
 	{
 		/* 0000 */	0x10, 0xFF, 0xFF, 0x2E, 0x5F, 0x50, 0x52, 0x5F, 
@@ -135,7 +130,7 @@ void generateSSDT_PR(void)
 		/* 0020 */	0x50, 0x53, 0x53
 	};
 
-	#define INDEX_OF_CPU_NUMER			0x0b		// Points to 0x30 in SCOPE_CPU_N (in second _CPU_LABEL_REPLACEMENT).
+	#define INDEX_OF_CPU_NUMBER			0x0b		// Points to 0x30 in SCOPE_CPU_N (in second _CPU_LABEL_REPLACEMENT).
 
 	typedef struct acpi_2_pss
 	{
@@ -161,7 +156,7 @@ void generateSSDT_PR(void)
 	// When this is false then initTurboRatios (in cpu.c) didn't find any.
 	if (gPlatform.CPU.NumberOfTurboRatios > 0)
 	{
-#if NUMBER_OF_TURBO_STATES > 4
+#if NUMBER_OF_TURBO_STATES > 4						// See; config/settings.h
 
 		uint8_t numberOfCores = (gPlatform.CPU.NumCores - 1);
 		// Get turbo range from multipliers.
@@ -178,9 +173,9 @@ void generateSSDT_PR(void)
 			// No. Use the default 4 for AICPUPM.
 			numberOfTurboStates	= NUMBER_OF_TURBO_STATES;
 		}
-#else
+#else	// NUMBER_OF_TURBO_STATES > 4
 		numberOfTurboStates	= gPlatform.CPU.NumberOfTurboRatios;
-#endif
+#endif	// NUMBER_OF_TURBO_STATES > 4
 
 		//----------------------------------------------------------------------
 		// Intel's 2nd generation i5 Desktop Processors (with Turbo 2.0)
@@ -246,11 +241,15 @@ void generateSSDT_PR(void)
 							sizeof(METHOD_ACST) + 
 							(sizeof(SCOPE_CPU_N) * (gPlatform.CPU.NumThreads - 1));
 
-#if AUTOMATIC_PROCESSOR_BLOCK_CREATION
-	// Increase buffer for the processor blocks, or we run out of space.
-	bufferSize += (sizeof(PROCESSOR_DEF_BLOCK) * (gPlatform.CPU.NumThreads - 1));
-#endif
+#if AUTOMATIC_PROCESSOR_BLOCK_CREATION				// See; config/settings.h
 
+	// Increase buffer for the processor blocks, or we will run out of space.
+	bufferSize +=	sizeof(SCOPE_PR) +
+					(sizeof(PROCESSOR_DEF_BLOCK) * gPlatform.CPU.NumThreads);
+
+#endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
+
+	uint16_t size = 0;
 	void * buffer = malloc(bufferSize);
 	void * bufferPointer = buffer;
 
@@ -262,14 +261,61 @@ void generateSSDT_PR(void)
 	bcopy(SSDT_PM_HEADER, buffer, sizeof(SSDT_PM_HEADER));
 	bufferPointer += sizeof(SSDT_PM_HEADER);
 
+#if AUTOMATIC_PROCESSOR_BLOCK_CREATION				// See; config/settings.h
+	//--------------------------------------------------------------------------
+	// Here we add the following AML code:
+	//
+	//	Scope (\_PR)
+	//	{
+	//        Processor (CPUn, 0x0n, 0x00000410, 0x06) {}
+	//	      ...
+	
+	/*
+	 * What we do here is to inject the Processor declaration blocks so that  
+	 * you don't have to add them to your DSDT anymore. This way you can boot  
+	 * a new Sandy Bridge setup, with AICPUPM loaded, without even having a 
+	 * (modified) DSDT for it.
+	 *
+	 * Does this sound familiar to you: "<i>I have this and that board and I 
+	 * wanted to know if your DSDT will work for my board</i>"?
+	 *
+	 * Right. Well. This concept might not be new. In fact it isn't, MC did this 
+	 * for his P5K PRO in 2009 already, but it will be a lot more portable.
+	 *
+	 * Let's stop messing with zillions of different (Sandy Bridge) DSDT's and 
+	 * just use a Secondary System Device Table instead, because this is exactly 
+	 * why that was being developed... so let's use it to our advantage ;)
+	 */
+
 	//--------------------------------------------------------------------------
 	// Taking care of the Scope size.
+	
+	size =	sizeof(SCOPE_PR) + (sizeof(PROCESSOR_DEF_BLOCK) * gPlatform.CPU.NumThreads) - 1;
+	
+	SCOPE_PR[ INDEX_OF_SCOPE_LENGTH ]		= (0x40 | (size & 0x0f)) - 1;
+	SCOPE_PR[ INDEX_OF_SCOPE_LENGTH + 1 ]	= ((size >> 4) & 0xff);
 
-	uint16_t size =	sizeof(SCOPE_PR_CPU0) + 
-					sizeof(NAME_APSN) + 
-					sizeof(NAME_APSS) + 
-					(sizeof(PACKAGE_P_STATE) * numberOfPStates) +
-					sizeof(METHOD_ACST);
+	bcopy(SCOPE_PR, bufferPointer, sizeof(SCOPE_PR));
+	bufferPointer += sizeof(SCOPE_PR);
+
+	for (i = 0; i < gPlatform.CPU.NumThreads; i++)
+	{
+		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_CPU_ID] = (0x30 + i); // Setting CPU name number.
+		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_NUMBER] = (i + 1); // Setting CPU number.
+		bcopy(PROCESSOR_DEF_BLOCK, bufferPointer, sizeof(PROCESSOR_DEF_BLOCK));
+		bufferPointer += sizeof(PROCESSOR_DEF_BLOCK);
+	}
+
+#endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
+
+	//--------------------------------------------------------------------------
+	// Taking care of the Scope size.
+	
+	size =	sizeof(SCOPE_PR_CPU0) + 
+			sizeof(NAME_APSN) + 
+			sizeof(NAME_APSS) + 
+			(sizeof(PACKAGE_P_STATE) * numberOfPStates) +
+			sizeof(METHOD_ACST);
 	
 	SCOPE_PR_CPU0[ INDEX_OF_SCOPE_LENGTH ]		= (0x40 | (size & 0x0f)) - 1;
 	SCOPE_PR_CPU0[ INDEX_OF_SCOPE_LENGTH + 1 ]	= ((size >> 4) & 0xff);
@@ -339,7 +385,7 @@ void generateSSDT_PR(void)
 	uint8_t	maxRatio = gPlatform.CPU.MaxBusRatio;	// Max non-turbo frequency (see CPU specs).
 
 	//--------------------------------------------------------------------------
-	// First the turbo P-States.
+	// First inject the Turbo P-States.
 
 	for (i = 0; i < numberOfTurboStates; i++)
 	{
@@ -365,10 +411,13 @@ void generateSSDT_PR(void)
 			frequency = (ratio * 100);
 		}
 
-		ratio = status = (ratio << 8);
+		aPSS->Power		= (uint32_t) tdp;			// Turbo States use TDP.
+
+		//---------------- D O U B L E  V I S I O N  A L E R T! ----------------
+
+		ratio			= status = (ratio << 8);
 
 		aPSS->Frequency	= frequency;
-		aPSS->Power		= (uint32_t) tdp;			// Turbo States use TDP.
 		aPSS->Ratio		= ratio;
 		aPSS->Status	= ratio;
 
@@ -376,17 +425,19 @@ void generateSSDT_PR(void)
 
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
+
+		//----------------------------------------------------------------------
 	}
 
 	i = gPlatform.CPU.MaxBusRatio;
-	
+
 	//--------------------------------------------------------------------------
 	// And now the 'normal' P-States.
 
 	for (; i >= gPlatform.CPU.MinBusRatio; i--)
 	{
 		// Do we need to limit the number of P-States?
-		if (i != gPlatform.CPU.MinBusRatio && aPSSPackageCount >= (MAX_NUMBER_OF_P_STATES - 1))
+		if ((i != gPlatform.CPU.MinBusRatio) && (aPSSPackageCount >= (MAX_NUMBER_OF_P_STATES - 1)))
 		{
 			continue;
 		}
@@ -397,17 +448,24 @@ void generateSSDT_PR(void)
 		m			= ((1.1 - ((maxRatio - ratio) * 0.00625)) / 1.1);
 		power		= (((float)ratio / maxRatio) * (m * m) * tdp);
 
-		ratio		= status = (ratio << 8);
+		aPSS->Power		= (uint32_t) power; // We are using a 32-bit value, even when a  
+											// 16-bit value would be fine, but doing 
+											// that would complicate things even more.
+
+		//---------------- D O U B L E  V I S I O N  A L E R T! ----------------
+
+		ratio			= status = (ratio << 8);
 
 		aPSS->Frequency	= frequency;
-		aPSS->Power		= (uint32_t) power;
 		aPSS->Ratio		= ratio;
 		aPSS->Status	= ratio;
-	
+
 		aPSSPackageCount++;
 
 		bcopy(PACKAGE_P_STATE, bufferPointer, sizeof(PACKAGE_P_STATE));
 		bufferPointer += sizeof(PACKAGE_P_STATE);
+
+		//----------------------------------------------------------------------
 	}
 
 	//--------------------------------------------------------------------------
@@ -505,15 +563,16 @@ void generateSSDT_PR(void)
 
 	for (i = 1; i < gPlatform.CPU.NumThreads; i++)
 	{
-		SCOPE_CPU_N[INDEX_OF_CPU_NUMER] = (0x30 + i);		// Setting CPU number.
+		SCOPE_CPU_N[INDEX_OF_CPU_NUMBER] = (0x30 + i);		// Setting CPU number.
 		bcopy(SCOPE_CPU_N, bufferPointer, sizeof(SCOPE_CPU_N));
 		bufferPointer += sizeof(SCOPE_CPU_N);
 	}
 
 	//--------------------------------------------------------------------------
 	// Here we generate a new checksum.
-	// Note: The length and checksum must be the same as in ssdt_pr.aml
-	
+	// Note:	The length and checksum should be the same as a normal ssdt_pr.aml
+	//			but might vary due to (lack of) optimization.
+
 	header = (struct acpi_2_ssdt *) buffer;
 	
 	header->Length		= bufferSize;
