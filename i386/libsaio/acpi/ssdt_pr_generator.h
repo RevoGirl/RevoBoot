@@ -3,43 +3,65 @@
  *
  *	Updates:
  *
- *			- First bug fixes / comments added by DHP (June 2011).
- *			- CPU specs gathering / added by Jeroen (June 2011).
- *			- Turbo range detection implemented by DHP (June 2011).
- *			- P-State number limitation implemented by DHP (June 2011).
- *			- Single turbo state support (TODO list) implemented by DHP (June 2011).
+ *			- First bug fixes / comments added by DHP.
+ *			- CPU specs gathering / added by Jeroen.
+ *			- Turbo range detection implemented by DHP.
+ *			- P-State number limitation implemented by DHP.
+ *			- Single turbo state support (TODO list) implemented by DHP.
+ *			- Device (SBUS) injection added (required for AICPUPM) by DHP.
+ *			- New global directive (AUTOMATIC_SSDT_PR_CREATION) added by DHP.
  *
  *	Credits:
+ *			- Master Chief for his ongoing hands-on ACPI table lessons.
  *			- Intel's ACPICA project.
  *			- Mozodojo (for Scope/Package size calculations).
+ *			- Master Chief for his idea to also inject device SBUS, to use a 
+ *			  SSDT table instead of a modified DSDT (for new/initial setups)
+ *			  and to simplify the global directives (just use 1 instead of 3).
  *
  *			- Thanks to flAked et all for helping me with tiny ssdt_pr.dsl
- *			- flAked, Jeroen and Pike (testers).
+ *			- flAked, Jeroen and Pike (coders and testers).
  *
  *	Notes:
  *
- *			- We only want to support Sandy Bridge processors.
+ *			- We <i>only</i> want to support Sandy Bridge processors.
  *
  *			- Wrong UEFI settings will lead to:
- *			-	AppleIntelCPUPowerManagement: Turbo Ratio 19999
- *			-	AppleIntelCPUPowerManagement: Turbo Ratio DEF0
- *			- This can be fixed by changing your settings.
+ *				AppleIntelCPUPowerManagement: Turbo Ratio 19999 / 1BBBA (?)
+ *				AppleIntelCPUPowerManagement: Turbo Ratio DEF0
+ *				Note: This can be fixed by changing your UEFI settings.
  */
 
 
 #include "cpu/proc_reg.h"
 
-extern uint8_t getTDP(void);
+//------------------------------------------------------------------------------
+// Adding two local directives, for backward compatibility, but we prefer that
+// you use the new global directive AUTOMATIC_SSDT_PR_CREATION from now on.
+//------------------------------------------------------------------------------
+
+#if AUTOMATIC_SSDT_PR_CREATION | 2
+	#define AUTOMATIC_PROCESSOR_BLOCK_CREATION	1
+#endif
+
+#if AUTOMATIC_SSDT_PR_INJECTION | 4
+	#define AUTOMATIC_DEVICE_SBUS_CREATION		1
+#endif
 
 
 //==============================================================================
 
 void generateSSDT_PR(void)
 {
-	#define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
-	
 	//--------------------------------------------------------------------------
-	// Our AML data blocks.
+	// This directive enables you to use a custom name (CPUn) instead of the 
+	// factory name (P00N) for processor definition blocks (think namespace).
+	//--------------------------------------------------------------------------
+	
+#define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
+
+	//--------------------------------------------------------------------------
+	// Our pre-defined AML data blocks.
 
 	uint8_t SSDT_PM_HEADER[] =
 	{
@@ -50,9 +72,25 @@ void generateSSDT_PR(void)
 		/* 0020 */	0x16, 0x03, 0x11, 0x20
 	};
 	
+#if AUTOMATIC_DEVICE_SBUS_CREATION
+	uint8_t SCOPE_PCI0_SBUS[] =						// Scope (\_SB.PCI0) { ... }
+	{
+		/* 0000 */	0x10, 0x46, 0x05, 0x5C, 0x2E, 0x5F, 0x53, 0x42, 
+		/* 0008 */	0x5F, 0x50, 0x43, 0x49, 0x30, 0x5B, 0x82, 0x48, 
+		/* 0010 */	0x04, 0x53, 0x42, 0x55, 0x53, 0x08, 0x5F, 0x41, 
+		/* 0018 */	0x44, 0x52, 0x0C, 0x03, 0x00, 0x1F, 0x00, 0x5B, 
+		/* 0020 */	0x82, 0x36, 0x42, 0x55, 0x53, 0x30, 0x08, 0x5F, 
+		/* 0028 */	0x43, 0x49, 0x44, 0x0D, 0x73, 0x6D, 0x62, 0x75, 
+		/* 0030 */	0x73, 0x00, 0x08, 0x5F, 0x41, 0x44, 0x52, 0x00, 
+		/* 0038 */	0x5B, 0x82, 0x1D, 0x44, 0x56, 0x4C, 0x30, 0x08, 
+		/* 0040 */	0x5F, 0x41, 0x44, 0x52, 0x0A, 0x57, 0x08, 0x5F, 
+		/* 0048 */	0x43, 0x49, 0x44, 0x0D, 0x64, 0x69, 0x61, 0x67, 
+		/* 0050 */	0x73, 0x76, 0x61, 0x75, 0x6C, 0x74, 0x00
+	};
+#endif
+
 #if AUTOMATIC_PROCESSOR_BLOCK_CREATION
-	
-	uint8_t SCOPE_PR[] =						// Scope (\_PR) { }
+	uint8_t SCOPE_PR[] =							// Scope (\_PR) { }
 	{
 		/* 0000 */	0x10, 0xFF, 0xFF, 0x5C, 0x5F, 0x50, 0x52, 0x5F
 	};
@@ -63,8 +101,8 @@ void generateSSDT_PR(void)
 		/* 0008 */	0x10, 0x04, 0x00, 0x00, 0x06
 	};
 	
-#define INDEX_OF_PROCESSOR_CPU_ID	0x06		// Points to 0x30 in _CPU_LABEL_REPLACEMENT
-#define INDEX_OF_PROCESSOR_NUMBER	0x07		// Points to 0x01
+#define INDEX_OF_PROCESSOR_CPU_ID	0x06			// Points to 0x30 in _CPU_LABEL_REPLACEMENT
+#define INDEX_OF_PROCESSOR_NUMBER	0x07			// Points to 0x01
 	
 #endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
 
@@ -149,14 +187,14 @@ void generateSSDT_PR(void)
 
 	uint8_t		i = 0;
 	uint8_t		numberOfTurboStates	= 0;
-	uint32_t	tdp = (getTDP() * 1000);			// See: i386/libsaio/cpu/Intel/cpu.c
+	uint32_t	tdp = (gPlatform.CPU.TDP * 1000);	// See: i386/libsaio/cpu/Intel/cpu.c
 
 	struct acpi_2_ssdt * header = (struct acpi_2_ssdt *) SSDT_PM_HEADER;
 
 	// When this is false then initTurboRatios (in cpu.c) didn't find any.
 	if (gPlatform.CPU.NumberOfTurboRatios > 0)
 	{
-#if NUMBER_OF_TURBO_STATES > 4						// See; config/settings.h
+#if NUMBER_OF_TURBO_STATES > 4						// See: config/settings.h
 
 		uint8_t numberOfCores = (gPlatform.CPU.NumCores - 1);
 		// Get turbo range from multipliers.
@@ -241,11 +279,16 @@ void generateSSDT_PR(void)
 							sizeof(METHOD_ACST) + 
 							(sizeof(SCOPE_CPU_N) * (gPlatform.CPU.NumThreads - 1));
 
+#if AUTOMATIC_DEVICE_SBUS_CREATION					// See: config/settings.h
+
+	bufferSize += sizeof(SCOPE_PCI0_SBUS);			// Increase buffer when required.
+
+#endif
+
 #if AUTOMATIC_PROCESSOR_BLOCK_CREATION				// See; config/settings.h
 
 	// Increase buffer for the processor blocks, or we will run out of space.
-	bufferSize +=	sizeof(SCOPE_PR) +
-					(sizeof(PROCESSOR_DEF_BLOCK) * gPlatform.CPU.NumThreads);
+	bufferSize += sizeof(SCOPE_PR) + (sizeof(PROCESSOR_DEF_BLOCK) * gPlatform.CPU.NumThreads);
 
 #endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
 
@@ -261,7 +304,44 @@ void generateSSDT_PR(void)
 	bcopy(SSDT_PM_HEADER, buffer, sizeof(SSDT_PM_HEADER));
 	bufferPointer += sizeof(SSDT_PM_HEADER);
 
-#if AUTOMATIC_PROCESSOR_BLOCK_CREATION				// See; config/settings.h
+#if AUTOMATIC_DEVICE_SBUS_CREATION					// See: config/settings.h
+	//--------------------------------------------------------------------------
+	// Here we add the following AML code:
+	//
+	//    Scope (\_SB.PCI0)
+	//    {
+	//        Device (SBUS)
+	//        {
+	//            Name (_ADR, 0x001F0003)
+	//            Device (BUS0)
+	//            {
+	//                Name (_CID, "smbus")
+	//                Name (_ADR, Zero)
+	//                Device (DVL0)
+	//                {
+	//                    Name (_ADR, 0x57)
+	//                    Name (_CID, "diagsvault")
+	//                }
+	//            }
+	//        }
+	//    }
+
+	//--------------------------------------------------------------------------
+	// Getting / setting the (static) Scope size.
+
+	size = sizeof(SCOPE_PCI0_SBUS);
+
+	// DHP: Jeroen please check this - we shouldn't need the next two lines.
+
+	SCOPE_PCI0_SBUS[ INDEX_OF_SCOPE_LENGTH ]		= (0x40 | (size & 0x0f)) - 1;
+	SCOPE_PCI0_SBUS[ INDEX_OF_SCOPE_LENGTH + 1 ]	= ((size >> 4) & 0xff);
+	
+	bcopy(SCOPE_PCI0_SBUS, bufferPointer, sizeof(SCOPE_PCI0_SBUS));
+	bufferPointer += sizeof(SCOPE_PCI0_SBUS);
+
+#endif
+
+#if AUTOMATIC_PROCESSOR_BLOCK_CREATION				// See: config/settings.h
 	//--------------------------------------------------------------------------
 	// Here we add the following AML code:
 	//
