@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Master Chief. All rights reserved.
  *
- * Note: This is an essential part of the build process for RevoBoot v1.0.14 and greater.
+ * Note: This is an essential part of the build process for RevoBoot v1.0.19 and greater.
  *
  *
  * Latest cleanups and additional directives added by DHP in 2011.
