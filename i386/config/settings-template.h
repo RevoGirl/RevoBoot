@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Master Chief. All rights reserved.
  *
- * Note: This is an essential part of the build process for RevoBoot v1.0.14 and greater.
+ * Note: This is an essential part of the build process for RevoBoot v1.0.19 and greater.
  *
  *
  * Latest cleanups and additional directives added by DHP in 2011.
@@ -113,27 +113,23 @@
 #define LOAD_EXTRA_ACPI_TABLES				(LOAD_DSDT_TABLE_FROM_EXTRA_ACPI || LOAD_SSDT_TABLE_FROM_EXTRA_ACPI)
 
 
-#define DROP_SSDT_TABLES					0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
+#define AUTOMATIC_SSDT_PR_CREATION			1	// Set to 0 by default (support for Sandy Bridge only).
 												//
-												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
-
-
-#define AUTOMATIC_SSDT_PR_CREATION			0	// Set to 0 by default. Change to 1 when you want RevoBoot to generate and inject SSDT_PR for you.
-												//
-												// Note: Optional feature for 'Sandy Bridge' based configurations.
-
+												// Use 1 to inject a custom SSDT with auto-generated P-States.
+												// Use 3 to also inject the processor declaration blocks.
+												// Use 7 to also inject device SBUS (required for Power Management).
 
 #if AUTOMATIC_SSDT_PR_CREATION
 	#define MAX_NUMBER_OF_P_STATES			19	// Default of 15 normal plus 4 Turbo P-States (for desktop setups).
 												// MSRDumper(@16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi (YMMV).
 												// Low power (mobility) processors might need an extended range!
-#endif
 
-
-#define AUTOMATIC_PROCESSOR_BLOCK_CREATION	0	// Set to 0 by default. Change to 1 when you want to inject processor blocks into SSDT_PR.
+	#define DROP_FACTORY_SSDT_TABLES		1	// Set to 1 by default (this setting is required).
 												//
-												// Note: You can have Processor() {} blocks in your DSDT / SSDT so there is really 
-												//		 no reliable way of knowing when to inject them automatically.
+												// Note: Do not change this setting (must drop SSDT tables).
+#else
+	#define DROP_FACTORY_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
+#endif
 
 
 #define REPLACE_EXISTING_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
