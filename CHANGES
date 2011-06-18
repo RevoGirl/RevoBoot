@@ -1,3 +1,11 @@
+RevoBoot v1.0.20
+================
+- ACPI Method override feature added (add _PTS to your SSDT.aml to get sleep working the easy way).
+- VERSION info updated.
+
+Note: See WiKi pages for additional info.
+
+
 RevoBoot v1.0.19
 ================
 - Device (SBUS) injection added.
