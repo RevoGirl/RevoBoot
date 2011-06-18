@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 Master Chief. All rights reserved.
  *
- * Note: This is an essential part of the build process for RevoBoot v1.0.19 and greater.
+ * Note: This is an essential part of the build process for RevoBoot v1.0.20 and greater.
  *
  *
  * Latest cleanups and additional directives added by DHP in 2011.
@@ -130,6 +130,12 @@
 #else
 	#define DROP_FACTORY_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
 #endif
+
+
+#define OVERRIDE_ACPI_METHODS				1	// Set to 0 by default (do nothing).
+												// Use 1 to override Method _PTS in a static SSDT or Extra/ACPI/SSDT.aml
+												// Use 2 to override Method _WAK in a static SSDT or Extra/ACPI/SSDT.aml
+												// Use 3 to override both _PTS and _WAK.
 
 
 #define REPLACE_EXISTING_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
