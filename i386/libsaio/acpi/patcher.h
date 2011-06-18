@@ -125,7 +125,7 @@ bool replaceTable(ENTRIES * xsdtEntries, int entryIndex, int tableIndex)
 }
 
 
-#if OVERRIDE_ACPI_METHOD
+#if OVERRIDE_ACPI_METHODS
 //==============================================================================
 
 void overrideACPIMethods(ACPI_FADT *patchedFADT)
@@ -151,17 +151,17 @@ void overrideACPIMethods(ACPI_FADT *patchedFADT)
 	{
 		uint32_t data = *(uint32_t *)searchStart;
 
-#if OVERRIDE_ACPI_METHOD == 1
+#if OVERRIDE_ACPI_METHODS == 1
 		if (data == _PTS_SIGNATURE)
-#elif OVERRIDE_ACPI_METHOD == 2
+#elif OVERRIDE_ACPI_METHODS == 2
 		if (data == _WAK_SIGNATURE)
-#elif OVERRIDE_ACPI_METHOD == 3
+#elif OVERRIDE_ACPI_METHODS == 3
 			targetMethods = 2;
 		
 		if (data == _PTS_SIGNATURE || data == _WAK_SIGNATURE)
 #endif
 		{
-			// Change namespace from _PTS/_WAK to ZPTS / ZWAK (examples).
+			// Change namespace from _PTS /_WAK to ZPTS / ZWAK (two examples).
 			*((uint32_t *)((uint32_t *)searchStart)) = 0xFFFFFF5A;
 
 			// Did we locate all target yet?
@@ -178,7 +178,7 @@ void overrideACPIMethods(ACPI_FADT *patchedFADT)
 	// We're done. Using the patched factory DSDT now.
 	patchedFADT->DSDT = patchedFADT->X_DSDT = (uint32_t)patchedDSDT;
 }
-#endif	// OVERRIDE_ACPI_METHOD
+#endif	// OVERRIDE_ACPI_METHODS
 
 
 //==============================================================================
