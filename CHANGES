@@ -1,3 +1,9 @@
+RevoBoot v1.0.21
+================
+- Typo in compiler directive fixed: (old) OVERRIDE_ACPI_METHOD -> (new) OVERRIDE_ACPI_METHODS
+- VERSION info updated.
+
+
 RevoBoot v1.0.20
 ================
 - ACPI Method override feature added (add _PTS to your SSDT.aml to get sleep working the easy way).
