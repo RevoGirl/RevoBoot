@@ -125,6 +125,62 @@ bool replaceTable(ENTRIES * xsdtEntries, int entryIndex, int tableIndex)
 }
 
 
+#if OVERRIDE_ACPI_METHOD
+//==============================================================================
+
+void overrideACPIMethods(ACPI_FADT *patchedFADT)
+{
+	// Get a handle to the factory DSDT.
+	ACPI_DSDT * factoryDSDT = (ACPI_DSDT *)patchedFADT->DSDT;
+
+	// Allocate kernel memory for the 'to-be-patched' DSDT.
+	ACPI_DSDT * patchedDSDT = (void *)AllocateKernelMemory(factoryDSDT->Length);
+
+	// Copy factory DSDT into newly allocated memory space.
+	memcpy((void *)patchedDSDT, (void *)factoryDSDT, factoryDSDT->Length);
+
+	// Determine the search range (top to bottom).
+	void *searchStart	= (void *)patchedDSDT + patchedDSDT->Length;
+	void *searchEnd		= (void *)patchedDSDT;
+
+	// Number of Methods to search for.
+	uint8_t targetMethods = 1;
+
+	// Search for the target method(s).
+	for (; searchStart > searchEnd; searchStart--)
+	{
+		uint32_t data = *(uint32_t *)searchStart;
+
+#if OVERRIDE_ACPI_METHOD == 1
+		if (data == _PTS_SIGNATURE)
+#elif OVERRIDE_ACPI_METHOD == 2
+		if (data == _WAK_SIGNATURE)
+#elif OVERRIDE_ACPI_METHOD == 3
+			targetMethods = 2;
+		
+		if (data == _PTS_SIGNATURE || data == _WAK_SIGNATURE)
+#endif
+		{
+			// Change namespace from _PTS/_WAK to ZPTS / ZWAK (examples).
+			*((uint32_t *)((uint32_t *)searchStart)) = 0xFFFFFF5A;
+
+			// Did we locate all target yet?
+			if (targetMethods-- == 0)
+			{
+				break; // Yes.
+			}
+		}
+	}
+	// Fix checksum.
+	patchedDSDT->Checksum = 0;
+	patchedDSDT->Checksum = 256 - checksum8(patchedDSDT, sizeof(patchedDSDT));
+
+	// We're done. Using the patched factory DSDT now.
+	patchedFADT->DSDT = patchedFADT->X_DSDT = (uint32_t)patchedDSDT;
+}
+#endif	// OVERRIDE_ACPI_METHOD
+
+
 //==============================================================================
 
 bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
@@ -176,8 +232,9 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 	}
 #endif	// DEBUG_ACPI
 
-		
-#if STATIC_DSDT_TABLE_INJECTION || (LOAD_EXTRA_ACPI_TABLES && LOAD_DSDT_TABLE_FROM_EXTRA_ACPI)
+#if OVERRIDE_ACPI_METHOD
+	overrideACPIMethods(patchedFADT);
+#elif STATIC_DSDT_TABLE_INJECTION || (LOAD_EXTRA_ACPI_TABLES && LOAD_DSDT_TABLE_FROM_EXTRA_ACPI)
 	patchedFADT->DSDT = (uint32_t)customTables[DSDT].tableAddress; // The original DSDT without DSDT table injection!
 		
 	_ACPI_DEBUG_DUMP("Replacing factory DSDT with ");
@@ -186,7 +243,7 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 	{
 #if STATIC_DSDT_TABLE_INJECTION
 		_ACPI_DEBUG_DUMP("static DSDT data");
-#else
+#else	// STATIC_DSDT_TABLE_INJECTION
 		_ACPI_DEBUG_DUMP("loaded DSDT.aml");
 #endif	// STATIC_DSDT_TABLE_INJECTION
 		_ACPI_DEBUG_DUMP(" @ 0x%x\n", customTables[DSDT].tableAddress);
