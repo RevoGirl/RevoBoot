@@ -232,7 +232,7 @@ bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset)
 	}
 #endif	// DEBUG_ACPI
 
-#if OVERRIDE_ACPI_METHOD
+#if OVERRIDE_ACPI_METHODS
 	overrideACPIMethods(patchedFADT);
 #elif STATIC_DSDT_TABLE_INJECTION || (LOAD_EXTRA_ACPI_TABLES && LOAD_DSDT_TABLE_FROM_EXTRA_ACPI)
 	patchedFADT->DSDT = (uint32_t)customTables[DSDT].tableAddress; // The original DSDT without DSDT table injection!
