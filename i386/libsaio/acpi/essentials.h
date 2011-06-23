@@ -148,7 +148,7 @@ static ACPITables essentialTables[] =
 	{ HPET, HPET_TABLE_SIGNATURE,	replaceTable,		kReplaceTable				},
 	{ MCFG, MCFG_TABLE_SIGNATURE,	NULL,				kReplaceTable				},
 	{ NONE,	RSDT_TABLE_SIGNATURE,	NULL,				kDoNothing					},
-#if DROP_SSDT_TABLES
+#if DROP_FACTORY_SSDT_TABLES
 	{ SSDT, SSDT_TABLE_SIGNATURE,	NULL,				kDropTable					},
 #elif REPLACE_EXISTING_SSDT_TABLES 
 	{ SSDT, SSDT_TABLE_SIGNATURE,	replaceTable,		kReplaceTable				},
