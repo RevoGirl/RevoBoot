@@ -39,6 +39,8 @@
 
 #include "acpi/static_data.h"
 
+#define _PTS_SIGNATURE	0x5354505F
+#define _WAK_SIGNATURE	0x4B41575F
 
 extern bool replaceTable(ENTRIES * xsdtEntries, int entryIndex, int tableIndex);
 extern bool patchFACPTable(ENTRIES * xsdtEntries, int tableIndex, int dropOffset);
@@ -185,7 +187,7 @@ typedef struct acpi_2_ssdt
 	uint32_t        OEMRevision;
 	uint32_t        CreatorId;
 	uint32_t        CreatorRevision;
-} __attribute__((packed)) ACPI_SSDT;
+} __attribute__((packed)) ACPI_SSDT, ACPI_DSDT;
 
 //------------------------------------------------------------------------------
 #endif // PATCH_ACPI_TABLE_DATA
