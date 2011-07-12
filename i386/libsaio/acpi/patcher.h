@@ -162,7 +162,7 @@ void overrideACPIMethods(ACPI_FADT *patchedFADT)
 #endif
 		{
 			// Change namespace from _PTS /_WAK to ZPTS / ZWAK (two examples).
-			*((uint32_t *)((uint32_t *)searchStart)) = 0xFFFFFF5A;
+			*((uint32_t *)((uint32_t *)searchStart)) &= 0xFFFFFF5A;
 
 			// Did we locate all target yet?
 			if (targetMethods-- == 0)
