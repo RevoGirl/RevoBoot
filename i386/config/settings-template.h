@@ -127,12 +127,15 @@
 	#define DROP_FACTORY_SSDT_TABLES		1	// Set to 1 by default (this setting is required).
 												//
 												// Note: Do not change this setting (must drop SSDT tables).
+
+	#define NUMBER_OF_TURBO_STATES			0	// Set to 4 by default.
+
 #else
 	#define DROP_FACTORY_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
 #endif
 
 
-#define OVERRIDE_ACPI_METHODS				1	// Set to 0 by default (do nothing).
+#define OVERRIDE_ACPI_METHODS				0	// Set to 0 by default (do nothing).
 												// Use 1 to override Method _PTS in a static SSDT or Extra/ACPI/SSDT.aml
 												// Use 2 to override Method _WAK in a static SSDT or Extra/ACPI/SSDT.aml
 												// Use 3 to override both _PTS and _WAK.
@@ -171,8 +174,6 @@
 #define CPU_VENDOR_ID						CPU_VENDOR_INTEL // CPU_VENDOR_AMD is not supported.
 
 #define OC_BUSRATIO_CORRECTION				0	// Set to 0 by default. Change this to busratio-100 (OC'ed systems with a changed busratio).
-
-#define NUMBER_OF_TURBO_STATES				4	// Set to 4 by default.
 
 #define BOOT_TURBO_RATIO					0	// Set to 0 by default. Change this to the desired (and supported) turbo multiplier.
 												//
