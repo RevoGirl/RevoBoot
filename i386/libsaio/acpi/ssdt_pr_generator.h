@@ -40,11 +40,15 @@
 // you use the new global directive AUTOMATIC_SSDT_PR_CREATION from now on.
 //------------------------------------------------------------------------------
 
-#if AUTOMATIC_SSDT_PR_CREATION | 2
+#if AUTOMATIC_SSDT_PR_CREATION & 1
+ 	#define AUTOMATIC_P_STATES_CREATION			1
+#endif
+
+#if AUTOMATIC_SSDT_PR_CREATION & 2
 	#define AUTOMATIC_PROCESSOR_BLOCK_CREATION	1
 #endif
 
-#if AUTOMATIC_SSDT_PR_INJECTION | 4
+#if AUTOMATIC_SSDT_PR_CREATION & 4
 	#define AUTOMATIC_DEVICE_SBUS_CREATION		1
 #endif
 
@@ -55,7 +59,7 @@ void generateSSDT_PR(void)
 {
 	//--------------------------------------------------------------------------
 	// This directive enables you to use a custom name (CPUn) instead of the 
-	// factory name (P00N) for processor definition blocks (think namespace).
+	// factory name (P00n) for processor definition blocks (think namespace).
 	//--------------------------------------------------------------------------
 	
 #define _CPU_LABEL_REPLACEMENT	0x43, 0x50, 0x55, 0x30	// CPU0
@@ -105,6 +109,8 @@ void generateSSDT_PR(void)
 #define INDEX_OF_PROCESSOR_NUMBER	0x07			// Points to 0x01
 	
 #endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
+
+#if AUTOMATIC_P_STATES_CREATION
 
 	uint8_t SCOPE_PR_CPU0[] =						// Scope (\_PR.CPU0) { }
 	{
@@ -187,10 +193,12 @@ void generateSSDT_PR(void)
 
 	uint8_t		i = 0;
 	uint8_t		numberOfTurboStates	= 0;
-	uint32_t	tdp = (gPlatform.CPU.TDP * 1000);	// See: i386/libsaio/cpu/Intel/cpu.c
+	uint32_t	tdp = (gPlatform.CPU.TDP * 1000);	// See: i386/libsaio/cpu.c
+#endif	// AUTOMATIC_P_STATES_CREATION
 
 	struct acpi_2_ssdt * header = (struct acpi_2_ssdt *) SSDT_PM_HEADER;
 
+#if AUTOMATIC_P_STATES_CREATION
 	// When this is false then initTurboRatios (in cpu.c) didn't find any.
 	if (gPlatform.CPU.NumberOfTurboRatios > 0)
 	{
@@ -278,12 +286,15 @@ void generateSSDT_PR(void)
 							(sizeof(PACKAGE_P_STATE) * numberOfPStates) + 
 							sizeof(METHOD_ACST) + 
 							(sizeof(SCOPE_CPU_N) * (gPlatform.CPU.NumThreads - 1));
+#else
+	uint32_t bufferSize = header->Length;	
+#endif	// #if AUTOMATIC_P_STATES_CREATION
 
 #if AUTOMATIC_DEVICE_SBUS_CREATION					// See: config/settings.h
 
 	bufferSize += sizeof(SCOPE_PCI0_SBUS);			// Increase buffer when required.
 
-#endif
+#endif	// AUTOMATIC_DEVICE_SBUS_CREATION
 
 #if AUTOMATIC_PROCESSOR_BLOCK_CREATION				// See; config/settings.h
 
@@ -333,9 +344,11 @@ void generateSSDT_PR(void)
 
 	// DHP: Jeroen please check this - we shouldn't need the next two lines.
 
+#if AUTOMATIC_P_STATES_CREATION
 	SCOPE_PCI0_SBUS[ INDEX_OF_SCOPE_LENGTH ]		= (0x40 | (size & 0x0f)) - 1;
 	SCOPE_PCI0_SBUS[ INDEX_OF_SCOPE_LENGTH + 1 ]	= ((size >> 4) & 0xff);
-	
+#endif	// AUTOMATIC_P_STATES_CREATION
+
 	bcopy(SCOPE_PCI0_SBUS, bufferPointer, sizeof(SCOPE_PCI0_SBUS));
 	bufferPointer += sizeof(SCOPE_PCI0_SBUS);
 
@@ -388,6 +401,7 @@ void generateSSDT_PR(void)
 
 #endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
 
+#if AUTOMATIC_P_STATES_CREATION
 	//--------------------------------------------------------------------------
 	// Taking care of the Scope size.
 	
@@ -647,6 +661,8 @@ void generateSSDT_PR(void)
 		bcopy(SCOPE_CPU_N, bufferPointer, sizeof(SCOPE_CPU_N));
 		bufferPointer += sizeof(SCOPE_CPU_N);
 	}
+
+#endif	// AUTOMATIC_P_STATES_CREATION
 
 	//--------------------------------------------------------------------------
 	// Here we generate a new checksum.
