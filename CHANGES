@@ -1,13 +1,22 @@
+RevoBoot v1.0.22
+================
+- Make SBUS only injection work.
+- VERSION info updated.
+- CHANGES (this file) updated.
+
+
 RevoBoot v1.0.21
 ================
 - Typo in compiler directive fixed: (old) OVERRIDE_ACPI_METHOD -> (new) OVERRIDE_ACPI_METHODS
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 
 RevoBoot v1.0.20
 ================
 - ACPI Method override feature added (add _PTS to your SSDT.aml to get sleep working the easy way).
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 Note: See WiKi pages for additional info.
 
@@ -17,6 +26,7 @@ RevoBoot v1.0.19
 - Device (SBUS) injection added.
 - Simplified some of our directives.
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 Warning: Make sure to use our latest settings template!
 
@@ -26,6 +36,7 @@ RevoBoot v1.0.18
 - Fixed a number of bugs.
 - Made ssdt_pr_generator.h more robust.
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 Note: Thanks to STLVNUB, blackosx and flAked for reporting bugs (via issues). Keep up the good work!
 
@@ -36,12 +47,14 @@ RevoBoot v1.0.17
 - Fixed newly introduced regressions in ssdt_pr_generator.h
 - Core count in ssdt_pr_generator.h is now also scalable (supports different kinds of setups).
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 
 RevoBoot v1.0.16
 ================
 - Fixed a problem in ssdt_pr_generator.h - extra/blank turbo P-State.
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 
 RevoBoot v1.0.15
@@ -51,6 +64,7 @@ RevoBoot v1.0.15
 - Debug output added to ACPI patcher to show the address used as static ACPI address.
 - Indentation errors fixed in platform.c
 - VERSION info updated.
+- CHANGES (this file) updated.
 
 About the latest ssdt_pr_generator.h changes:
 --------------------------------------------
