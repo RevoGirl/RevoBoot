@@ -95,7 +95,28 @@ static const SMBPropertyData const MacBook[] =
 #endif
 
 
-#if TARGET_MODEL & MACBOOKPRO					// 4
+#if TARGET_MODEL & MACBOOK_AIR					// 4
+// ------------------------------------------------------------
+static const SMBPropertyData const MacBookAir[] =
+{	// Intel Core i7-2677M @ 1.8GHz (2 cores - 4 threads)
+	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
+	{	"SMBbiosVersion",     "MBA41.88Z.0077.B00.1106300929"	},
+	{	"SMBbiosDate",        "06/30/11"						},
+	{	"SMBmanufacter",      "Apple Computer, Inc."			},
+	{	"SMBproductName",     "MacBookAir4,2"					},
+	{	"SMBsystemVersion",   "1.0"								},
+	{	"SMBserial",          STATIC_SMSERIALNUMBER				},
+	{	"SMBfamily",          "MacBookAir"						},
+	{	"SMBboardManufacter", "Apple Computer, Inc."			},
+	{	"SMBboardProduct",    "Mac-742912EFDBEE19B3"			},
+	
+	{	"", ""													}
+};
+// ------------------------------------------------------------
+#endif
+
+
+#if TARGET_MODEL & MACBOOK_PRO					// 8
 // ------------------------------------------------------------
 static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 {
@@ -149,7 +170,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 #endif
 
 
-#if TARGET_MODEL & MACMINI						// 8
+#if TARGET_MODEL & MACMINI						// 16
 // ------------------------------------------------------------
 static const SMBPropertyData const Macmini[] =
 {
@@ -170,7 +191,7 @@ static const SMBPropertyData const Macmini[] =
 #endif
 
 
-#if TARGET_MODEL & MACPRO						// 16
+#if TARGET_MODEL & MACPRO						// 32
 // ------------------------------------------------------------
 static const SMBPropertyData const MacPro[] =
 {
@@ -218,7 +239,9 @@ static const SMBPropertyData const MacPro[] =
 		#define STATIC_DEFAULT_DATA		iMac
 	#elif TARGET_MODEL == MACBOOK
 		#define STATIC_DEFAULT_DATA		MacBook
-	#elif TARGET_MODEL == MACBOOKPRO
+	#elif TARGET_MODEL == MACBOOK_AIR
+		#define STATIC_DEFAULT_DATA		MacBookAir
+	#elif TARGET_MODEL == MACBOOK_PRO
 		#define STATIC_DEFAULT_DATA		MacBookPro
 	#elif TARGET_MODEL == MACMINI
 		#define STATIC_DEFAULT_DATA		Macmini
