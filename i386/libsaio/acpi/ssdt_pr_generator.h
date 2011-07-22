@@ -252,6 +252,7 @@ void generateSSDT_PR(void)
 		// i5-2520M @2.5 - 3.2 GHz / TDP 35 W / 7
 		// i5-2537M @1.4 - 2.3 GHz / TDP 17 W / 9
 		// i5-2540M @2.6 - 3.3 GHz / TDP 35 W / 7
+		// i5-2557M @1.7 - 2.7 GHz / TDP 17 W / 10
 		//	
 		//----------------------------------------------------------------------
 		// Intel's 2nd generation i7 Mobility Processors (with Turbo 2.0)
@@ -266,6 +267,8 @@ void generateSSDT_PR(void)
 		// i7-2629M  @2.1 - 3.0 GHz / TDP 25 W /  9
 		// i7-2620M  @2.7 - 3.4 GHz / TDP 35 W /  7
 		// i7-2617M  @1.5 - 2.6 GHz / TDP 17 W / 11
+		// i7-2637M  @1.7 - 2.8 GHz / TDP 17 W / 11
+		// i7-2677M  @1.8 - 2.9 GHz / TDP 17 W / 11
 	}
 
 	uint8_t numberOfPStates = (gPlatform.CPU.MaxBusRatio - gPlatform.CPU.MinBusRatio) + numberOfTurboStates + 1;
