@@ -37,9 +37,10 @@
 
 #define IMAC					1
 #define MACBOOK					2
-#define MACBOOKPRO				4
-#define MACMINI					8
-#define MACPRO					16
+#define MACBOOK_AIR				4
+#define MACBOOK_PRO				8
+#define MACMINI					16
+#define MACPRO					32
 
 //------------------------------------------------------------------------------
 
