@@ -275,7 +275,7 @@
 												// Note: Defaults to STATIC_MAC_PRODUCT_NAME when set to 0.
 
 #if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
-	#define STATIC_SMBIOS_MODEL_ID			IMAC	// Supported models: IMAC, MACBOOK, MACBOOKPRO, MACMINI or MACPRO
+	#define STATIC_SMBIOS_MODEL_ID			IMAC	// Supported models: IMAC, MACBOOK, MACBOOK_AIR, MACBOOK_PRO, MACMINI or MACPRO
 #endif
 
 #define DEBUG_SMBIOS						0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
