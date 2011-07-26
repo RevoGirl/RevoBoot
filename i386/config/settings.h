@@ -53,7 +53,7 @@
 #define STATIC_DSDT_TABLE_INJECTION			0	// Set to 0 by default. Use 1 when you want to inject static DSDT data.
 
 
-#define STATIC_ECDS_TABLE_INJECTION			0	// Set to 0 by default. Use 1 when want to inject a custom ECDT table.
+#define STATIC_ECDT_TABLE_INJECTION			0	// Set to 0 by default. Use 1 when want to inject a custom ECDT table.
 												//
 												// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
 
