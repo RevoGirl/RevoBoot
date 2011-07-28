@@ -383,7 +383,7 @@ void initCPUStruct(void)
 
 				if (SandyBridge /* || JakeTown */)
 				{
-					gPlatform.CPU.Type |= 0x02;
+					gPlatform.CPU.Type |= 0x02; // Note: Use 0x01 here for the new Macmini5,1 (to get cpu-type = 0x602).
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU_TDP
 					gPlatform.CPU.TDP = getTDP();
