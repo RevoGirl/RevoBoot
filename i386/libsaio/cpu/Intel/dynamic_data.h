@@ -395,6 +395,30 @@ void initCPUStruct(void)
 
 					// Disable C1/C3 state auto demotion i.e. it won't change C3/C6/C7 requests to C1/C3.
 					wrmsr64(MSR_PKG_CST_CONFIG_CONTROL, 0x18008407);
+
+					// The processor’s maximum non-turbo core frequency is configured during power-on reset 
+					// by using its manufacturing default value. This value is the highest non-turbo core 
+					// multiplier at which the processor can operate. If lower maximum speeds are desired, 
+					// the appropriate ratio can be configured using the FLEX_RATIO MSR. 
+
+					msr = rdmsr64(MSR_FLEX_RATIO);
+
+					if (msr & bit(16)) // Flex ratio enabled?
+					{
+						uint8_t flexRatio = ((msr >> 8) & 0xff);
+
+						// Sanity checks.
+						if (flexRatio < gPlatform.CPU.MinBusRatio || flexRatio > gPlatform.CPU.MaxBusRatio)
+						{
+							// Invalid flex ratio found. Disable flex ratio by clearing bit 16.
+							wrmsr64(MSR_FLEX_RATIO, (msr & 0xFFFFFFFFFFFEFFFFULL));
+						}
+						else
+						{
+							// Overriding the maximum non-turbo core frequency (ratio) with the new value.
+							gPlatform.CPU.MaxBusRatio = flexRatio;
+						}
+					}
 				}
 
 				fsbFrequency = ((tscFrequency / maxBusRatio) - OC_BUSRATIO_CORRECTION);
