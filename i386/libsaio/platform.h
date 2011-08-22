@@ -158,9 +158,7 @@ typedef struct _PlatformInfo_t
 
 		uint8_t		CoreTurboRatio[STATIC_CPU_NumCores]; // Used in cpu Intel/dynamic_data.h and ACPI/ssdt_pr_generator.h
 
-#if AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU
 		uint8_t		MinBusRatio;			// Used in ACPI/apss_generator.h
-#endif
 		uint8_t		MaxBusRatio;			// Used in cpu/Intel/dynamic_data.h and ACPI/ssdt_pr_generator.h
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU_TDP
