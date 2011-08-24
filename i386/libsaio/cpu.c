@@ -6,7 +6,8 @@
  * Simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
  * Code copied from Intel/dynamic_data.h  by DHP in juni 2011.
  * New compiler directive (BOOT_TURBO_RATIO) added by Jeroen (June 2011).
- */
+ * Function checkFlexRatioMSR added by DHP (August 2011).
+*/
 
 
 #include "platform.h"
@@ -165,6 +166,36 @@ void requestMaxTurbo(uint8_t aMaxMultiplier)
 		wrmsr64(MSR_IA32_PERF_CONTROL, gPlatform.CPU.CoreTurboRatio[0] << 8);
 #endif
 		_CPU_DEBUG_DUMP("Max/limited (%x) turbo boost requested.\n", rdmsr64(MSR_IA32_PERF_CONTROL));
+	}
+}
+
+
+//==============================================================================
+
+void checkFlexRatioMSR(void)
+{
+	// The processor’s maximum non-turbo core frequency is configured during power-on reset 
+	// by using its manufacturing default value. This value is the highest non-turbo core 
+	// multiplier at which the processor can operate. If lower maximum speeds are desired, 
+	// the appropriate ratio can be configured using the FLEX_RATIO MSR. 
+	
+	uint64_t msr = rdmsr64(MSR_FLEX_RATIO);
+	
+	if (msr & bit(16)) // Flex ratio enabled?
+	{
+		uint8_t flexRatio = ((msr >> 8) & 0xff);
+		
+		// Sanity checks.
+		if (flexRatio < gPlatform.CPU.MinBusRatio || flexRatio > gPlatform.CPU.MaxBusRatio)
+		{
+			// Invalid flex ratio found. Disable flex ratio by clearing bit 16.
+			wrmsr64(MSR_FLEX_RATIO, (msr & 0xFFFFFFFFFFFEFFFFULL));
+		}
+		else
+		{
+			// Overriding the maximum non-turbo core frequency (ratio) with the new value.
+			gPlatform.CPU.MaxBusRatio = flexRatio;
+		}
 	}
 }
 
