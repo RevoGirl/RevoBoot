@@ -10,6 +10,7 @@
  *			- Extended Sandy Bridge support by DHP in March-May 2011.
  *			- Cleanup and debug output change (plus bug fix) by DHP in June 2011.
  *			- Automatic SSDT_PR creation added by DHP in June 2011.
+ *			- Call to checkFlexRatioMSR added by DHP (August 2011).
  *
  * Credits:
  *			- blackosx, DB1, dgsga, FKA, flAked, humph, scrax and STLVNUB (testers).
