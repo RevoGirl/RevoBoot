@@ -5,7 +5,7 @@
  * Expanded (requestMaxTurbo added) by DHP in May 2011.
  * Simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
  * Bug fix: gPlatform.CPU.minBusRatio/maxBusRatio added by Jeroen (Juni 2011).
- * call to checkFlexRatioMSR added by DHP (August 2011).
+ * Call to checkFlexRatioMSR added by DHP (August 2011).
  */
 
 #ifndef __LIBSAIO_CPU_STATIC_CPU_DATA_H
