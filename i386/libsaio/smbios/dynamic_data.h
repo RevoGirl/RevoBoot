@@ -42,6 +42,7 @@ struct SMBProperty
     const char	*keyString;
 
 	int			(* auto_int)	(void);
+	int			(* auto_inti)	(int structureIndex);
 
 	const char	*(* auto_str)	(const char * keyString);
 	const char	*(* auto_stri)	(int structureIndex, void * structurePtr);
@@ -80,7 +81,7 @@ struct SMBProperty SMBProperties[] =
 	//-------------------------------------------------------------------------------------------------------------------
 	
 #if DYNAMIC_RAM_OVERRIDE_SIZE
-	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_int	= getRAMSize			},
+	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.auto_inti	= getRAMSize			},
 #endif
 	
 	{ kSMBTypeMemoryDevice,			0x10,	kSMBString,		"SMBmemDevLoc",			.auto_str	= 0						},
@@ -104,9 +105,9 @@ struct SMBProperty SMBProperties[] =
 
 struct SMBStructure
 {
-    SMBByte	type;			// Structure type.
-    SMBByte	start;			// Turbo index (start location in properties array).
-    SMBByte	stop;			// Turbo index end (start + properties).
+	SMBByte	type;			// Structure type.
+	SMBByte	start;			// Turbo index (start location in properties array).
+	SMBByte	stop;			// Turbo index end (start + properties).
 	SMBBool	copyStrings;	// True for structures where string data should be copied.
 	SMBByte	hits;			// Number of located structures of a given type.
 };
@@ -116,11 +117,11 @@ struct SMBStructure
 
 struct SMBStructure requiredStructures[] =
 {
-    { kSMBTypeBIOSInformation		/*   0 */,		 0,		 2,		false,		0	},
-    { kSMBTypeSystemInformation		/*   1 */,		 3,		 7,		false,		0	},
-    { kSMBTypeBaseBoard				/*   2 */,		 8,		 9,		false,		0	},
+	{ kSMBTypeBIOSInformation			/*   0 */,		 0,		 2,		false,		0	},
+	{ kSMBTypeSystemInformation			/*   1 */,		 3,		 7,		false,		0	},
+	{ kSMBTypeBaseBoard				/*   2 */,		 8,		 9,		false,		0	},
 	{ kSMBUnused					/*   3 */,		 0,		 0,		false,		0	},
-    { kSMBTypeProcessorInformation	/*   4 */,		10,		11,		true,		0	},
+	{ kSMBTypeProcessorInformation			/*   4 */,		10,		11,		true,		0	},
 	{ kSMBUnused					/*   5 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   6 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   7 */,		 0,		 0,		false,		0	},
@@ -133,7 +134,7 @@ struct SMBStructure requiredStructures[] =
 	{ kSMBUnused					/*  14 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  15 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  16 */,		 0,		 0,		false,		0	},
-    { kSMBTypeMemoryDevice			/*  17 */,		12,		16,		true,		0	}
+	{ kSMBTypeMemoryDevice				/*  17 */,		12,		16,		true,		0	}
 };
 
 
@@ -184,9 +185,9 @@ void setupSMBIOS(void)
 	newEPS->dmi.structureCount	= 0;		// Updated during this run.
 	newEPS->dmi.bcdRevision		= 0x23;
 
-	char * stringsPtr			= NULL;
-	char * newtablesPtr			= (char *)newEPS->dmi.tableAddress;
-	char * structurePtr			= (char *)factoryEPS->dmi.tableAddress;
+	char * stringsPtr		= NULL;
+	char * newtablesPtr		= (char *)newEPS->dmi.tableAddress;
+	char * structurePtr		= (char *)factoryEPS->dmi.tableAddress;
 	char * structureStartPtr	= NULL;
 
 	int i, j;
@@ -401,6 +402,10 @@ void setupSMBIOS(void)
 					if (SMBProperties[j].auto_int)
 					{
 						*((uint16_t *)(((char *)newHeader) + SMBProperties[j].offset)) = SMBProperties[j].auto_int();
+					}
+					else if (SMBProperties[j].auto_inti)
+					{
+						*((uint16_t *)(((char *)newHeader) + SMBProperties[j].offset)) = SMBProperties[j].auto_inti(requiredStructures[currentStructureType].hits);
 					}
 
 					break;
