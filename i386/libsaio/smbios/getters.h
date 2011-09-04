@@ -7,10 +7,11 @@
  *			- Dynamic and static SMBIOS data gathering added by DHP in 2010.
  *			- Complete rewrite / overhaul by DHP in Februari 2011.
  *			- Coding style change by DHP in Februari 2011.
+  *			- EFI fix for FSB speed added by DHP in June 2011 (tested by flaKed).
  *
  * Credits:
  *			- macerintel (see note in source code)
- *			- blackosx, DB1, dgsga, FKA, humph, scrax and STLVNUB (testers).
+ *			- blackosx, DB1, dgsga, FKA, flaKed, humph, scrax and STLVNUB (testers).
  */
 
 
@@ -23,11 +24,11 @@
 #define RAM_SLOT_EMPTY	""
 
 #ifndef DYNAMIC_RAM_OVERRIDE_TYPE
-	#define DYNAMIC_RAM_OVERRIDE_TYPE	SMB_MEM_TYPE_DDR3
+	#define DYNAMIC_RAM_OVERRIDE_TYPE	SMB_MEM_TYPE_DDR3 // Fall back value.
 #endif
 
 #ifndef DYNAMIC_RAM_OVERRIDE_FREQUENCY
-	#define DYNAMIC_RAM_OVERRIDE_FREQUENCY 1066
+	#define DYNAMIC_RAM_OVERRIDE_FREQUENCY 1066 // Fall back value.
 #endif
 
 /*==============================================================================
@@ -146,9 +147,21 @@ static const char * getOverrideString(const char * aKeyString)
 
 static int getFSBFrequency(void)
 {
-	_SMBIOS_DEBUG_DUMP("In getFSBFrequency() = %d Hz\n", (gPlatform.CPU.FSBFrequency / 1000000));
+	_SMBIOS_DEBUG_DUMP("In getFSBFrequency() = %d Hz\n", (gPlatform.CPU.FSBFrequency < 100500000) ? 0 : (gPlatform.CPU.FSBFrequency / 1000000));
 
-    return gPlatform.CPU.FSBFrequency / 1000000;
+	/*
+	 * Returning zero (0) here is invalid, but we can get away with it because 
+	 * of XNU's check in tsc.init() which effectively catches the invalid value 
+	 * and set it to 100 MHz for Sandy Bridge CPU's (133 MHz when quad pumped).
+	 *
+	 * Note: We don't want to lose the OC feedback in GeekBench et all and that 
+	 *		 is why we first check the value, to detect a OC'ed BCLK setting, 
+	 *		 and use that when found. This also requires you to comment out the 
+	 *		 Quad Pump lines in the AppleSMBIOS.kext source code, or it will 
+	 *		 (for example) report 412 MHz instead of 103 MHz.
+	 */
+
+	return (gPlatform.CPU.FSBFrequency < 100500000) ? 0 : (gPlatform.CPU.FSBFrequency / 1000000);
 }
 
 
@@ -158,7 +171,7 @@ static int getCPUFrequency(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getCPUFrequency() = %d Hz\n", (gPlatform.CPU.CPUFrequency / 1000000));
 
-    return gPlatform.CPU.CPUFrequency / 1000000;
+    return (gPlatform.CPU.CPUFrequency / 1000000);
 }
 
 
