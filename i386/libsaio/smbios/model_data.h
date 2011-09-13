@@ -101,8 +101,8 @@ static const SMBPropertyData const MacBookAir[] =
 {	// Intel Core i5-2557M @ 1.7GHz (2 cores - 4 threads)
 	// Intel Core i7-2677M @ 1.8GHz (2 cores - 4 threads)
 	{	"SMBbiosVendor",      "Apple Inc."						},
-	{	"SMBbiosVersion",     "MBA41.88Z.0077.B00.1106300929"	},
-	{	"SMBbiosDate",        "06/30/11"						},
+	{	"SMBbiosVersion",     "MBA41.88Z.0077.B08.1109011050"	},
+	{	"SMBbiosDate",        "09/01/11"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
 	{	"SMBproductName",     "MacBookAir4,2"					},
 	{	"SMBsystemVersion",   "1.0"								},
@@ -114,8 +114,8 @@ static const SMBPropertyData const MacBookAir[] =
 	// Intel Core i5-2467M @ 1.6GHz (2 cores - 4 threads)
 	// Intel Core i7-2677M @ 1.8GHz (2 cores - 4 threads)
 /*	{	"SMBbiosVendor",      "Apple Inc."						},
-	{	"SMBbiosVersion",     "MBA41.88Z.0077.B00.1106300929"	},
-	{	"SMBbiosDate",        "06/30/11"						},
+	{	"SMBbiosVersion",     "MBA41.88Z.0077.B08.1109011050"	},
+	{	"SMBbiosDate",        "09/01/11"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
 	{	"SMBproductName",     "MacBookAir4,1"					},
 	{	"SMBsystemVersion",   "1.0"								},
