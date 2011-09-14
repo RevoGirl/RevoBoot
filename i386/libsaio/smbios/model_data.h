@@ -189,8 +189,8 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 static const SMBPropertyData const Macmini[] =
 {	// Intel Core i7-2635QM @ 2.0GHz (4 cores - 8 threads)
 	{	"SMBbiosVendor",      "Apple Inc."						},
-	{	"SMBbiosVersion",     "MM51.88Z.0075.B00.1106271442"	},
-	{	"SMBbiosDate",        "06/27/2011"						},
+	{	"SMBbiosVersion",     "MM51.88Z.0077.B0A.1109091226"	},
+	{	"SMBbiosDate",        "09/09/2011"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
 	{	"SMBproductName",     "Macmini5,3"						},
 	{	"SMBsystemVersion",   "1.0"								},
@@ -201,8 +201,8 @@ static const SMBPropertyData const Macmini[] =
 
 	// Intel Core i5-2520M @ 2.5GHz (2 cores - 4 threads)
 /*	{	"SMBbiosVendor",      "Apple Inc."						},
-	{	"SMBbiosVersion",     "MM51.88Z.0075.B00.1106271442"	},
-	{	"SMBbiosDate",        "06/27/2011"						},
+	{	"SMBbiosVersion",     "MM51.88Z.0077.B0A.1109091226"	},
+	{	"SMBbiosDate",        "09/09/2011"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
 	{	"SMBproductName",     "Macmini5,2"						},
 	{	"SMBsystemVersion",   "1.0"								},
@@ -213,8 +213,8 @@ static const SMBPropertyData const Macmini[] =
 	
 	// Intel Core i5-2415M @ 2.3 GHz (2 cores - 4 theeads)
 /*	{	"SMBbiosVendor",      "Apple Inc."						},
-	{	"SMBbiosVersion",     "MM51.88Z.0075.B00.1106271442"	},
-	{	"SMBbiosDate",        "06/27/2011"						},
+	{	"SMBbiosVersion",     "MM51.88Z.0077.B0A.1109091226"	},
+	{	"SMBbiosDate",        "09/09/2011"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
 	{	"SMBproductName",     "Macmini5,1"						},
 	{	"SMBsystemVersion",   "1.0"								},
