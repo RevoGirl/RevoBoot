@@ -261,6 +261,14 @@
 #define STATIC_SCREEN_HEIGHT				1200
 
 
+//------------------------------------------------------------ STRINGDATA.H ----------------------------------------------------------------
+
+#define LION_RECOVERY						1	// Set to 0 by default. Setting this to 1 will make RevoBoot search for the Recovery HD and 
+												// try to boot from it, when it is properly setup and modified for RevoBoot.
+
+#define LION_INSTALL						1	// Set to 0 by default. Setting this to 1 will make RevoBoot search in specific directories
+												// for com.apple.Boot.plist – required for Mac like Lion OS X installations.
+
 //-------------------------------------------------------------- SMBIOS.C ------------------------------------------------------------------
 
 
