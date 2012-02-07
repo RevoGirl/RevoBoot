@@ -336,4 +336,10 @@ static const char * getRAMPartNumber(int structureIndex, void * structurePtr)
 #endif
 }
 
+//==============================================================================
+
+static int getBIOSLocation(void)
+{
+	return (0); // rom@0 // So that EFI Firmware Updates will be offered!
+}
 
