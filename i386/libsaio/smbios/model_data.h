@@ -256,8 +256,8 @@ static const SMBPropertyData const MacPro[] =
 	{	"SMBboardProduct",    "Mac-F221BEC8"					}, */
 
 /*	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
-	{	"SMBbiosVersion",     "MP51.88Z.007F.B00.1008031144"	},
-	{	"SMBbiosDate",        "08/03/10"						},
+	{	"SMBbiosVersion",     "MP51.88Z.007F.B03.1010071432"	},
+	{	"SMBbiosDate",        "10/07/10"						},
 	{	"SMBmanufacter",      "Apple Inc."						},
 	{	"SMBproductName",     "MacPro5,1"						},
 	{	"SMBsystemVersion",   "1.0"								},
