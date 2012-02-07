@@ -58,6 +58,7 @@ struct SMBProperty SMBProperties[] =
 	
 	{ kSMBTypeBIOSInformation,		0x04,	kSMBString,		"SMBbiosVendor",		.auto_str	= getOverrideString		},
 	{ kSMBTypeBIOSInformation,		0x05,	kSMBString,		"SMBbiosVersion",		.auto_str	= getOverrideString		},
+	{ kSMBTypeBIOSInformation,		0x06,	kSMBWord,		"SMBbiosLocation",		.auto_int	= getBIOSLocation		},
 	{ kSMBTypeBIOSInformation,		0x08,	kSMBString,		"SMBbiosDate",			.auto_str	= getOverrideString		},
 	
 	//-------------------------------------------------------------------------------------------------------------------
@@ -117,11 +118,11 @@ struct SMBStructure
 
 struct SMBStructure requiredStructures[] =
 {
-	{ kSMBTypeBIOSInformation			/*   0 */,		 0,		 2,		false,		0	},
-	{ kSMBTypeSystemInformation			/*   1 */,		 3,		 7,		false,		0	},
-	{ kSMBTypeBaseBoard				/*   2 */,		 8,		 9,		false,		0	},
+	{ kSMBTypeBIOSInformation			/*   0 */,		 0,		 3,		false,		0	},
+	{ kSMBTypeSystemInformation			/*   1 */,		 4,		 8,		false,		0	},
+	{ kSMBTypeBaseBoard				/*   2 */,		 9,		10,		false,		0	},
 	{ kSMBUnused					/*   3 */,		 0,		 0,		false,		0	},
-	{ kSMBTypeProcessorInformation			/*   4 */,		10,		11,		true,		0	},
+	{ kSMBTypeProcessorInformation			/*   4 */,		11,		12,		true,		0	},
 	{ kSMBUnused					/*   5 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   6 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   7 */,		 0,		 0,		false,		0	},
@@ -134,7 +135,7 @@ struct SMBStructure requiredStructures[] =
 	{ kSMBUnused					/*  14 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  15 */,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  16 */,		 0,		 0,		false,		0	},
-	{ kSMBTypeMemoryDevice				/*  17 */,		12,		16,		true,		0	}
+	{ kSMBTypeMemoryDevice				/*  17 */,		13,		17,		true,		0	}
 };
 
 
