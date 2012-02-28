@@ -111,7 +111,7 @@
 #define MAX_CPUID_LEAVES	9			// DHP: Formerly known as MAX_CPUID
 
 
-/* Copied from: xnu/osfmk/cpuid.h */
+/* Copied from: xnu/osfmk/i386/cpuid.h */
 #define CPU_MODEL_YONAH			0x0E
 #define CPU_MODEL_MEROM			0x0F
 #define CPU_MODEL_PENRYN		0x17
@@ -125,6 +125,6 @@
 #define CPU_MODEL_SB_XEON		0x2D	// Sandy Bridge Xeon Processors
 #define CPU_MODEL_NEHALEM_EX	0x2E
 #define CPU_MODEL_WESTMERE_EX	0x2F
-
+#define CPU_MODEL_IB_CORE  	0x3A	// Ivy Bridge Core Processors (LGA 1155)
 
 #endif /* !__LIBSAIO_CPU_ESSENTIALS_H */
