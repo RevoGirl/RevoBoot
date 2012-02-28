@@ -304,6 +304,19 @@ typedef struct SMBSystemSlot
 } __attribute__((packed)) SMBSystemSlot;
 
 //
+// OEM Strings - Type 11 (AppleSMBIOS-43)
+//
+
+typedef struct SMBOemStrings
+{
+    SMB_STRUCT_HEADER
+    SMBByte     type;
+    SMBByte     length;
+    SMBWord     handle;
+    SMBByte     count;
+} __attribute__((packed)) SMBOemStrings;
+
+//
 // Physical Memory Array (Type 16)
 //
 
@@ -471,5 +484,11 @@ struct SMBOemProcessorBusSpeed
 	SMBWord    ProcessorBusSpeed;   // MT/s unit
 } __attribute__((packed)) SMBOemProcessorBusSpeed;
 
-
-
+//
+// OEM Platform Feature (Apple Specific - Type 133 / AppleSMBIOS-43)
+//
+struct SMBOemPlatformFeature
+{
+	SMB_STRUCT_HEADER
+	SMBWord    PlatformFeature;
+} __attribute__((packed)) SMBOemPlatformFeature;
