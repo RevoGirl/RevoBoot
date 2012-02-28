@@ -315,13 +315,14 @@ void initCPUStruct(void)
 
 	if (gPlatform.CPU.Vendor == CPU_VENDOR_INTEL)
 	{
-		if ((gPlatform.CPU.Family == 0x06 && gPlatform.CPU.Model >= 0x0c) || (gPlatform.CPU.Family == 0x0f && gPlatform.CPU.Model >= 0x03))
+		if ((gPlatform.CPU.Family == 0x06 && gPlatform.CPU.Model >= 0x0a) || (gPlatform.CPU.Family == 0x0f && gPlatform.CPU.Model >= 0x03))
 		{
 			uint8_t hiBit = 0;
 			
 			switch (gPlatform.CPU.Model)
 			{
 				case CPU_MODEL_SB_CORE:	
+				case CPU_MODEL_IB_CORE:
 					SandyBridge = true;
 
 				case CPU_MODEL_DALES_32NM:
