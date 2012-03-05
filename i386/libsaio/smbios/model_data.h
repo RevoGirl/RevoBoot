@@ -17,7 +17,7 @@
 #if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
 	#define TARGET_MODEL		STATIC_SMBIOS_MODEL_ID
 #else
-	#define TARGET_MODEL		31				// All models for dynamic runs (without override).
+	#define TARGET_MODEL		63				// All models for dynamic runs (without override).
 #endif
 
 
