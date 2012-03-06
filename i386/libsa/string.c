@@ -148,7 +148,7 @@ int strncmp(const char * s1, const char * s2, size_t len)
 char * strcpy(char * s1, const char * s2)
 {
 	register char *ret = s1;
-	while (*s1++ = *s2++)
+	while ((*s1++ = *s2++))
 		continue;
 	return ret;
 }
