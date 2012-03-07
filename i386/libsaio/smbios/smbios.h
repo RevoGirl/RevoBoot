@@ -432,7 +432,7 @@ typedef struct SMBMemorySPD
 } __attribute__((packed)) SMBMemorySPD;
 
 
-#if 1 // DEBUG_SMBIOS
+#if DEBUG_SMBIOS
 static const char * SMBMemoryDeviceTypes[] =
 {
     "RAM",          /* 00h  Undefined */
