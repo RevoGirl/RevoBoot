@@ -82,7 +82,7 @@ void initEFITree(void)
 	// Satisfying AppleACPIPlatform.kext
 	static EFI_UINT8 const DEVICE_PATHS_SUPPORTED[] = { 0x01, 0x00, 0x00, 0x00 };
 
-	DT__AddProperty(platformNode, "DevicePathsSupported", sizeof(DEVICE_PATHS_SUPPORTED), &DEVICE_PATHS_SUPPORTED);
+	DT__AddProperty(platformNode, "DevicePathsSupported", sizeof(DEVICE_PATHS_SUPPORTED), (EFI_UINT8*) &DEVICE_PATHS_SUPPORTED);
 
 	// The use of sizeof() here is mandatory (to prevent breakage).
 	DT__AddProperty(platformNode, "Model", sizeof(MODEL_NAME), (EFI_CHAR16*) MODEL_NAME);
@@ -132,11 +132,11 @@ void initEFITree(void)
 		0x7f, 0xff, 0x04, 0x00
 	};
 
-	DT__AddProperty(chosenNode, "boot-file-path", sizeof(BOOT_FILE_PATH), &BOOT_FILE_PATH);
+	DT__AddProperty(chosenNode, "boot-file-path", sizeof(BOOT_FILE_PATH), (EFI_UINT8*) &BOOT_FILE_PATH);
 
 	static EFI_UINT8 const BOOT_ARGS[] = { 0x00 };
 
-	DT__AddProperty(chosenNode, "boot-args", sizeof(BOOT_ARGS), &BOOT_ARGS);
+	DT__AddProperty(chosenNode, "boot-args", sizeof(BOOT_ARGS), (EFI_UINT8*) &BOOT_ARGS);
 
 	/* Adding kIOHibernateMachineSignatureKey (IOHibernatePrivate.h).
 	 *
@@ -150,7 +150,7 @@ void initEFITree(void)
 	
 	static EFI_UINT8 const MACHINE_SIGNATURE[] = { 0x00, 0x00, 0x00, 0x00 };
 
-	DT__AddProperty(chosenNode, "machine-signature", sizeof(MACHINE_SIGNATURE), &MACHINE_SIGNATURE);
+	DT__AddProperty(chosenNode, "machine-signature", sizeof(MACHINE_SIGNATURE), (EFI_UINT8*) &MACHINE_SIGNATURE);
 
 #if MAKE_TARGET_OS == LION
 
@@ -159,8 +159,8 @@ void initEFITree(void)
 
 	static EFI_UINT8 const COMPAT_MODE[] = { 0x01, 0x00, 0x00, 0x00 };
 
-	DT__AddProperty(kernelCompatNode, "i386", sizeof(COMPAT_MODE), &COMPAT_MODE);
-	DT__AddProperty(kernelCompatNode, "x86_64", sizeof(COMPAT_MODE), &COMPAT_MODE);
+	DT__AddProperty(kernelCompatNode, "i386", sizeof(COMPAT_MODE), (EFI_UINT8*) &COMPAT_MODE);
+	DT__AddProperty(kernelCompatNode, "x86_64", sizeof(COMPAT_MODE), (EFI_UINT8*) &COMPAT_MODE);
 #endif
 
 	// Adding the options node breaks AppleEFINVRAM (missing hardware UUID).
@@ -188,6 +188,111 @@ void initEFITree(void)
 	_EFI_DEBUG_SLEEP(5);
 }
 
+#if UNUSED_EFI_CODE
+//==============================================================================
+
+void *convertHexStr2Binary(const char *hexStr, int *outLength)
+{
+	int len;
+	char hexNibble;
+	char hexByte[2];
+	uint8_t binChar;
+	uint8_t *binStr;
+	int hexStrIdx, binStrIdx, hexNibbleIdx;
+	
+	len = strlen(hexStr);
+	
+	if (len > 1)
+	{
+		// the resulting binary will be the half size of the input hex string
+		binStr = malloc(len / 2);
+		binStrIdx = 0;
+		hexNibbleIdx = 0;
+		
+		for (hexStrIdx = 0; hexStrIdx < len; hexStrIdx++)
+		{
+			hexNibble = hexStr[hexStrIdx];
+			
+			// ignore all chars except valid hex numbers
+			if ((hexNibble >= '0' && hexNibble <= '9') || (hexNibble >= 'A' && hexNibble <= 'F') || (hexNibble >= 'a' && hexNibble <= 'f'))
+			{
+				hexByte[hexNibbleIdx++] = hexNibble;
+				
+				// found both two nibbles, convert to binary
+				if (hexNibbleIdx == 2)
+				{
+					binChar = 0;
+					
+					for (hexNibbleIdx = 0; hexNibbleIdx < sizeof(hexByte); hexNibbleIdx++)
+					{
+						if (hexNibbleIdx > 0)
+						{
+							binChar = binChar << 4;
+						}
+						
+						if (hexByte[hexNibbleIdx] <= '9')
+						{
+							binChar += hexByte[hexNibbleIdx] - '0';
+						}
+						else if (hexByte[hexNibbleIdx] <= 'F')
+						{
+							binChar += hexByte[hexNibbleIdx] - ('A' - 10);
+						}
+						else if (hexByte[hexNibbleIdx] <= 'f')
+						{
+							binChar += hexByte[hexNibbleIdx] - ('a' - 10);
+						}
+					}
+					
+					binStr[binStrIdx++] = binChar;						
+					hexNibbleIdx = 0;
+				}
+			}
+		}
+		*outLength = binStrIdx;
+		return binStr;
+	}
+	else
+	{
+		*outLength = 0;
+		return NULL;
+	}
+}
+//==============================================================================
+
+
+static EFI_UINT32* getUUIDFromString(const char * givenUUID) // Patch by: rekursor (rewrite by Master Chief).
+{
+	if (givenUUID) // Sanity check.
+	{
+		static char errStr[] = "getUUIDFromString: Invalid SystemID - ";
+		
+		if (strlen(givenUUID) == 36) // Real UUID's only please.
+		{
+			int size = 0;
+			char szUUID[37]; // 0-35 (36) + 1
+			char *p = szUUID;
+			
+			while (*givenUUID) {
+				if (*givenUUID != '-')
+					*p++ = *givenUUID++;
+				else
+					givenUUID++;
+			}
+			*p = '\0';
+			void* binaryString = convertHexStr2Binary(szUUID, &size);
+			
+			if (binaryString && size == 16)
+				return (EFI_UINT32*) binaryString;
+			
+			verbose("%swrong format maybe?\n", errStr);
+		}
+		else
+			verbose("%slength should be 36.\n", errStr);
+	}
+	return (EFI_UINT32*) 0;
+}
+#endif
 
 //==============================================================================
 // Stage two EFI initialization (after getting data from com.apple.Boot.plist).
