@@ -169,27 +169,29 @@
 //---------------------------------------------------------------- CPU.C -------------------------------------------------------------------
 
 
-#define USE_STATIC_CPU_DATA					0	// Set to 0 by default (dynamic data collection). Change this to 1 to use static data.
+#define USE_STATIC_CPU_DATA				0	// Set to 0 by default (dynamic data collection). Change this to 1 to use static data.
 
-#define CPU_VENDOR_ID						CPU_VENDOR_INTEL // CPU_VENDOR_AMD is not supported.
+#define CPU_VENDOR_ID					CPU_VENDOR_INTEL // CPU_VENDOR_AMD is not supported.
+
+#define INTEL_CORE_TECHNOLOGY				0	// Set to 1 by default. Use 0 for older non Intel Core CPU's (removes unused code).
 
 #define OC_BUSRATIO_CORRECTION				0	// Set to 0 by default. Change this to busratio-100 (OC'ed systems with a changed busratio).
 
-#define BOOT_TURBO_RATIO					0	// Set to 0 by default. Change this to the desired (and supported) turbo multiplier.
-												//
-												// Example:  0x2800 for 4.0 GHz on a i7-2600.
+#define BOOT_TURBO_RATIO				0	// Set to 0 by default. Change this to the desired (and supported) turbo multiplier.
+								//
+								// Example:  0x2800 for 4.0 GHz on a i7-2600.
 
-#define DEBUG_CPU							0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
-                                                // Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
+#define DEBUG_CPU					0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
+								// Note: CPU info data will not be displayed when USE_STATIC_CPU_DATA is set to 1
 
 #if DEBUG_CPU
 	#define DEBUG_CPU_TURBO_RATIOS			0	// Set to 0 by default. Change this to 1 when you want to check the core ratio.
 
-	#define DEBUG_CST_SUPPORT				0	// Set to 0 by default. Change this to 1 to check the in BIOS enabled C-States.
+	#define DEBUG_CST_SUPPORT			0	// Set to 0 by default. Change this to 1 to check the in BIOS enabled C-States.
 
-	#define DEBUG_TSS_SUPPORT				0	// Set to 0 by default. Change this to 1 to check the T-State Clock Modulation.
+	#define DEBUG_TSS_SUPPORT			0	// Set to 0 by default. Change this to 1 to check the T-State Clock Modulation.
 
-	#define DEBUG_CPU_TDP					0	// Set to 0 by default. Change this to 1 when you want to check the TDP.
+	#define DEBUG_CPU_TDP				0	// Set to 0 by default. Change this to 1 when you want to check the TDP.
 #endif
 
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
