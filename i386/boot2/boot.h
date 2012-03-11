@@ -32,15 +32,26 @@
 
 #define STATE_SUCCESS	0	// Move this to a more appropriate header file.
 
-#define DEFAULT_SCREEN_DEPTH    32
-#define DEFAULT_SCREEN_WIDTH	STATIC_SCREEN_WIDTH
-#define DEFAULT_SCREEN_HEIGHT	STATIC_SCREEN_HEIGHT
-
-#define APPLE_LOGO_X    ((DEFAULT_SCREEN_WIDTH - 128) / 2)
-#define APPLE_LOGO_Y    ((DEFAULT_SCREEN_HEIGHT - 128) / 2)
+#if USE_STATIC_DISPLAY_RESOLUTION
+	#define DEFAULT_SCREEN_WIDTH	STATIC_SCREEN_WIDTH
+	#define DEFAULT_SCREEN_HEIGHT	STATIC_SCREEN_HEIGHT
+#else
+	#define DEFAULT_SCREEN_WIDTH	1600
+	#define DEFAULT_SCREEN_HEIGHT	1200
+#endif
 
 #define APPLE_LOGO_WIDTH  128
 #define APPLE_LOGO_HEIGHT 128
+
+/*
+ * Used in showBootLogo. Now using the VIDEO() macro instead of the static 
+ * values. This way the logo should be properly positioned. With or without 
+ * specifying a "Graphics Mode" in com.apple.Boot.plist And no matter what 
+ * values you've set in RevoBoot/i386/config/settings.h Should all be fine now.
+ */
+
+#define APPLE_LOGO_X    ((VIDEO(width) - APPLE_LOGO_WIDTH) / 2)
+#define APPLE_LOGO_Y    ((VIDEO(height) - APPLE_LOGO_HEIGHT) / 2)
 
 /*
  * How long to wait (in seconds) to load the kernel after displaying the "boot:" prompt.
