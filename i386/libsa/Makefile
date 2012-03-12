@@ -1,4 +1,3 @@
-
 DIR = libsa
 include ../MakePaths.dir
 
@@ -50,6 +49,7 @@ LIBS = libsa.a
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
 
 lion: all
+mountain-lion: all
 
 all: $(DIRS_NEEDED) $(LIBS)
 
