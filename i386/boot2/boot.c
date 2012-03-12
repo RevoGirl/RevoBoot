@@ -366,7 +366,7 @@ void boot(int biosdev)
 
 			if (GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0)
 			{
-#if MAKE_TARGET_OS == LION // Made for the all new and hip OS of X?
+#if ((MAKE_TARGET_OS & LION) == LION) // Also for Mountain Lion, which has bit 2 set like Lion.
 
 				_BOOT_DEBUG_DUMP("Checking for kernelcache...\n");
 
@@ -436,7 +436,7 @@ void boot(int biosdev)
 
 			_BOOT_DEBUG_ELSE_DUMP("Failed to locate the cache directory!\n");
 		}
-#endif // #if MAKE_TARGET_OS == LION
+#endif // #if ((MAKE_TARGET_OS & LION) == LION)
 
 #endif // PRE_LINKED_KERNEL_SUPPORT
 
