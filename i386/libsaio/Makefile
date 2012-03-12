@@ -1,4 +1,3 @@
-
 DIR = libsaio
 include ../MakePaths.dir
 
@@ -57,6 +56,7 @@ LIBS = libsaio.a
 DIRS_NEEDED = $(OBJROOT) $(SYMROOT)
 
 lion: all
+mountain-lion: all
 
 all: $(DIRS_NEEDED) libsaio.h $(LIBS)
 
