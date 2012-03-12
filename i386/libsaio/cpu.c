@@ -7,13 +7,14 @@
  * Code copied from Intel/dynamic_data.h  by DHP in juni 2011.
  * New compiler directive (BOOT_TURBO_RATIO) added by Jeroen (June 2011).
  * Function checkFlexRatioMSR added by DHP (August 2011).
-*/
+ */
 
 
 #include "platform.h"
 #include "cpu/cpuid.h"
 #include "cpu/proc_reg.h"
 
+#if INTEL_CORE_TECHNOLOGY
 
 #if AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU_TDP
 //==============================================================================
@@ -66,13 +67,11 @@ void initTurboRatios()
 
 #if STATIC_CPU_NumCores >= 6			// 12 threads.
 		// For the lucky few with a six core Gulftown CPU.
-		if (gPlatform.CPU.NumCores == 6)
-		{
-			// bitfield32() supports 32 bit values only and thus we 
-			// have to do it a little different here (bit shifting).
-			gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
-			gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
-		}
+		//
+		// bitfield32() supports 32 bit values only and thus we 
+		// have to do it a little different here (bit shifting).
+		gPlatform.CPU.CoreTurboRatio[4] = ((msr >> 32) & 0xff);
+		gPlatform.CPU.CoreTurboRatio[5] = ((msr >> 40) & 0xff);
 #endif
 
 #if STATIC_CPU_NumCores == 8			// 16 threads.
@@ -89,7 +88,7 @@ void initTurboRatios()
 	// Note:	Let's use this to our advantage for DEBUG_CPU_TURBO_RATIOS!
 
 	// We need to have something to work with so check for it, and the 
-	// way we do that (trying go be smart) supports any number of cores.
+	// way we do that (trying to be smart) supports any number of cores.
 
 	if (gPlatform.CPU.CoreTurboRatio[0] != 0)
 	{
@@ -118,8 +117,8 @@ void initTurboRatios()
 			// Do we need to inject one Turbo P-State only?
 			if (duplicatedRatios == NUMBER_OF_TURBO_STATES)
 			{
-				// Yes. Wipe the rest (keeping the one with the highest value).
-				for (i = 1; i < numberOfCores; i++)		// i set to 1 to preserve the highest value.
+				// Yes. Wipe the rest (keeping the one with the highest multiplier).
+				for (i = 1; i < numberOfCores; i++)		// i set to 1 to preserve the first one.
 				{
 					gPlatform.CPU.CoreTurboRatio[i] = 0;
 				}
@@ -135,6 +134,17 @@ void initTurboRatios()
 
 		// Jeroen: Used in ACPI/ssdt_pr_generator.h / for DEBUG_CPU_TURBO_RATIOS.
 		gPlatform.CPU.NumberOfTurboRatios = (NUMBER_OF_TURBO_STATES - duplicatedRatios);
+		
+		/* if (duplicatedRatios == 4)
+		{
+			wrmsr64(MSR_TURBO_RATIO_LIMIT, 0x28282828);
+		
+			// Reinitialize the multipliers.
+			for (i = 0; i < numberOfCores; i++)
+			{
+				gPlatform.CPU.CoreTurboRatio[i] = 0x28;
+			}
+		} */
 		
 		// _CPU_DEBUG_DUMP("Turbo Ratios: %d (%d dups)\n", gPlatform.CPU.NumberOfTurboRatios, duplicatedRatios);
 	}
@@ -154,9 +164,9 @@ void requestMaxTurbo(uint8_t aMaxMultiplier)
 	initTurboRatios();
 
 	// Is the maximum turbo ratio reached already?
-	if (gPlatform.CPU.CoreTurboRatio[0] > aMaxMultiplier) // 0x26 (3.8GHz) > 0x22 (3.4GHz)
+	if (gPlatform.CPU.CoreTurboRatio[0] > aMaxMultiplier)	// 0x26 (3.8GHz) > 0x22 (3.4GHz)
 	{
-		// No. Request maximum turbo boost (in case EIST is disabled).
+		// No. Request (maximum/limited) turbo boost (in case EIST is disabled).
 #if BOOT_TURBO_RATIO
 		wrmsr64(MSR_IA32_PERF_CONTROL, BOOT_TURBO_RATIO);
 
@@ -198,7 +208,7 @@ void checkFlexRatioMSR(void)
 		}
 	}
 }
-
+#endif
 
 #if USE_STATIC_CPU_DATA
 
