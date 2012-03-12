@@ -149,14 +149,19 @@ typedef struct boot_args_new
     uint16_t    Revision;							// Revision of boot_args structure.
     uint16_t    Version;							// Version of boot_args structure.
 
-#if MAKE_TARGET_OS == LION
+#if ((MAKE_TARGET_OS & LION) == LION)
     uint8_t     efiMode;							// 32 = 32-bit, 64 = 64-bit.
 
     uint8_t     debugMode;							// Bit field with behavior changes.
 
+#if ((MAKE_TARGET_OS & MOUNTAIN_LION) == MOUNTAIN_LION)
+    uint8_t     __reserved0;
+    uint8_t     __reserved1;
+#else
     uint8_t     __reserved1[2];
-#endif	
+#endif
 
+#endif	
     char        CommandLine[BOOT_LINE_LENGTH];		// Passed in command line.
 	
     uint32_t    MemoryMap;							// Physical address of memory map.
@@ -175,13 +180,13 @@ typedef struct boot_args_new
     uint32_t    efiRuntimeServicesPageStart;		// Physical address of defragmented runtime pages.
     uint32_t    efiRuntimeServicesPageCount;
 
-#if MAKE_TARGET_OS == LION
+#if ((MAKE_TARGET_OS & LION) == LION)
     uint64_t    efiRuntimeServicesVirtualPageStart;	// Virtual address of defragmented runtime pages.
 #endif
 
     uint32_t    efiSystemTable;						// Physical address of system table in runtime area.
 
-#if MAKE_TARGET_OS == LION
+#if ((MAKE_TARGET_OS & LION) == LION)
     uint32_t    __reserved2;
 
     uint32_t    performanceDataStart;				// Physical address of log.
@@ -193,7 +198,17 @@ typedef struct boot_args_new
     uint64_t	bootMemStart;						// Physical address of interperter boot memory.
     uint64_t	bootMemSize;
 
+#if ((MAKE_TARGET_OS & MOUNTAIN_LION) == MOUNTAIN_LION)
+    uint64_t    PhysicalMemorySize;
+    uint64_t    FSBFrequency;
+    uint64_t    pciConfigSpaceBaseAddress;
+    uint32_t    pciConfigSpaceStartBusNumber;
+    uint32_t    pciConfigSpaceEndBusNumber;
+    uint32_t    __reserved4[730];
+#else
     uint32_t    __reserved4[738];
+#endif
+
 #else
     uint8_t     efiMode;							// 32 = 32-bit, 64 = 64-bit.
 
