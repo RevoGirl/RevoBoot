@@ -13,9 +13,9 @@
 
 //------------------------------------------------------------------------------
 
-#define	LEOPARD					1	// Not supported.
-#define	SNOW_LEOPARD			2	// The default.
-#define LION					3	// For future use only.
+#define	SNOW_LEOPARD			1	// Snow Leopard.
+#define LION				2	// Lion (the default).
+#define MOUNTAIN_LION			6	// Mountain Lion (includes Lion changes).
 
 //------------------------------------------------------------------------------
 
