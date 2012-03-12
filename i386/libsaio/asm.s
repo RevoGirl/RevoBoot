@@ -334,10 +334,13 @@ LABEL(_halt)
     call    _bgetc
     jmp     _halt
 
+#if ((MAKE_TARGET_OS & LION) == LION)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // disableIRQs()
 //
-// Port of original patch by: CPARM (who basically did this in boot.c) Thanks!
+// Port of a two liner hack in xnu/pexpert/i386/pe_init.c -> PE_init_platform()
+//
+// Note: Thanks to cparm for locating it and copying it to Chameleons' boot.c
 //
 LABEL(_disableIRQs)
 	// The ACPI specification dictates that the 8259 (PC-AT compatible) vectors 
@@ -346,9 +349,6 @@ LABEL(_disableIRQs)
 
 	push	%eax			// Saving register data
 
-	movb	$0x80, %al		// Block NMI
-	outb	%al, $0x70
-
 	movb	$0xff, %al		// Load mask
 	outb	%al, $0x21		// Disable IRQ's 0-7 on Master PIC
 	outb	%al, $0xa1		// Disable IRQ's 8-15 on Slave PIC
@@ -356,6 +356,7 @@ LABEL(_disableIRQs)
 	popl	%eax			// Restore register data
 
 	ret
+#endif
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // startMachKernel(phyaddr, bootargs)
@@ -364,8 +365,9 @@ LABEL(_disableIRQs)
 // Passes boot arguments in %eax.
 //
 LABEL(_startMachKernel)
-    call    _disableIRQs	// Taking care of a ACPI bug.
-
+#if ((MAKE_TARGET_OS & LION) == LION)
+	call    _disableIRQs	// Taking care of a ACPI bug.
+#endif
 	push    %ebp
     mov     %esp, %ebp
 
