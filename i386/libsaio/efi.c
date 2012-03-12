@@ -152,7 +152,7 @@ void initEFITree(void)
 
 	DT__AddProperty(chosenNode, "machine-signature", sizeof(MACHINE_SIGNATURE), (EFI_UINT8*) &MACHINE_SIGNATURE);
 
-#if ((MAKE_TARGET_OS &LION) == LION)
+#if ((MAKE_TARGET_OS & LION) == LION)
 
 	// Used by boot.efi - cosmetic only node/properties on hacks.
 	Node * kernelCompatNode = DT__AddChild(efiNode, "kernel-compatibility");
