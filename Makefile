@@ -41,15 +41,20 @@ GENERIC_SUBDIRS =
 # Export target OS type (picked up by i386/libsaio/Makefile)
 #
 
-ifeq ($(MAKECMDGOALS), lion)
-	TARGET_OS_TYPE = 3;
+ifeq ($(MAKECMDGOALS), mountain-lion)
+	MAKE_TARGET_OS = 6;
 else
-	TARGET_OS_TYPE = 2;
+	ifeq ($(MAKECMDGOALS), lion)
+		MAKE_TARGET_OS = 2;
+	else
+		MAKE_TARGET_OS = 1;
+	endif
 endif
 
-export PRODUCT_OS_TARGET = `echo $(TARGET_OS_TYPE)`
+export PRODUCT_OS_TARGET = `echo $(MAKE_TARGET_OS)`
 
 lion: all
+mountain-lion: all
 
 all: $(SYMROOT) $(OBJROOT)
 	@if [ -z "$(RC_ARCHS)" ]; then					  \
