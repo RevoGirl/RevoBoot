@@ -169,7 +169,13 @@ void initPlatform(int biosDevice)
 	}
 
 	// Default set to Snow Leopard.
+#if (MAKE_TARGET_OS == LION)
+	gPlatform.OSVersion				= strdup("10.7");
+#elif (MAKE_TARGET_OS == MOUNTAIN_LION)
+	gPlatform.OSVersion				= strdup("10.8");
+#else // Snow Leopard
 	gPlatform.OSVersion				= strdup("10.6");
+#endif
 
 	// _PLATFORM_DEBUG_DUMP("REVOBOOT_OS_TARGET: %d\n", REVOBOOT_OS_TARGET);
 
@@ -178,7 +184,7 @@ void initPlatform(int biosDevice)
 	_PLATFORM_DEBUG_DUMP("gPlatform.OSType: %d\n", gPlatform.OSType);
 
 	// Target OS setting from either make or config/settings.h
-	gPlatform.OSVersion[3]			= 0x34 + gPlatform.OSType;
+	// gPlatform.OSVersion[3]			= 0x34 + gPlatform.OSType;
 
 	_PLATFORM_DEBUG_DUMP("gPlatform.OSVersion: %s\n", gPlatform.OSVersion);
 
