@@ -5,7 +5,6 @@
  * Expanded (requestMaxTurbo added) by DHP in May 2011.
  * Simplified by DHP in Juni 2011 (thanks to MC and flAked for the idea).
  * Bug fix: gPlatform.CPU.minBusRatio/maxBusRatio added by Jeroen (Juni 2011).
- * Call to checkFlexRatioMSR added by DHP (August 2011).
  */
 
 #ifndef __LIBSAIO_CPU_STATIC_CPU_DATA_H
@@ -15,9 +14,9 @@
 
 void initCPUStruct(void)
 {
-	gPlatform.CPU.Vendor		= CPU_VENDOR_ID;		// Used in ACPI/patcher.h
+	gPlatform.CPU.Vendor		= CPU_VENDOR_ID;			// Used in ACPI/patcher.h
 
-	gPlatform.CPU.Type		= STATIC_CPU_Type;		// Used in SMBIOS/dynamic_data.h, 'About This Mac' and System Profiler.
+	gPlatform.CPU.Type			= STATIC_CPU_Type;			// Used in SMBIOS/dynamic_data.h, 'About This Mac' and System Profiler.
 
 	gPlatform.CPU.NumCores		= STATIC_CPU_NumCores;		// machdep.cpu.cores_per_package - used in: ACPI/ssdt_pm_generator.h
 	gPlatform.CPU.NumThreads	= STATIC_CPU_NumThreads;	// machdep.cpu.logical_per_package - used in: ACPI/ssdt_pm_generator.h
@@ -27,7 +26,7 @@ void initCPUStruct(void)
 	gPlatform.CPU.QPISpeed		= STATIC_CPU_QPISpeed;		// QuickPath Interconnect - used in: libsaio/SMBIOS/dynamic_data.h
 
 #if INTEL_CORE_TECHNOLOGY
-	uint64_t msr = rdmsr64(MSR_PLATFORM_INFO);			// Jeroen: Copied over from i386/libsaio/cpu/Intel/dynamic_data.h
+	uint64_t msr = rdmsr64(MSR_PLATFORM_INFO);				// Jeroen: Copied over from i386/libsaio/cpu/Intel/dynamic_data.h
 
 #if AUTOMATIC_SSDT_PR_CREATION
 	gPlatform.CPU.MinBusRatio = ((msr >> 40) & 0xff);		// Example: 16 with Intel i7-2600 processor.
