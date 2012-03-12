@@ -32,6 +32,7 @@ VPATH = $(OBJROOT):$(SYMROOT)
 SUBDIRS = util libsa libsaio boot2
 
 lion: all
+mountain-lion: all
 
 all:
 	@for i in ${SUBDIRS}; \
