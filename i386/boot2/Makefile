@@ -1,4 +1,3 @@
-
 #	Makefile for i386 boot program
 #	define FLOPPY and SMALL using DEFINES macro as necessary
 
@@ -56,6 +55,7 @@ BOOT2ADDR = 20200
 MAXBOOTSIZE = 392704
 
 lion: all
+mountain-lion: all
 
 all: $(DIRS_NEEDED) boot
 
