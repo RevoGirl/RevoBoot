@@ -198,7 +198,8 @@ long DecodeMachO(void *binary, entry_t *rentry, char **raddr, int *rsize)
                     vmend = max(vmend, load_addr + load_size);
                 }
                 break;
-                
+
+            case LC_MAIN:	/* Mountain Lion's replacement for LC_UNIXTHREAD */
             case LC_UNIXTHREAD:
                 ret = DecodeUnixThread(cmdBase, &entry);
                 break;
