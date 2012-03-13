@@ -32,6 +32,14 @@
 
 #include <sl.h>
 
+/***
+ * Backward compatibility fix for the SDK 10.7 version of loader.h
+ */
+
+#ifndef LC_MAIN
+	#define LC_MAIN (0x28|LC_REQ_DYLD) /* replacement for LC_UNIXTHREAD */
+#endif
+
 // Load MKext(s) or separate kexts (default behaviour / behavior).
 bool gLoadKernelDrivers = true;
 
