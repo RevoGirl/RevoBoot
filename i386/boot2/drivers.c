@@ -95,7 +95,10 @@ enum
 // Private functions.
 static unsigned long localAdler32(unsigned char * buffer, long length);
 
-static int loadMultiKext(char *fileSpec);
+#if (MAKE_TARGET_OS == 1) // Snow Leopard only!
+	static int loadMultiKext(char *fileSpec);
+#endif
+
 static int loadKexts(char *dirSpec, bool plugin);
 static int loadPlist(char * dirSpec, bool isBundleType2Flag);
 static long loadMatchedModules(void);
@@ -170,6 +173,7 @@ long loadDrivers(char * dirSpec)
 		return -1;
 	}
 
+#if (MAKE_TARGET_OS == 1) // Snow Leopard only!
 	bool shouldLoadMKext = ((gBootMode & kBootModeSafe) == 0);
 
 	_DRIVERS_DEBUG_DUMP("shouldLoadMKext: %s\n", shouldLoadMKext ? "true" : "false");
@@ -193,6 +197,7 @@ long loadDrivers(char * dirSpec)
 
 	_DRIVERS_DEBUG_DUMP("gKextLoadStatus: %d\n", gKextLoadStatus); 
 	_DRIVERS_DEBUG_SLEEP(5);
+#endif
 
 	// Do we need to load individual kexts, in a one by one fashion?
 	if (gKextLoadStatus != 3)
@@ -234,7 +239,7 @@ long loadDrivers(char * dirSpec)
 	return STATE_SUCCESS;
 }
 
-
+#if (MAKE_TARGET_OS == 1) // Snow Leopard only!
 //==============================================================================
 // Returns 0 on success, -1 when not found, -2 on load failures and -3 on 
 // verification (signatures, length, adler32) errors.
@@ -314,7 +319,7 @@ static int loadMultiKext(char * path)
 
 	return -1;
 }
-
+#endif
 
 //==============================================================================
 
