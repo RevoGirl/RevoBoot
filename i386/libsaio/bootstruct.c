@@ -184,7 +184,7 @@ void finalizeKernelBootConfig(void)
 	bootArgs->bootMemStart	= 0;
 #endif
 
-#if ((MAKE_TARGET_OS & MOUNTAIN_LION) == MOUNTAIN_LION)
+#if ((MAKE_TARGET_OS & LION) == LION)
 	bootArgs->FSBFrequency	= gPlatform.CPU.FSBFrequency;
 #endif
 }
