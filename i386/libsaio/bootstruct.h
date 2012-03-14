@@ -198,15 +198,16 @@ typedef struct boot_args_new
     uint64_t	bootMemStart;						// Physical address of interperter boot memory.
     uint64_t	bootMemSize;
 
-#if ((MAKE_TARGET_OS & MOUNTAIN_LION) == MOUNTAIN_LION)
     uint64_t    PhysicalMemorySize;
     uint64_t    FSBFrequency;
+    
+#if ((MAKE_TARGET_OS & MOUNTAIN_LION) == MOUNTAIN_LION)
     uint64_t    pciConfigSpaceBaseAddress;
     uint32_t    pciConfigSpaceStartBusNumber;
     uint32_t    pciConfigSpaceEndBusNumber;
     uint32_t    __reserved4[730];
 #else
-    uint32_t    __reserved4[738];
+    uint32_t    __reserved4[734];
 #endif
 
 #else
