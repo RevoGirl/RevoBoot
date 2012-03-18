@@ -4,9 +4,20 @@
  * Note: This is an essential part of the build process for Revolution v0.6.44 and greater.
  *
  *
- * Latest cleanups and additional directives added by DHP in 2011
+ * Update:  - Cleanups and additional directives added by DHP in 2011.
+ *			- Tip / Note added by DHP (march 2012).
+ *
+ * Tip:		The idea is to use dynamic SMBIOS generation in RevoBoot only to 
+ *			let it strip your factory table, after which you should do this:
+ *
+ *			1.) Extract the new OS X compatible SMBIOS table with: tools/smbios2struct
+ *			2.) Add the data structure to: RevoBoot/i386/config/SMBIOS/data.h
+ *			3.) Recompile RevoBoot, and be happy with your quicker boot time.
+ *
+ * Note:	Repeat this procedure after adding memory or other SMBIOS relevant 
+ *			hardware changes, like replacing the motherboard and/or processor.
+ *
  */
-
 
 //--------------------------------------------------------------- SMBIOS -------------------------------------------------------------------
 
