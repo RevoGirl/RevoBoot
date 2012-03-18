@@ -7,7 +7,7 @@
  *			- Dynamic and static SMBIOS data gathering added by DHP in 2010.
  *			- Complete rewrite / overhaul by DHP in Februari 2011.
  *			- Coding style change by DHP in Februari 2011.
-  *			- EFI fix for FSB speed added by DHP in June 2011 (tested by flaKed).
+ *			- EFI fix for FSB speed added by DHP in June 2011 (tested by flaKed).
  *
  * Credits:
  *			- macerintel (see note in source code)
@@ -24,11 +24,11 @@
 #define RAM_SLOT_EMPTY	""
 
 #ifndef DYNAMIC_RAM_OVERRIDE_TYPE
-	#define DYNAMIC_RAM_OVERRIDE_TYPE	SMB_MEM_TYPE_DDR3 // Fall back value.
+	#define DYNAMIC_RAM_OVERRIDE_TYPE	SMB_MEM_TYPE_DDR3
 #endif
 
 #ifndef DYNAMIC_RAM_OVERRIDE_FREQUENCY
-	#define DYNAMIC_RAM_OVERRIDE_FREQUENCY 1066 // Fall back value.
+	#define DYNAMIC_RAM_OVERRIDE_FREQUENCY 1066
 #endif
 
 /*==============================================================================
@@ -145,7 +145,7 @@ static const char * getOverrideString(const char * aKeyString)
 
 //==============================================================================
 
-static int getFSBFrequency(void)
+static SMBWord getFSBFrequency(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getFSBFrequency() = %d Hz\n", (gPlatform.CPU.FSBFrequency < 100500000) ? 0 : (gPlatform.CPU.FSBFrequency / 1000000));
 
@@ -167,7 +167,7 @@ static int getFSBFrequency(void)
 
 //==============================================================================
 
-static int getCPUFrequency(void)
+static SMBWord getCPUFrequency(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getCPUFrequency() = %d Hz\n", (gPlatform.CPU.CPUFrequency / 1000000));
 
@@ -177,7 +177,7 @@ static int getCPUFrequency(void)
 
 //==============================================================================
 
-static int getCPUType(void)
+static SMBWord getCPUType(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getCPUType() = 0x%x\n", gPlatform.CPU.Type);
 
@@ -216,13 +216,13 @@ int getSlotNumber(int slotNumber)
 //==============================================================================
 #if DYNAMIC_RAM_OVERRIDE_SIZE
 
-static int getRAMSize(int structureIndex)
+static SMBWord getRAMSize(void)
 {
-	int slotNumber = getSlotNumber(structureIndex);
+	int slotNumber = getSlotNumber(requiredStructures[kSMBTypeMemoryDevice].hits);
 
-	_SMBIOS_DEBUG_DUMP("In getRAMSize(%d) = %d\n", structureIndex, gPlatform.RAM.MODULE[slotNumber].Size);
+	_SMBIOS_DEBUG_DUMP("In getRAMSize(%d) = %d\n", kSMBTypeMemoryDevice, gPlatform.RAM.MODULE[slotNumber].Size);
 
-	if (gPlatform.RAM.MODULE[slotNumber].Size == SMB_MEM_BANK_EMPTY)
+	if (!gPlatform.RAM.MODULE[slotNumber].InUse || gPlatform.RAM.MODULE[slotNumber].Size == SMB_MEM_BANK_EMPTY)
 	{
 		return 0;
 	}
@@ -235,7 +235,7 @@ static int getRAMSize(int structureIndex)
 //==============================================================================
 #if DYNAMIC_RAM_OVERRIDE_TYPE
 
-static int getRAMType(void)
+static SMBByte getRAMType(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getRAMType() = %s\n", SMBMemoryDeviceTypes[DYNAMIC_RAM_OVERRIDE_TYPE]);
 
@@ -247,7 +247,7 @@ static int getRAMType(void)
 //==============================================================================
 #if DYNAMIC_RAM_OVERRIDE_FREQUENCY
 
-static int getRAMFrequency(void)
+static SMBWord getRAMFrequency(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getRAMFrequency() = %d\n", DYNAMIC_RAM_OVERRIDE_FREQUENCY);
 
@@ -258,8 +258,10 @@ static int getRAMFrequency(void)
 
 //==============================================================================
 
-static const char * getRAMVendor(int structureIndex, void * structurePtr)
+static const char * getRAMVendor(const char * aKeyString)
 {
+	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
+
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	_SMBIOS_DEBUG_DUMP("In getRAMVendor(%d)", structureIndex);
 
@@ -285,8 +287,10 @@ static const char * getRAMVendor(int structureIndex, void * structurePtr)
 
 //==============================================================================
 
-static const char * getRAMSerialNumber(int structureIndex, void * structurePtr)
+static const char * getRAMSerialNumber(const char * aKeyString)
 {
+	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
+
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	_SMBIOS_DEBUG_DUMP("In getRAMSerialNumber(%d)", structureIndex);
 
@@ -312,8 +316,10 @@ static const char * getRAMSerialNumber(int structureIndex, void * structurePtr)
 
 //==============================================================================
 
-static const char * getRAMPartNumber(int structureIndex, void * structurePtr)
+static const char * getRAMPartNumber(const char * aKeyString)
 {
+	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
+
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	_SMBIOS_DEBUG_DUMP("In getRAMPartNumber(%d)", structureIndex);
 
@@ -336,10 +342,24 @@ static const char * getRAMPartNumber(int structureIndex, void * structurePtr)
 #endif
 }
 
+
 //==============================================================================
 
-static int getBIOSLocation(void)
+static SMBWord getBIOSLocation(void)
 {
-	return (0); // rom@0 // So that EFI Firmware Updates will be offered!
+	return (0); // rom@0 so that the 'EFI Firmware Updates' will be offered. 
 }
 
+//==============================================================================
+
+static SMBQWord getBIOSFeatures(void)
+{
+	return 0x0000000000019880ULL;
+}
+
+//==============================================================================
+
+static SMBDWord getBIOSFeaturesEX(void)
+{
+	return (0x010002c1);
+}
