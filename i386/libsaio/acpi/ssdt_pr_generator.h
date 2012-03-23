@@ -433,7 +433,7 @@ void generateSSDT_PR(void)
 	//		Name (APSN, NN)
 
 	// Setting NN in: Name (APSN, NN)
-	NAME_APSN[ INDEX_OF_APSN ] = numberOfTurboStates;
+	NAME_APSN[ INDEX_OF_APSN ] = gPlatform.CPU.NumCores;
 
 	bcopy(NAME_APSN, bufferPointer, sizeof(NAME_APSN));
 	bufferPointer += sizeof(NAME_APSN);
