@@ -110,6 +110,8 @@ void generateSSDT_PR(void)
 	
 #endif	// AUTOMATIC_PROCESSOR_BLOCK_CREATION
 
+#define INDEX_OF_SCOPE_LENGTH		0x01		// Points to 0xFF 0xFF in SCOPE_PR_CPU0
+
 #if AUTOMATIC_P_STATES_CREATION
 
 	uint8_t SCOPE_PR_CPU0[] =						// Scope (\_PR.CPU0) { }
@@ -117,8 +119,6 @@ void generateSSDT_PR(void)
 		/* 0000 */	0x10, 0xFF, 0xFF, 0x2E, 0x5F, 0x50, 0x52, 0x5F, 
 		/* 0008 */	_CPU_LABEL_REPLACEMENT
 	};
-	
-	#define INDEX_OF_SCOPE_LENGTH		0x01		// Points to 0xFF 0xFF in SCOPE_PR_CPU0
 
 	uint8_t NAME_APSN[] =							// Name (APSN, 0xFF)
 	{
@@ -394,10 +394,12 @@ void generateSSDT_PR(void)
 	bcopy(SCOPE_PR, bufferPointer, sizeof(SCOPE_PR));
 	bufferPointer += sizeof(SCOPE_PR);
 
-	for (i = 0; i < gPlatform.CPU.NumThreads; i++)
+	uint8_t	ctn = 0;
+
+	for (cnt = 0; cnt < gPlatform.CPU.NumThreads; cnt++)
 	{
-		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_CPU_ID] = (0x30 + i); // Setting CPU name number.
-		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_NUMBER] = (i + 1); // Setting CPU number.
+		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_CPU_ID] = (0x30 + cnt); // Setting CPU name number.
+		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_NUMBER] = (cnt + 1); // Setting CPU number.
 		bcopy(PROCESSOR_DEF_BLOCK, bufferPointer, sizeof(PROCESSOR_DEF_BLOCK));
 		bufferPointer += sizeof(PROCESSOR_DEF_BLOCK);
 	}
