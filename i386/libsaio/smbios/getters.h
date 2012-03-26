@@ -259,8 +259,10 @@ static SMBWord getRAMFrequency(void)
 //==============================================================================
 
 static const char * getRAMVendor(const char * aKeyString)
-{
+
+#if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
+#endif
 
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	_SMBIOS_DEBUG_DUMP("In getRAMVendor(%d)", structureIndex);
@@ -289,7 +291,9 @@ static const char * getRAMVendor(const char * aKeyString)
 
 static const char * getRAMSerialNumber(const char * aKeyString)
 {
+#if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
+#endif
 
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	_SMBIOS_DEBUG_DUMP("In getRAMSerialNumber(%d)", structureIndex);
@@ -318,7 +322,9 @@ static const char * getRAMSerialNumber(const char * aKeyString)
 
 static const char * getRAMPartNumber(const char * aKeyString)
 {
+#if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
+#endif
 
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION
 	_SMBIOS_DEBUG_DUMP("In getRAMPartNumber(%d)", structureIndex);
