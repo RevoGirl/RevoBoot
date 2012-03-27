@@ -396,10 +396,10 @@ void generateSSDT_PR(void)
 
 	uint8_t	ctn = 0;
 
-	for (cnt = 0; cnt < gPlatform.CPU.NumThreads; cnt++)
+	for (ctn = 0; ctn < gPlatform.CPU.NumThreads; ctn++)
 	{
-		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_CPU_ID] = (0x30 + cnt); // Setting CPU name number.
-		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_NUMBER] = (cnt + 1); // Setting CPU number.
+		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_CPU_ID] = (0x30 + ctn); // Setting CPU name number.
+		PROCESSOR_DEF_BLOCK[INDEX_OF_PROCESSOR_NUMBER] = (ctn + 1); // Setting CPU number.
 		bcopy(PROCESSOR_DEF_BLOCK, bufferPointer, sizeof(PROCESSOR_DEF_BLOCK));
 		bufferPointer += sizeof(PROCESSOR_DEF_BLOCK);
 	}
