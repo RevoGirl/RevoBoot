@@ -377,7 +377,7 @@ void initCPUStruct(void)
 				gPlatform.CPU.MinBusRatio = ((msr >> 40) & 0xff);	// 0x10 (16) for the i5-2500 and i7-2600
 #endif
 				uint8_t maxBusRatio = gPlatform.CPU.MaxBusRatio = ((msr >> 8) & 0xff);	// 0x21 for the i5-2500 and 0x22 for the i7-2600
-
+#if INTEL_CORE_TECHNOLOGY
 				if (!((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40))	// Turbo Mode Enabled?
 				{
 					requestMaxTurbo(maxBusRatio);
@@ -400,7 +400,7 @@ void initCPUStruct(void)
 
 					checkFlexRatioMSR(); 
 				}
-
+#endif // #if INTEL_CORE_TECHNOLOGY
 				fsbFrequency = ((tscFrequency / maxBusRatio) - OC_BUSRATIO_CORRECTION);
 				cpuFrequency = tscFrequency;
 			}
