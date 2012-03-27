@@ -17,8 +17,8 @@
 
 #define SMBIOS_SEARCH_BASE      0x000F0000
 #define SMBIOS_SEARCH_END       0x000FFFFF
-#define SMBIOS_ANCHOR			0x5f4d535f // '_SM_' in Little Endian.
-#define SMBIOS_MPS_ANCHOR		0x5f504d5f // '_MP_' in Little Endian. 
+#define SMBIOS_ANCHOR           0x5f4d535f // '_SM_' in Little Endian.
+#define SMBIOS_MPS_ANCHOR       0x5f504d5f // '_MP_' in Little Endian. 
 
 #define NOT_AVAILABLE	"N/A"
 #define RAM_SLOT_EMPTY	""
@@ -259,7 +259,7 @@ static SMBWord getRAMFrequency(void)
 //==============================================================================
 
 static const char * getRAMVendor(const char * aKeyString)
-
+{
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
 #endif
