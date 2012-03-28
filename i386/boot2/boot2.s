@@ -49,6 +49,9 @@
     //.data
     .section __INIT,__data	// turbo - Data that must be in the first segment
 
+    EXPORT(_chainbootdev)  .byte 0x80
+    EXPORT(_chainbootflag) .byte 0x00
+
     //.text
     .section __INIT,__text	// turbo
 
@@ -102,9 +105,48 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
     data32
     call    __real_to_prot      # Enter protected mode.
 
+    fninit                      # FPU init
+
     # We are now in 32-bit protected mode.
     # Transfer execution to C by calling boot().
     
     pushl   %edx                # bootdev
     call    _boot
 
+    testb   $0xff, _chainbootflag
+    jnz     start_chain_boot    # Jump to a foreign booter
+
+    call    __prot_to_real      # Back to real mode.
+
+    data32
+    call    __switch_stack      # Restore original stack
+
+    pop     %es                 # Restore original ES and DS
+    pop     %ds
+    popl    %edi                # Restore all general purpose registers
+    popl    %esi                # except EAX.
+    popl    %ebp
+    popl    %ebx
+    popl    %ecx
+
+    retf                        # Hardcode a far return
+
+start_chain_boot:
+    xorl    %edx, %edx
+    movb    _chainbootdev, %dl  # Setup DL with the BIOS device number
+
+    call    __prot_to_real      # Back to real mode.
+
+    data32
+    call    __switch_stack      # Restore original stack
+
+    pop     %es                 # Restore original ES and DS
+    pop     %ds
+    popl    %edi                # Restore all general purpose registers
+    popl    %esi                # except EAX.
+    popl    %ebp
+    popl    %ebx
+    popl    %ecx
+
+    data32
+    ljmp    $0, $0x7c00         # Jump to boot code already in memory
