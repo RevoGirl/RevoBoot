@@ -131,16 +131,21 @@
 
 
 #if AUTOMATIC_SSDT_PR_CREATION
-	#define MAX_NUMBER_OF_P_STATES			22	// Default of 18 normal plus 4 Turbo P-States (for desktop setups).
-								// MSRDumper(@16): 16, 25, 28, 31, 34, 35, 36, 37 and 38 multi (YMMV).
+	#define MAX_NUMBER_OF_P_STATES			22	// The i5-2500K need 18 for the base-range (1600-3300) plus 4 for the Turbo modes.
+								// The i7-2600K need 19 for the base-range (1600-3400) plus 4 for the Turbo modes.
+								// The i7-2700K need 20 for the base-range (1600-3500) plus 4 for the Turbo modes.
+								// The i7-3770K need 20 for the base-range (1600-3500) plus 4 for the Turbo modes.
 								// Low power (mobility) processors might need an extended range!
+								//
+								// Note: AICPUPM wants a P-State for each 100 MHz bank or it will fail (see note below).
 
 	#define DROP_FACTORY_SSDT_TABLES		1	// Set to 1 by default (this setting is required).
 								//
 								// Note: Do not change this setting (must drop SSDT tables).
 
 	#define NUMBER_OF_TURBO_STATES			4	// Set to 4 by default.
-
+								// Note: Make sure to add a full range, one P-State for each 100 MHz when OC'ing 
+								//	 or AICPIPM will fail with: "P-State Stepper Error 18 at step N on CPU N"
 #else
 	#define DROP_FACTORY_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
 #endif
