@@ -65,7 +65,7 @@ void initEFITree(void)
 
 	DT__AddProperty(efiNode, "firmware-abi", 6, (gPlatform.ArchCPUType == CPU_TYPE_X86_64) ? "EFI64" : "EFI32");
 	DT__AddProperty(efiNode, "firmware-revision", sizeof(FIRMWARE_REVISION), (EFI_UINT32*) &FIRMWARE_REVISION);
-	DT__AddProperty(efiNode, "firmware-vendor", sizeof(FIRMWARE_VENDOR) + 1, (EFI_CHAR16*) FIRMWARE_VENDOR);
+	DT__AddProperty(efiNode, "firmware-vendor", sizeof(FIRMWARE_VENDOR), (EFI_CHAR16*) FIRMWARE_VENDOR);
 
 	// Initialize a global var, used by function setupEFITables later on, to
 	// add the address to the boot arguments (done to speed up the process).
