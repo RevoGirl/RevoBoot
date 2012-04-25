@@ -40,7 +40,8 @@ extern bool setRootUUID(Node *chosenNode, char * rootUUID);
 
 //------------------------------------------------------------------------------
 
-static EFI_CHAR16 const FIRMWARE_VENDOR[] = { 'A', 'p', 'p', 'l', 'e' };
+static EFI_CHAR16 const FIRMWARE_VENDOR[] = { 'A', 'p', 'p', 'l', 'e', '\0' };
+// Resulting in: "firmware-vendor" = <4100700070006c0065000000>
 
 /*
  * We use the same value for everything, as we should, which means (currently)
