@@ -60,10 +60,10 @@
 //------------------------------------------------------------------------------
 // Number of physical memory slots.
 
-#ifdef STATIC_RAM_SLOTS
-	#define MAX_SLOTS	STATIC_RAM_SLOTS // Defined in config/settings.h
-#else
+#ifndef STATIC_RAM_SLOTS
 	#define MAX_SLOTS	4
+#else
+	#define MAX_SLOTS	STATIC_RAM_SLOTS // Defined in config/settings.h
 #endif
 
 //==============================================================================
