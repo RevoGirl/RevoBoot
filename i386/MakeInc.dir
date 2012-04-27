@@ -12,6 +12,12 @@ else
   MKDIRS = /bin/mkdir -p
 endif
 
+#
+# Use /usr/bin/gcc instead of /usr/bin/cc (symbolic link to clang in Xcode 4.3.2 and greater).
+#
+
+CC = gcc
+
 # Toggle this as to whether you want a frame pointer (%ebp) to be used. It is
 # invaluable for debugging the booter. For example using GDB attached to VMware.
 # In fact, it's so invaluable that it's now the default.  Not only that but the
