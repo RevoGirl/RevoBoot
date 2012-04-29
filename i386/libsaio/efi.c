@@ -324,7 +324,6 @@ void updateEFITree(char *rootUUID)
 		free ((void*) userDefinedUUID);
 	}
 
-	setupDeviceProperties(gPlatform.DT.RootNode); // /efi/device-properties.
 #endif
 
 	DT__AddProperty(gPlatform.EFI.Nodes.Platform, "system-id", 16, targetUUID);
