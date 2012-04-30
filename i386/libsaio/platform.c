@@ -107,7 +107,7 @@ void initPlatform(int biosDevice)
 {
     memset(&gPlatform, 0, sizeof(gPlatform));
 
-	// Copied from cpu/dynamic_data.h to make printf work.
+	// Copied from cpu/dynamic_data.h to make printf work this early on.
 #if DEBUG_CPU || DEBUG_PLATFORM
 	extern void setVideoMode(int mode);
     setVideoMode(0); // Switch to VGA_TEXT_MODE
@@ -121,7 +121,7 @@ void initPlatform(int biosDevice)
 	uint8_t cpu = 0;
 	uint8_t numberOfCores = STATIC_CPU_NumCores;
 
-	// Blank CPU core ratio limits.
+	// Zero out CPU core ratio limits.
 	for (; cpu < numberOfCores; cpu++)
 	{
 		gPlatform.CPU.CoreTurboRatio[cpu] = 0; // Get updated later on in: i386/libsaio/Intel/cpu.c
@@ -168,7 +168,6 @@ void initPlatform(int biosDevice)
 		gPlatform.CPU.Mobile		= true;	// Will be initialized in cpu/cpu_dynamic.h (used in smbios/dynamic_data.h)
 	}
 
-	// Default set to Snow Leopard.
 #if (MAKE_TARGET_OS == LION)
 	gPlatform.OSVersion				= strdup("10.7");
 #elif (MAKE_TARGET_OS == MOUNTAIN_LION)
@@ -193,7 +192,7 @@ void initPlatform(int biosDevice)
 	gPlatform.BootPartitionChain	= NULL;	// Will be initialized in sys.c
 	gPlatform.RootVolume			= NULL;	// Will be initialized in disk.c (used in sys.c)
 
-	gPlatform.RAM.SlotCount			= 0;	// Will be initialized furter down (used in smbios/dynamic_data.h)
+	gPlatform.RAM.SlotCount			= 0;	// Will be initialized further down (used in smbios/dynamic_data.h)
 
 	gPlatform.KernelCachePath		= strdup(kKernelCachePath);	// Used in boot.c and driver.c
 
