@@ -37,7 +37,6 @@
 
 #include "../config/data.h"
 
-
 //==============================================================================
 
 void initEFITree(void)
@@ -180,13 +179,13 @@ void initEFITree(void)
 		STATIC_EFI_DEVICE_PROPERTIES
 	};
 
-	// DT__AddProperty(efiNode, "device-properties", sizeof(EFI_DEVICE_PROPERTIES), &EFI_DEVICE_PROPERTIES);
-	DT__AddProperty(efiNode, "device-properties", sizeof(EFI_DEVICE_PROPERTIES), (EFI_CHAR8*)EFI_DEVICE_PROPERTIES);
+	DT__AddProperty(efiNode, "device-properties", sizeof(EFI_DEVICE_PROPERTIES), (EFI_CHAR8*) &EFI_DEVICE_PROPERTIES);
 #endif
 
 	_EFI_DEBUG_DUMP("Exiting initEFITree()\n");
 	_EFI_DEBUG_SLEEP(5);
 }
+
 
 #if UNUSED_EFI_CODE
 //==============================================================================
@@ -303,7 +302,7 @@ void updateEFITree(char *rootUUID)
 
 	static EFI_CHAR8 const SYSTEM_ID[] = STATIC_SYSTEM_ID;
 
-	// This is your hardcoded SYSTEM_ID (I have mine in private_data.h).
+	// This is your hardcoded SYSTEM_ID (see: config/settings.h).
 	EFI_UINT32 * targetUUID = (EFI_UINT32 *) &SYSTEM_ID;
 
 #if UNUSED_EFI_CODE
@@ -318,7 +317,7 @@ void updateEFITree(char *rootUUID)
 
 		if (targetUUID)
 		{
-			verbose("Customizing SystemID with: %s\n", userDefinedUUID);
+			_EFI_DEBUG_DUMP("Customizing SystemID with: %s\n", userDefinedUUID);
 		}
 
 		free ((void*) userDefinedUUID);
