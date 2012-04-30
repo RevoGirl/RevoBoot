@@ -362,4 +362,3 @@ void setVideoMode(int mode)
 		bootArgs->Video.v_display = VGA_TEXT_MODE;
 	}
 }
-
