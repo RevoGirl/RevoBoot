@@ -178,6 +178,7 @@ void showBootLogo()
 	uint8_t *appleBootLogo = (uint8_t *) decodeRLE(appleLogoRLE, 686, 16384); 
 
 	setVideoMode(GRAPHICS_MODE);
+
 	// Fill the background to 75% grey (same as BootX). 
 	drawColorRectangle(0, 0, VIDEO(width), VIDEO(height), 0x01);
 
