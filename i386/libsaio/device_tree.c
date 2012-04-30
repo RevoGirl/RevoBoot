@@ -141,7 +141,7 @@ Property * DT__AddProperty(Node *node, const char *name, uint32_t length, void *
 
 //==============================================================================
 
-Node * DT__AddChild(Node *parent, char *name)
+Node * DT__AddChild(Node *parent, const char *name)
 {
 	Node *node;
 
@@ -193,7 +193,7 @@ Node * DT__AddChild(Node *parent, char *name)
     }
 
     DTInfo.numNodes++;
-    DT__AddProperty(node, "name", strlen(name) + 1, name);
+    DT__AddProperty(node, "name", strlen(name) + 1, (void *)name);
 
     return node;
 }
