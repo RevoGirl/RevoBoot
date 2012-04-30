@@ -170,25 +170,6 @@ static unsigned short getVESAModeWithProperties(unsigned short width, unsigned s
 }
 
 
-#if CHAMELEON
-//==============================================================================
-
-static void setupPalette(VBEPalette * p, const unsigned char * g)
-{
-	int i;
-	unsigned char * source = (unsigned char *) g;
-	
-	for (i = 0; i < 256; i++)
-	{
-		(*p)[i] = 0;
-		(*p)[i] |= ((unsigned long)((*source++) >> 2)) << 16;	// Red
-		(*p)[i] |= ((unsigned long)((*source++) >> 2)) << 8;	// Green
-		(*p)[i] |= ((unsigned long)((*source++) >> 2));			// Blue
-	}
-}
-#endif
-
-
 //==============================================================================
 
 static int setVESATextMode(unsigned short cols, unsigned short rows, unsigned char bitsPerPixel)
@@ -337,11 +318,19 @@ int initGraphicsMode()
 	//  Do we have a "Graphics Mode" property in com.apple.Boot.plist?
 	if (count < 3)
 	{
+#if USE_STATIC_DISPLAY_RESOLUTION
 		params[0] = DEFAULT_SCREEN_WIDTH;
 		params[1] = DEFAULT_SCREEN_HEIGHT;
-		params[2] = 32;
+#else
+		unsigned long resolutionCombo = getResolutionFromEDID();
+		printf("EDID width :%l\n", resolutionCombo);
+		/* params[0] = */ printf("EDID width :%l\n", (resolutionCombo << 16));
+		/* params[1] = */ printf("EDID height:%l\n", (resolutionCombo & 0xFFF));
+		// sleep(15);
+#endif
 	}
 
+	params[2] = 32; // Don't bother. Use the de facto standard.
 	params[3] = 0;
 
 	return setVESAGraphicsMode(params[0], params[1], params[2], 0);
