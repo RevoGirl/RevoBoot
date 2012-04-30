@@ -397,7 +397,7 @@ char * DT__GetName(Node *node)
 
 //==============================================================================
 
-Node * DT__FindNode(char *path, bool createIfMissing)
+Node * DT__FindNode(const char *path, bool createIfMissing)
 {
     Node *node, *child;
     DTPropertyNameBuf nameBuf;
