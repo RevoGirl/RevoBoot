@@ -465,6 +465,7 @@ static const char * SMBMemoryDeviceTypes[] =
 static const int kSMBMemoryDeviceTypeCount = sizeof(SMBMemoryDeviceTypes) / sizeof(SMBMemoryDeviceTypes[0]);
 #endif
 
+
 //
 // OEM Processor Type (Apple Specific - Type 131)
 //
@@ -475,6 +476,7 @@ struct SMBOemProcessorType
 	SMBWord    ProcessorType;
 } __attribute__((packed)) SMBOemProcessorType;
 
+
 //
 // OEM Processor Bus Speed (Apple Specific - Type 132)
 //
@@ -483,6 +485,7 @@ struct SMBOemProcessorBusSpeed
 	SMB_STRUCT_HEADER
 	SMBWord    ProcessorBusSpeed;   // MT/s unit
 } __attribute__((packed)) SMBOemProcessorBusSpeed;
+
 
 //
 // OEM Platform Feature (Apple Specific - Type 133 / AppleSMBIOS-43)
