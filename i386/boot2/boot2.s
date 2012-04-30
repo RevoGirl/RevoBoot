@@ -55,7 +55,7 @@
     //.text
     .section __INIT,__text	// turbo
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#-------------------------------------------------------------------------------
 # Booter entry point. Called by boot1.
 # This routine must be the first in the TEXT segment.
 #
@@ -111,6 +111,7 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
     # Transfer execution to C by calling boot().
     
     pushl   %edx                # bootdev
+
     call    _boot
 
     testb   $0xff, _chainbootflag
