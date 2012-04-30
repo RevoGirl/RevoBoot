@@ -162,7 +162,8 @@ unsigned long getQPISpeed(uint64_t aFSBFrequency)
 
 void initCPUStruct(void)
 {
-	bool SandyBridge = false;
+	bool SandyBridge	= false;
+	bool IvyBridge		= false;
 
 	uint8_t		maxcoef, maxdiv, currcoef, currdiv;
 
@@ -322,7 +323,7 @@ void initCPUStruct(void)
 			switch (gPlatform.CPU.Model)
 			{
 				case CPU_MODEL_SB_CORE:	
-				case CPU_MODEL_IB_CORE:
+				case CPU_MODEL_SB_JAKETOWN:
 					SandyBridge = true;
 
 				case CPU_MODEL_DALES_32NM:
@@ -335,11 +336,15 @@ void initCPUStruct(void)
 					 */		
 					hiBit = 19;
 					break;
-					
+
+				case CPU_MODEL_IB_CORE:
+				case CPU_MODEL_IB_CORE_EX:
+					IvyBridge = true;
+
 				case CPU_MODEL_NEHALEM:
+				case CPU_MODEL_NEHALEM_EX:
 				case CPU_MODEL_FIELDS:
 				case CPU_MODEL_DALES:
-				case CPU_MODEL_NEHALEM_EX:
 					hiBit = 31;
 					break;
 			}
@@ -383,7 +388,7 @@ void initCPUStruct(void)
 					requestMaxTurbo(maxBusRatio);
 				}
 
-				if (SandyBridge /* || JakeTown */)
+				if (SandyBridge || IvyBridge)
 				{
 					gPlatform.CPU.Type |= 0x02; // Note: Use 0x01 here for the new Macmini5,1 (to get cpu-type = 0x602).
 
@@ -392,11 +397,9 @@ void initCPUStruct(void)
 #endif
 					qpiSpeed = 0; // No QPI but DMI for Sandy Bridge processors.
 					
-					// Disable EIST Hardware coordination.
-					wrmsr64(MSR_MISC_PWR_MGMT, 0x400001);
-
-					// Disable C1/C3 state auto demotion i.e. it won't change C3/C6/C7 requests to C1/C3.
-					wrmsr64(MSR_PKG_CST_CONFIG_CONTROL, 0x18008407);
+					// Disable EIST Hardware coordination (letting AICPUPM.kext handle it).
+					msr = rdmsr64(MSR_MISC_PWR_MGMT);
+					wrmsr64(MSR_MISC_PWR_MGMT, msr | 1);
 
 					checkFlexRatioMSR(); 
 				}
@@ -473,7 +476,7 @@ void initCPUStruct(void)
 		}
 	}
 
-	if (!fsbFrequency && !SandyBridge)
+	if (!fsbFrequency && !SandyBridge && !IvyBridge)
 	{
 		fsbFrequency = (DEFAULT_FSB * 1000);
 		cpuFrequency = tscFrequency;
