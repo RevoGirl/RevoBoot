@@ -89,8 +89,8 @@ void getAndProcessBootArguments(char * configKernelFlags)
 	int kernelFlagsLength	= strlen(configKernelFlags);
 
 	int index = 1;
-	int bootModes[5]			= { -1, kBootModeNormal, kBootModeNormal, -1, kBootModeSafe };
-	const char * bootFlags[5]	= { "", kVerboseModeFlag, kSingleUserModeFlag, "", kSafeModeFlag };
+	int bootModes[6]			= { -1, kBootModeNormal, kBootModeNormal, -1, kBootModeSafe, kBootModeNormal };
+	const char * bootFlags[6]	= { "", kVerboseModeFlag, kSingleUserModeFlag, "", kSafeModeFlag, kIgnoreCachesFlag };
 
 	skipblanks(&cp);
 
@@ -114,6 +114,11 @@ void getAndProcessBootArguments(char * configKernelFlags)
 				printf("X\n");
 				pressedKey |= 4;
 				break;
+
+			case 'f': // Skip MKext.
+				printf("F\n");
+				pressedKey |= 8;
+				break;
 		}
     }
 
@@ -124,7 +129,7 @@ void getAndProcessBootArguments(char * configKernelFlags)
 		gVerboseMode = true; // ((pressedKey & 1) || (pressedKey & 2));
 	}
 
-    for (index = 1; index < 5; index++)
+    for (index = 1; index < 6; index++)
 	{
 		int currentMode = bootModes[index];
 		// printf("currentMode: %d\n", currentMode);
