@@ -251,46 +251,12 @@ typedef struct {
 
 #pragma pack()
 
-/*
- * Defined flags for 'Flags' field in VBECRTCInfoBlock.
- */
-enum {
-    kCRTCDoubleScannedMode       = (1 << 0),
-    kCRTCInterlacedMode          = (1 << 1),
-    kCRTCNegativeHorizontalSync  = (1 << 2),
-    kCRTCNegativeVerticalSync    = (1 << 3)
-};
-
 typedef unsigned long VBEPalette[256];
 
 extern int getVBEInfo(void *vinfo_p);
-extern int getEDID( void * edidBlock, UInt8 block);
 extern int getVBEModeInfo(int mode, void *minfo_p);
-extern int getVBEDACFormat(unsigned char *format);
-extern int setVBEDACFormat(unsigned char format);
-extern int setVBEPalette(void *palette);
-extern int getVBEPalette(void *palette);
 extern int setVBEMode(unsigned short mode, const VBECRTCInfoBlock *timing);
-extern int getVBECurrentMode(unsigned short *mode);
-extern int getVBEPixelClock(unsigned short mode, unsigned long *pixelClock);
-
-#if DEBUG
-	extern void printVBEModeInfo(void);
-	extern char *getVBEModeInfoString(void);
-#endif
-
-#if CHAMELEON
-// The type of parameter passed to generateCRTCTimings().
-enum {
-    kCRTCParamRefreshRate,
-    kCRTCParamPixelClock
-};
-
-extern int generateCRTCTiming(unsigned short     width,
-                              unsigned short     height,
-                              unsigned long      paramValue,
-                              int                paramType,
-                              VBECRTCInfoBlock * timing);
-#endif
+extern int setVBEPalette(void *palette);
+extern unsigned long getResolutionFromEDID(void);
 
 #endif /* !__LIBSAIO_VBE_H */
