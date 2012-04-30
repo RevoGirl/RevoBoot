@@ -305,6 +305,31 @@ void video_mode(int mode)
 }
 
 
+// ==============================================================================
+// Called from setVESATextMode() in graphics.c
+
+unsigned long getResolutionFromEDID(void)
+{
+	UInt8 data[128];
+
+	bb.intno	= 0x10;
+	bb.eax.rr	= 0x4F15;
+	bb.ebx.r.l	= 0x01;
+	bb.edx.rr	= 0x01; // Target block.
+	bb.es		= SEG(data);
+	bb.edi.rr	= OFF(data);
+	bios(&bb);
+	
+	if (bb.eax.r.h == 0)
+	{
+		return ( ( (data[56] | ((data[58] & 0xF0) << 4)) << 16) | 
+				 ( (data[59] | ((data[61] & 0xF0 ) << 4)) ));
+	}
+
+	return 0;
+}
+
+
 //==============================================================================
 
 int biosread(int dev, int cyl, int head, int sec, int num)
