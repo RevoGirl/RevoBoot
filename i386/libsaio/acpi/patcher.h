@@ -133,7 +133,7 @@ void overrideACPIMethods(ACPI_FADT *patchedFADT)
 	// Get a handle to the factory DSDT.
 	ACPI_DSDT * factoryDSDT = (ACPI_DSDT *)patchedFADT->DSDT;
 
-	// Allocate kernel memory for the 'to-be-patched' DSDT.
+	// Allocate kernel memory for the 'to-be-patched' factory DSDT.
 	ACPI_DSDT * patchedDSDT = (void *)AllocateKernelMemory(factoryDSDT->Length);
 
 	// Copy factory DSDT into newly allocated memory space.
@@ -143,7 +143,7 @@ void overrideACPIMethods(ACPI_FADT *patchedFADT)
 	void *searchStart	= (void *)patchedDSDT + patchedDSDT->Length;
 	void *searchEnd		= (void *)patchedDSDT;
 
-	// Number of Methods to search for.
+	// Default number of Methods to search for.
 	uint8_t targetMethods = 1;
 
 	// Search for the target method(s).
@@ -161,10 +161,10 @@ void overrideACPIMethods(ACPI_FADT *patchedFADT)
 		if (data == _PTS_SIGNATURE || data == _WAK_SIGNATURE)
 #endif
 		{
-			// Change namespace from _PTS /_WAK to ZPTS / ZWAK (two examples).
+			// Change namespace from _PTS /_WAK to ZPTS / ZWAK (examples).
 			*((uint32_t *)((uint32_t *)searchStart)) &= 0xFFFFFF5A;
 
-			// Did we locate all target yet?
+			// Did we locate all targets yet?
 			if (targetMethods-- == 0)
 			{
 				break; // Yes.
