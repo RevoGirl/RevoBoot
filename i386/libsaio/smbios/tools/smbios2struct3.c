@@ -3,7 +3,7 @@
   * Name        : smbios2struct3 (pipe output to file)
   * Version     : 1.0.5
   * Type        : Command line tool
-  * Description : SMBIOS extracter / converter (resulting in a smaller and more Apple like table).
+  * Description : SMBIOS extractor / converter (resulting in a smaller and more Apple like table).
   *
   * Copyright   : DutchHockeyPro (c) 2011
   *
