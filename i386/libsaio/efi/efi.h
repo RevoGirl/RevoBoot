@@ -44,12 +44,12 @@
 
 // EFI Revision info.
 //
-#define EFI_SPEC_MAJOR_REVISION			1
-
 #if EFI_64_BIT
-	#define EFI_SPEC_MINOR_REVISION		10
+	#define EFI_SPEC_MAJOR_REVISION		2
+	#define EFI_SPEC_MINOR_REVISION		31
 #else
-	#define EFI_SPEC_MINOR_REVISION		1
+	#define EFI_SPEC_MAJOR_REVISION		1
+	#define EFI_SPEC_MINOR_REVISION		10
 #endif
 
 // EFI System Table.
@@ -95,6 +95,13 @@ typedef struct
 	// Miscellaneous Services
 	EFI_PTR					GetNextHighMonotonicCount;
 	EFI_PTR					ResetSystem;
+
+	// UEFI 2.0 Capsule Services
+	EFI_PTR					UpdateCapsule;
+	EFI_PTR					QueryCapsuleCapabilities;
+	
+	// Miscellaneous UEFI 2.0 Service
+	EFI_PTR					QueryVariableInfo;
 } __attribute__((aligned(8))) EFI_RUNTIME_SERVICES;
 
 
