@@ -298,6 +298,9 @@
 
 #define USE_STATIC_SMBIOS_DATA				0	// Set to 0 by default (dynamic data collection). Change this to 1 to use static data.
 
+#if (USE_STATIC_SMBIOS_DATA == 0 && USE_STATIC_CPU_DATA == 1)
+	#undef USE_STATIC_CPU_DATA				// Prevent boot failures due to wrong settings (until I figured out what we are missing).
+#endif
 
 #define OVERRIDE_DYNAMIC_MEMORY_DETECTION		0	// Set to 0 by default. Change this to 0 only when your SMBIOS data (type 17) is fine!
 								// Note: Defaults to n MB 1066 DDR3 when set to 0 (preventing errors in Profile Manager).
