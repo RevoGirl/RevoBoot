@@ -306,7 +306,7 @@ void video_mode(int mode)
 
 
 // ==============================================================================
-// Called from setVESATextMode() in graphics.c
+/* Called from setVESATextMode() in graphics.c
 
 unsigned long getResolutionFromEDID(void)
 {
@@ -327,7 +327,7 @@ unsigned long getResolutionFromEDID(void)
 	}
 
 	return 0;
-}
+} */
 
 
 //==============================================================================
