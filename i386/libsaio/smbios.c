@@ -4,7 +4,6 @@
  * Refactorized by DHP in 2011.
  */
 
-
 #include "platform.h"
 
 #if USE_STATIC_SMBIOS_DATA
@@ -26,7 +25,7 @@ void setupSMBIOS(void)
 
     int tableLength = sizeof(SMBIOS_Table);
 
-	// Copy the static SMBIOS data into the newly allocated memory page. Right after the newEPS.
+	// Copy the static SMBIOS data into the newly allocated memory page. Right after the new EPS.
     memcpy((kernelMemory + sizeof(* newEPS)), SMBIOS_Table, tableLength);
 	
     newEPS->anchor[0]			= 0x5f;		// _
@@ -36,7 +35,7 @@ void setupSMBIOS(void)
     newEPS->checksum			= 0;
     newEPS->entryPointLength	= 0x1f;		// sizeof(* newEPS)
     newEPS->majorVersion		= 2;
-    newEPS->minorVersion		= 3;
+    newEPS->minorVersion		= 4;
     newEPS->maxStructureSize	= STATIC_SMBIOS_SM_MAX_STRUCTURE_SIZE; // Defined in: config/smbios/data.h
     newEPS->entryPointRevision	= 0;
     
@@ -55,7 +54,7 @@ void setupSMBIOS(void)
     newEPS->dmi.tableLength		= tableLength; 
     newEPS->dmi.tableAddress	= (uint32_t) (kernelMemory + sizeof(struct SMBEntryPoint)); 
     newEPS->dmi.structureCount	= STATIC_SMBIOS_DMI_STRUCTURE_COUNT; // Defined in: config/smbios/data.h
-    newEPS->dmi.bcdRevision		= 0x23;
+    newEPS->dmi.bcdRevision		= 0x24;
     
     // Take care of possible checksum errors
     newEPS->dmi.checksum		= 256 - checksum8(&newEPS->dmi, sizeof(newEPS->dmi));
