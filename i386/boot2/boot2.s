@@ -38,19 +38,16 @@
 #include <architecture/i386/asm_help.h>
 #include "memory.h"
 
-#define DEBUG   0           // Set to 0 by default. Use 1 for testing only!
+#define DEBUG   1           // Set to 0 by default. Use 1 for testing only!
 
 #define data32  .byte 0x66
 #define retf    .byte 0xcb
 
     .file "boot2.s"
-    .section __INIT,__text	// turbo - This initialization code must reside within the first segment
+    .section __INIT,__text    // turbo - This initialization code must reside within the first segment
 
     //.data
     .section __INIT,__data	// turbo - Data that must be in the first segment
-
-    EXPORT(_chainbootdev)  .byte 0x80
-    EXPORT(_chainbootflag) .byte 0x00
 
     //.text
     .section __INIT,__text	// turbo
@@ -75,23 +72,39 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
 
 #if DEBUG
 #-------------------------------------------------------------------------------
-# Writes an "R" to the console (flashing _ cursor) and waits for a key press.
+# Writes ":boot2" to the console and waits for key press.
 #
+# Note: The text "boot1: /boot:boot2" means that boot2 is loaded and started.
 #
     push    %ax
     push    %bx
 
-    mov        $0x0e52, %ax        # AH=0x0e (function code), AL=0x52 (character to print: 'R') 
-    mov     $0x0001, %bx        # BH=0x00 (page number), BL=0x01 (blue in graphics mode)
-    int     $0x10               # Display byte in teletype mode
-#
-# Wait for a key press.
-#
-    mov     $0x00,   %ah
+    mov	    $0x0e3a, %ax
+    mov     $0x0001, %bx
+    int     $0x10
+    mov	    $0x0e62, %ax
+    mov     $0x0001, %bx
+    int     $0x10
+    mov	    $0x0e6f, %ax
+    mov     $0x0001, %bx
+    int     $0x10
+    mov	    $0x0e6f, %ax
+    mov     $0x0001, %bx
+    int     $0x10
+    mov	    $0x0e74, %ax
+    mov     $0x0001, %bx
+    int     $0x10
+    mov	    $0x0e32, %ax
+    mov     $0x0001, %bx
+    int     $0x10
+
+    mov     $0x0000, %ax        # Wait for a key press.
+    mov     $0x0001, %bx
     int	    $0x16
 
     pop     %bx
     pop     %ax
+
 #-------------------------------------------------------------------------------
 #endif
 
@@ -105,49 +118,8 @@ LABEL(boot2)                    # Entry point at 0:BOOTER_ADDR (will be called b
     data32
     call    __real_to_prot      # Enter protected mode.
 
-    fninit                      # FPU init
-
     # We are now in 32-bit protected mode.
     # Transfer execution to C by calling boot().
-    
+
     pushl   %edx                # bootdev
-
     call    _boot
-
-    testb   $0xff, _chainbootflag
-    jnz     start_chain_boot    # Jump to a foreign booter
-
-    call    __prot_to_real      # Back to real mode.
-
-    data32
-    call    __switch_stack      # Restore original stack
-
-    pop     %es                 # Restore original ES and DS
-    pop     %ds
-    popl    %edi                # Restore all general purpose registers
-    popl    %esi                # except EAX.
-    popl    %ebp
-    popl    %ebx
-    popl    %ecx
-
-    retf                        # Hardcode a far return
-
-start_chain_boot:
-    xorl    %edx, %edx
-    movb    _chainbootdev, %dl  # Setup DL with the BIOS device number
-
-    call    __prot_to_real      # Back to real mode.
-
-    data32
-    call    __switch_stack      # Restore original stack
-
-    pop     %es                 # Restore original ES and DS
-    pop     %ds
-    popl    %edi                # Restore all general purpose registers
-    popl    %esi                # except EAX.
-    popl    %ebp
-    popl    %ebx
-    popl    %ecx
-
-    data32
-    ljmp    $0, $0x7c00         # Jump to boot code already in memory
