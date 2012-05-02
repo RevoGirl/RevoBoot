@@ -60,18 +60,14 @@ $(OBJROOT)/%.o: %.m
 	    -MD -dependency-file $(OBJROOT)/$*.d
 	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
 
-#.s.o:
-#	cc $(INC) -E $< > $(OBJROOT)/$*.o2
-#	$(AS) -o $(OBJROOT)/$@ $(OBJROOT)/$*.o2
-
 .s.o:
-	cc $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<
+	$(CC) $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<
 
 boot2.o:
-	cc $(CPPFLAGS) -Wa,-n -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) boot2.s
+	$(CC) $(CPPFLAGS) -Wa,-n -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) boot2.s
 	
 $(OBJROOT)/%.o: %.s
-	cc $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<
+	$(CC) $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<
 
 $(DIRS_NEEDED) $(INSTALLDIR) $(SRCROOT):
 	$(MKDIRS) $@
