@@ -65,9 +65,11 @@
 #if DEBUG_DISK
 	#define _DISK_DEBUG_DUMP(x...)			_DEBUG_DUMP(x)
 	#define _DISK_DEBUG_SLEEP(seconds)		_DEBUG_SLEEP(seconds)
+	#define _DISK_DEBUG_ELSE_DUMP(x...)		_DEBUG_ELSE_DUMP(x)
 #else
 	#define _DISK_DEBUG_DUMP(x...)
 	#define _DISK_DEBUG_SLEEP(seconds)
+	#define _DISK_DEBUG_ELSE_DUMP(x...)
 #endif
 
 
