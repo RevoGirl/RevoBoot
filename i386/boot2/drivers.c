@@ -186,13 +186,6 @@ long loadDrivers(char * dirSpec)
 			
 			_DRIVERS_DEBUG_DUMP("loadMultiKext(1) OK.\n");
 		}
-
-		if (loadMultiKext("/Extra") == STATE_SUCCESS)
-		{
-			gKextLoadStatus |= 2;
-			
-			_DRIVERS_DEBUG_DUMP("loadMultiKext(2) OK.\n");
-		}
 	}
 
 	_DRIVERS_DEBUG_DUMP("gKextLoadStatus: %d\n", gKextLoadStatus); 
@@ -204,20 +197,6 @@ long loadDrivers(char * dirSpec)
 	{
 		_DRIVERS_DEBUG_DUMP("gKextLoadStatus != 3\n");
 
-		// Yes we do. Start by looking for kexts in: /Extra/Extensions/
-		if ((gKextLoadStatus & 2) == 0)
-		{
-			_DRIVERS_DEBUG_DUMP("Calling loadKexts(\"/Extra/Extensions\");\n");
-
-			if (loadKexts("/Extra/Extensions", 0) == STATE_SUCCESS)
-			{
-				_DRIVERS_DEBUG_DUMP("loadKexts(2) OK.\n");
-			}
-
-			_DRIVERS_DEBUG_DUMP("\n");
-		}
-
-		// Now progress to the system kexts.
 		if ((gKextLoadStatus & 1) == 0)
 		{
 			_DRIVERS_DEBUG_DUMP("\nCalling loadKexts(\"/System/Library/Extensions\");\n");
@@ -229,15 +208,16 @@ long loadDrivers(char * dirSpec)
 
 			_DRIVERS_DEBUG_DUMP("\n");
 		}
-
-		matchLibraries();
-		loadMatchedModules();
 	}
+
+	matchLibraries();
+	loadMatchedModules();
 
 	_DRIVERS_DEBUG_SLEEP(15);
 
 	return STATE_SUCCESS;
 }
+
 
 #if (MAKE_TARGET_OS == 1) // Snow Leopard only!
 //==============================================================================
@@ -253,6 +233,13 @@ static int loadMultiKext(char * path)
 	
 	_DRIVERS_DEBUG_DUMP("\nloadMultiKext: %s%s\n", path, fileName);
 
+#if DEBUG_DRIVES
+	if (strlen(path) >= 80)
+	{
+		stop("Error: gPlatform.KextFileSpec >= %d chars. Change soure code!\n", 80);
+	}
+#endif
+
 	long ret = GetFileInfo(path, fileName, &flags, &time);
 	
 	// Pre-flight checks; Does the file exists, and is it something we can use?
@@ -264,6 +251,13 @@ static int loadMultiKext(char * path)
 
 		char mkextSpec[80];
 		sprintf(mkextSpec, "%s%s", path, fileName);
+
+#if DEBUG_DRIVES
+		if (strlen(mkextSpec) >= 80)
+		{
+			stop("Error: mkextSpec >= %d chars. Change soure code!\n", 80);
+		}
+#endif
 
 		// Load the MKext.
 		long length = LoadThinFatFile(mkextSpec, (void **)&package);
@@ -304,7 +298,6 @@ static int loadMultiKext(char * path)
 
 		// Copy the MKext.
 		memcpy((void *)driversAddr, (void *)package, driversLength);
-		bzero((void *)package, driversLength);
 
 		// Add the MKext to the memory map.
 		sprintf(segName, "DriversPackage-%lx", driversAddr);
@@ -408,6 +401,13 @@ static int loadPlist(char * targetFolder, bool isBundleType2)
 	// Construct path for executable.
 	sprintf(gPlatform.KextPlistSpec, "%s/%s", targetFolder, (isBundleType2) ? "Contents/MacOS/" : "");
 
+#if DRIVERS_DEBUG
+	if (strlen(gPlatform.KextPlistSpec) >= MAX_KEXT_PATH_LENGTH)
+	{
+		stop("Error: gPlatform.KextPlistSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
+	}
+#endif
+
 	tmpExecutablePath = malloc(strlen(gPlatform.KextPlistSpec) + 1);
 
 	if (tmpExecutablePath)
@@ -415,6 +415,13 @@ static int loadPlist(char * targetFolder, bool isBundleType2)
 		strcpy(tmpExecutablePath, gPlatform.KextPlistSpec);
 
 		sprintf(gPlatform.KextPlistSpec, "%s/", targetFolder);
+
+#if DRIVERS_DEBUG
+		if (strlen(gPlatform.KextPlistSpec) >= MAX_KEXT_PATH_LENGTH)
+		{
+			stop("Error: gPlatform.KextPlistSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
+		}
+#endif
 		bundlePathLength = strlen(gPlatform.KextPlistSpec) + 1;
 
 		tmpBundlePath = malloc(bundlePathLength);
@@ -426,7 +433,7 @@ static int loadPlist(char * targetFolder, bool isBundleType2)
 			// Path to plist, which may not exist.
 			sprintf(gPlatform.KextPlistSpec, "%s/%sInfo.plist", targetFolder, (isBundleType2) ? "Contents/" : "");
 
-#if DEBUG_DRIVERS
+#if DRIVERS_DEBUG
 			if (strlen(gPlatform.KextPlistSpec) >= MAX_KEXT_PATH_LENGTH)
 			{
 				stop("Error: gPlatform.KextPlistSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
@@ -540,6 +547,12 @@ static long loadMatchedModules(void)
                 fileName = prop->string;
 
                 sprintf(gPlatform.KextFileSpec, "%s%s", module->executablePath, fileName);
+#if DEBUG_DRIVES
+				if (strlen(gPlatform.KextFileSpec) >= MAX_KEXT_PATH_LENGTH)
+				{
+					stop("Error: gPlatform.KextFileSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
+				}
+#endif
                 length = LoadThinFatFile(gPlatform.KextFileSpec, &executableAddr);
 
 				if (length == 0)
