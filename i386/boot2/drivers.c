@@ -233,7 +233,7 @@ static int loadMultiKext(char * path)
 	
 	_DRIVERS_DEBUG_DUMP("\nloadMultiKext: %s%s\n", path, fileName);
 
-#if DEBUG_DRIVES
+#if DEBUG_DRIVERS
 	if (strlen(path) >= 80)
 	{
 		stop("Error: gPlatform.KextFileSpec >= %d chars. Change soure code!\n", 80);
@@ -252,7 +252,7 @@ static int loadMultiKext(char * path)
 		char mkextSpec[80];
 		sprintf(mkextSpec, "%s%s", path, fileName);
 
-#if DEBUG_DRIVES
+#if DEBUG_DRIVERS
 		if (strlen(mkextSpec) >= 80)
 		{
 			stop("Error: mkextSpec >= %d chars. Change soure code!\n", 80);
@@ -547,7 +547,7 @@ static long loadMatchedModules(void)
                 fileName = prop->string;
 
                 sprintf(gPlatform.KextFileSpec, "%s%s", module->executablePath, fileName);
-#if DEBUG_DRIVES
+#if DEBUG_DRIVERS
 				if (strlen(gPlatform.KextFileSpec) >= MAX_KEXT_PATH_LENGTH)
 				{
 					stop("Error: gPlatform.KextFileSpec >= %d chars. Change MAX_KEXT_PATH_LENGTH!", MAX_KEXT_PATH_LENGTH);
