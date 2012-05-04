@@ -59,8 +59,10 @@ void putchar(int c)
 {
 	if ( c == '\t' )
 	{
-		for (c = 0; c < 8; c++) putc(' ');
-		return;
+		for (c = 0; c < 8; c++)
+		{
+			putc(' ');
+		}
 	}
 
 	if ( c == '\n' )
