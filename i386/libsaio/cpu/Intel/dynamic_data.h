@@ -378,9 +378,9 @@ void initCPUStruct(void)
 				}
 
 				msr = rdmsr64(MSR_PLATFORM_INFO);
-#if AUTOMATIC_SSDT_PR_CREATION || DEBUG_CPU
+
 				gPlatform.CPU.MinBusRatio = ((msr >> 40) & 0xff);	// 0x10 (16) for the i5-2500 and i7-2600
-#endif
+
 				uint8_t maxBusRatio = gPlatform.CPU.MaxBusRatio = ((msr >> 8) & 0xff);	// 0x21 for the i5-2500 and 0x22 for the i7-2600
 #if INTEL_CORE_TECHNOLOGY
 				if (!((rdmsr64(IA32_MISC_ENABLES) >> 32) & 0x40))	// Turbo Mode Enabled?
@@ -511,7 +511,7 @@ void initCPUStruct(void)
 
 	_CPU_DEBUG_DUMP("                             123456789 123456789 123456789 123456789 12345678\n");
 	_CPU_DEBUG_DUMP("CPU: Brandstring           : %s\n",				gPlatform.CPU.BrandString);
-	_CPU_DEBUG_DUMP("CPU: Vendor/Model/ExtModel : 0x%x/0x%x/0x%x\n",	gPlatform.CPU.Vendor, gPlatform.CPU.Model, gPlatform.CPU.ExtModel);
+	_CPU_DEBUG_DUMP("CPU: Vendor/Model/ExtModel : 0x%x/0x%x/0x%x\n",		gPlatform.CPU.Vendor, gPlatform.CPU.Model, gPlatform.CPU.ExtModel);
 	_CPU_DEBUG_DUMP("CPU: Stepping / Signature  : 0x%x/0x%x\n",			gPlatform.CPU.Stepping, gPlatform.CPU.Signature);
 	_CPU_DEBUG_DUMP("CPU: Family/ExtFamily      : 0x%x/0x%x\n",			gPlatform.CPU.Family, gPlatform.CPU.ExtFamily);
 	_CPU_DEBUG_DUMP("CPU: Type                  : 0x%x\n",				gPlatform.CPU.Type);
@@ -554,7 +554,7 @@ void initCPUStruct(void)
 
 	_CPU_DEBUG_DUMP("CPU: Features              : 0x%08x\n",	gPlatform.CPU.Features);
 	_CPU_DEBUG_DUMP("CPU: TSCFreq               : %dMHz\n",		gPlatform.CPU.TSCFrequency / 1000000);
-	_CPU_DEBUG_DUMP("CPU: FSBFreq               : %dMHz\n",		gPlatform.CPU.FSBFrequency ? (gPlatform.CPU.FSBFrequency / 1000000) : 100);
+	_CPU_DEBUG_DUMP("CPU: FSBFreq               : %dMHz\n",		(gPlatform.CPU.FSBFrequency == 0) ? 100 : (gPlatform.CPU.FSBFrequency / 1000000));
 	_CPU_DEBUG_DUMP("CPU: CPUFreq               : %dMHz\n",		gPlatform.CPU.CPUFrequency / 1000000);
 
 	if (gPlatform.CPU.QPISpeed)
