@@ -130,7 +130,7 @@
 								//        and use it as STATIC_SSDT_PR_TABLE_DATA in RevoBoot/i386/config/ACPI/data.h
 
 
-#if AUTOMATIC_SSDT_PR_CREATION
+#if AUTOMATIC_SSDT_PR_CREATION && STATIC_SSDT_PR_TABLE_INJECTION == 0
 	#define MAX_NUMBER_OF_P_STATES			22	// The i5-2500K need 18 for the base-range (1600-3300) plus 4 for the Turbo modes.
 								// The i7-2600K need 19 for the base-range (1600-3400) plus 4 for the Turbo modes.
 								// The i7-2700K need 20 for the base-range (1600-3500) plus 4 for the Turbo modes.
@@ -146,25 +146,28 @@
 	#define NUMBER_OF_TURBO_STATES			4	// Set to 4 by default.
 								// Note: Make sure to add a full range, one P-State for each 100 MHz when OC'ing 
 								//	 or AICPIPM will fail with: "P-State Stepper Error 18 at step N on CPU N"
-#else
-	#define DROP_FACTORY_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
-#endif
 
-
-#define OVERRIDE_ACPI_METHODS				0	// Set to 0 by default (do nothing).
+	#define OVERRIDE_ACPI_METHODS			0	// Set to 0 by default (do nothing).
 								// Use 1 to override Method _PTS in a static SSDT or Extra/ACPI/SSDT.aml
 								// Use 2 to override Method _WAK in a static SSDT or Extra/ACPI/SSDT.aml
 								// Use 3 to override both _PTS and _WAK.
+								//
+								// Note: This changes the underscore of _PTS and _WAK into a "Z" and that 
+								//       allows you to inject your customized copy from /Extra/ACPI/SSDT.aml
+#else
+	#define OVERRIDE_ACPI_METHODS			0	// Set to 0 by default (do nothing).
 
+	#define DROP_FACTORY_SSDT_TABLES		0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
+#endif
 
 #define REPLACE_EXISTING_SSDT_TABLES			0	// Set to 0 by default. Use 1 with caution (might disable SpeedStep).
 								//
 								// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
 
-
 #define	APPLE_STYLE_ACPI				0	// Set to 0 by default. Use 1 to change the OEMID's to Mac likes.
 								//
-								// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1.
+								// Note: Don't forget to set PATCH_ACPI_TABLE_DATA to 1 and keep in mind that this can  
+								//       only change the headers of injected/replaced tables. Not the factory tables.
 
 
 #define DEBUG_ACPI					0	// Set to 0 by default. Use 1 when things don't seem to work for you.
@@ -193,7 +196,7 @@
 
 #define OC_BUSRATIO_CORRECTION				0	// Set to 0 by default. Change this to busratio-100 (OC'ed systems with a changed busratio).
 
-#define BOOT_TURBO_RATIO				0	// Set to 0 by default. Change this to the desired (and supported) turbo multiplier.
+#define BOOT_TURBO_RATIO				0	// Set to 0 by default. Change this to the desired (and supported) max turbo multiplier.
 								//
 								// Example:  0x2800 for 4.0 GHz on a i7-2600.
 
@@ -213,18 +216,20 @@
 //---------------------------------------------------------- CPU/STATIC_DATA.C -------------------------------------------------------------
 
 
-#define STATIC_CPU_Type					0x703	// kSMBTypeOemProcessorType - used in: libsaio/SMBIOS/dynamic_data.h
+#if USE_STATIC_CPU_DATA
+	#define STATIC_CPU_Type				0x703	// kSMBTypeOemProcessorType - used in: libsaio/SMBIOS/dynamic_data.h
 
-#define STATIC_CPU_NumCores				4	// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
-															//
-															// Note: Also used in cpu.c and platform.c for both static / dynamic CPU data.
+	#define STATIC_CPU_NumThreads			8	// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
 
-#define STATIC_CPU_NumThreads				8	// Used in: i386/libsaio/ACPI/ssdt_pr_generator.h
+	#define STATIC_CPU_FSBFrequency			100000000ULL	// 9 digits + ULL - used in: i386/libsaio/efi.c
 
-#define STATIC_CPU_FSBFrequency				100000000ULL	// 9 digits + ULL - used in: i386/libsaio/efi.c
+	#define STATIC_CPU_QPISpeed			0	// kSMBTypeOemProcessorBusSpeed (0 for Sandy Bridge / Jaketown).
+#endif
 
-#define STATIC_CPU_QPISpeed				0	// kSMBTypeOemProcessorBusSpeed (0 for Sandy Bridge / Jaketown).
-
+#define STATIC_CPU_NumCores				4	// Set to 4 by default. Must be set to the number of cores for your processor!
+								//
+								// Note: Used in i386/libsaio/ACPI/ssdt_pr_generator.h, cpu.c and platform.c 
+								//		 for both static and dynamic CPU data.
 
 //--------------------------------------------------------------- DISK.C -------------------------------------------------------------------
 
@@ -232,6 +237,11 @@
 #define EFI_SYSTEM_PARTITION_SUPPORT			0	// Set to 0 by default. Set this to 1 when your system boots from the hidden EFI partition.
 
 #define LEGACY_BIOS_READ_SUPPORT			0	// Set to 0 by default. Change this to 1 for crappy old BIOSes.
+
+#define LION_FILEVAULT_SUPPORT				0	// Set to 0 by default.  Setting this to 1 will make RevoBoot skip encrypted boot partitions 
+								// and boot from the Recovery HD partition instead (when available).
+
+#define APPLE_RAID_SUPPORT				0	// Set to 0 by default. Change this to 1 for Apple Software RAID support.
 
 #define DEBUG_DISK					0	// Set to 0 by default. Change it to 1 when things don't seem to work for you.
 
@@ -287,12 +297,19 @@
 
 //------------------------------------------------------------ STRINGDATA.H ----------------------------------------------------------------
 
-#define LION_RECOVERY					1	// Set to 0 by default. Setting this to 1 will make RevoBoot search for the Recovery HD and 
+#define LION_FILEVAULT_SUPPORT				0	// Set to 0 by default.  Setting this to 1 will make RevoBoot skip encrypted boot partitions 
+								// and boot from the Recovery HD partition instead (when available).
+
+#if LION_FILEVAULT_SUPPORT
+	#define LION_RECOVERY_SUPPORT			1	// Make RevoBoot search for the Recovery HD partition and boot from it (when available).
+#else
+	#define LION_RECOVERY_SUPPORT			0	// Set to 0 by default. Setting this to 1 will make RevoBoot search for the Recovery HD and 
 								// try to boot from it, when it is properly setup and modified for RevoBoot.
+#endif
 
-#define LION_INSTALL					1	// Set to 0 by default. Setting this to 1 will make RevoBoot search in specific directories
+#define LION_INSTALL_SUPPORT				0	// Set to 0 by default. Setting this to 1 will make RevoBoot search in specific directories
 								// for com.apple.Boot.plist – required for Mac like Lion OS X installations.
-
+												
 //-------------------------------------------------------------- SMBIOS.C ------------------------------------------------------------------
 
 
@@ -302,8 +319,10 @@
 	#undef USE_STATIC_CPU_DATA				// Prevent boot failures due to wrong settings (until I figured out what we are missing).
 #endif
 
-#define OVERRIDE_DYNAMIC_MEMORY_DETECTION		0	// Set to 0 by default. Change this to 0 only when your SMBIOS data (type 17) is fine!
-								// Note: Defaults to n MB 1066 DDR3 when set to 0 (preventing errors in Profile Manager).
+#define OVERRIDE_DYNAMIC_MEMORY_DETECTION		0	// Set to 0 by default. Change this to 0 only when your SMBIOS data (type 17) is correct, or when
+								// you want/need to override some/all of the SMBIOS data.
+								// 
+								// Note: Defaults to n MB 1066 DDR3 when set to 0 (to prevent errors in Profile Manager).
 
 
 #define OVERRIDE_DYNAMIC_PRODUCT_DETECTION		0	// Set to 0 by default. Change this to 1 when you want to use a predefined product type.
@@ -311,6 +330,8 @@
 
 #if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
 	#define STATIC_SMBIOS_MODEL_ID			MACMINI	// Supported models: IMAC, MACBOOK, MACBOOK_AIR, MACBOOK_PRO, MACMINI or MACPRO
+								//
+								// Note: Should match with STATIC_MODEL_NAME and STATIC_MAC_PRODUCT_NAME
 #endif
 
 #define DEBUG_SMBIOS					0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
