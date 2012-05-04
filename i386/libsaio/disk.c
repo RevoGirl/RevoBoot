@@ -117,17 +117,16 @@ static struct disk_blk0 * gBootSector = NULL;
 // Apple_HFS
 EFI_GUID const GPT_HFS_GUID				= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
-// Apple_Boot (helper partition and the 650 MB 'Recovery HD' partition.
-// EFI_GUID const GPT_BOOT_GUID			= { 0x426F6F74, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
+#ifdef LION_RECOVERY_SUPPORT
+	// Apple_Boot (helper partition and the 650 MB 'Recovery HD' partition.
+	EFI_GUID const GPT_BOOT_GUID		= { 0x426F6F74, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
+#endif
 
 // Apple_RAID
 // EFI_GUID const GPT_RAID_GUID			= { 0x52414944, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
 // Apple_RAID_Offline
 // EFI_GUID const GPT_RAID_OFFLINE_GUID	= { 0x52414944, 0x5f4f, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
-
-// Apple_CoreStorage (FileVault 2)
-// EFI_GUID const GPT_CORESTORAGE_GUID	= { 0x53746F72, 0x6167, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
 /*
  * The EFI system partition (ESP) is a special (200 MB) partition from which 
@@ -139,6 +138,11 @@ EFI_GUID const GPT_HFS_GUID				= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x0
 
 #if EFI_SYSTEM_PARTITION_SUPPORT
     EFI_GUID const GPT_EFISYS_GUID		= { 0xC12A7328, 0xF81F, 0x11D2, { 0xBA, 0x4B, 0x00, 0xA0, 0xC9, 0x3E, 0xC9, 0x3B } };
+#endif
+
+#if LION_FILEVAULT_SUPPORT
+	// Apple_CoreStorage (FileVault 2)
+	EFI_GUID const GPT_CORESTORAGE_GUID	= { 0x53746F72, 0x6167, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 #endif
 
 
@@ -556,6 +560,10 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 								map->next		= gDiskBVMap;
 								gDiskBVMap		= map;
 
+#if LION_FILEVAULT_SUPPORT
+								bool encryptedBootPartition = false;
+#endif
+
 								for (; gptID <= gptCount; gptID++)
 								{
 									gptMap = (gpt_ent *) (buffer + ((gptID - 1) * gptSize));
@@ -571,52 +579,69 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 										sleep(1);
 #endif
 
-										if (efi_guid_compare(&GPT_HFS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
+#if EFI_SYSTEM_PARTITION_SUPPORT		// First check for the EFI partition.
+										if (efi_guid_compare(&GPT_EFISYS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
-											_DISK_DEBUG_DUMP("Matched: GPT_HFS_GUID\n");
-
-											bvrFlags = kBVFlagZero;
-										}
-										/* else if (efi_guid_compare(&GPT_BOOT_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
-										{
-											_DISK_DEBUG_DUMP("Matched: GPT_BOOT_GUID\n");
+											_DISK_DEBUG_DUMP("Matched: EFI GUID, probing for HFS format...\n");
 											
-											bvrFlags = kBVFlagBooter;
-										} */
-#if EFI_SYSTEM_PARTITION_SUPPORT
-										else if (efi_guid_compare(&GPT_EFISYS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
-										{
-											_DISK_DEBUG_DUMP("Matched: GPT_EFISYS_GUID, probing for HFS format...\n");
-
 											//-------------- START -------------
 											// Allocate buffer for 4 sectors.
 											void * probeBuffer = malloc(2048);
-
+											
 											bool probeOK = false;
-
+											
 											// Read the first 4 sectors.
 											if (readBytes(biosdev, gptMap->ent_lba_start, 0, 2048, (void *)probeBuffer) == 0)
 											{
 												//  Probing (returns true for HFS partitions).
 												probeOK = HFSProbe(probeBuffer);
-
+												
 												_DISK_DEBUG_DUMP("HFSProbe status: Is %s a HFS partition.\n", probeOK ? "" : "not");
-
+												
 											}
-
+											
 											free(probeBuffer);
-
+											
 											// Veto non-HFS partitions to be invalid.
 											if (!probeOK)
 											{
 												continue;
 											}
-
+											
 											//-------------- END ---------------
-
+											
 											bvrFlags = kBVFlagEFISystem;
 										}
+										else
 #endif
+
+#if LION_FILEVAULT_SUPPORT				// Is this an encrypted boot partition?
+										if (efi_guid_compare(&GPT_CORESTORAGE_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
+										{
+											_DISK_DEBUG_DUMP("Matched: CoreStorage GUID\n");
+
+											encryptedBootPartition = true;
+											
+											continue; // Start searching for the Recovery HD partition.
+										}
+										else if (!encryptedBootPartition &&
+#else
+										// Check for HFS+ partitions.
+										if (
+#endif
+										(efi_guid_compare(&GPT_HFS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0))
+										{
+											_DISK_DEBUG_DUMP("Matched: HFS+ GUID\n");
+
+											bvrFlags = kBVFlagZero;
+										}
+										else if (efi_guid_compare(&GPT_BOOT_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
+										{
+											_DISK_DEBUG_DUMP("Matched: GPT_BOOT_GUID\n");
+											
+											bvrFlags = kBVFlagBooter;
+										}
+
 										// Only true when we found a usable partition.
 										if (bvrFlags >= 0)
 										{
@@ -671,6 +696,7 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 			}
 		}
 	}
+	_DISK_DEBUG_ELSE_DUMP("Failed to read boot sector from BIOS device %02xh\n", biosdev);
 
 	free(buffer);
 	*countPtr = 0;
