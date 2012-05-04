@@ -327,7 +327,7 @@ long GetDirEntry(const char * dirSpec, long * dirIndex, const char ** dirEntry, 
 		return -1;
 	}
 
-	// Return 0 on success, or -1 if there are no additional entries.
+	// Returns 0 on success or -1 when there are no additional entries.
 
 	return bvr->fs_getdirentry(bvr, (char *)dirPath, dirIndex, (char **)dirEntry, flags, time, 0, 0);
 }
