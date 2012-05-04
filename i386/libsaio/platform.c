@@ -100,6 +100,23 @@ cpu_type_t getArchCPUType(void)
 }
 
 
+#if ENABLE_HPET
+//==============================================================================
+
+void enableHPET(void)
+{
+	// HPTC—High Precision Timer Configuration Register (see Intel datasheet).
+	unsigned int *hptc = (uint32_t *)0xFED1F404;
+
+	// Get register value (the default value is usually 0x00000000).
+	uint32_t reg_value = *hptc;
+
+	// Select memory range 0xFED00000 – 0xFED003FF and enable it.
+	*hptc = ((reg_value & ~3) | 0x80);
+}
+#endif // ENABLE_HPET
+
+
 //==============================================================================
 // Public function. Called from boot/common_boot only.
 
