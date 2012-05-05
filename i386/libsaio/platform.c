@@ -130,6 +130,10 @@ void initPlatform(int biosDevice)
     setVideoMode(0); // Switch to VGA_TEXT_MODE
 #endif
 
+#if ENABLE_HPET
+	enableHPET();
+#endif
+
 	gPlatform.RevoBootVersionInfo = strdup(REVOBOOT_VERSION_INFO);	// Example: "RevoBoot v1.0.04"
 
 	_PLATFORM_DEBUG_DUMP("Booting with: %s\n", gPlatform.RevoBootVersionInfo);
