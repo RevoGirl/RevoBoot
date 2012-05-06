@@ -643,13 +643,15 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 											bvrFlags = kBVFlagBooter;
 										}
 #endif
+
+#if LION_RECOVERY_SUPPORT
 										else if (efi_guid_compare(&GPT_BOOT_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
 											_DISK_DEBUG_DUMP("Matched: GPT_BOOT_GUID\n");
 											
 											bvrFlags = kBVFlagBooter;
 										}
-
+#endif
 										// Only true when we found a usable partition.
 										if (bvrFlags >= 0)
 										{
