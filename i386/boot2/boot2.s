@@ -38,7 +38,7 @@
 #include <architecture/i386/asm_help.h>
 #include "memory.h"
 
-#define DEBUG   1           // Set to 0 by default. Use 1 for testing only!
+#define DEBUG   0           // Set to 0 by default. Use 1 for testing only!
 
 #define data32  .byte 0x66
 #define retf    .byte 0xcb
