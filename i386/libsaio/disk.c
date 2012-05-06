@@ -117,7 +117,7 @@ static struct disk_blk0 * gBootSector = NULL;
 // Apple_HFS
 EFI_GUID const GPT_HFS_GUID				= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
-#ifdef LION_RECOVERY_SUPPORT
+#if LION_RECOVERY_SUPPORT
 	// Apple_Boot (helper partition and the 650 MB 'Recovery HD' partition.
 	EFI_GUID const GPT_BOOT_GUID			= { 0x426F6F74, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 #endif
