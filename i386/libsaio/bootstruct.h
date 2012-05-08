@@ -50,11 +50,6 @@
 
 #define CONFIG_SIZE (40 * 4096)
 
-/*
- * Max size for config data array, in bytes.
- */
-#define IO_CONFIG_DATA_SIZE	163840
-
 #define kMemoryMapCountMax	40
 
 /*
