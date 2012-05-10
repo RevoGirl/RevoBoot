@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 
 #define	SNOW_LEOPARD			1	// Snow Leopard.
-#define LION				2	// Lion (the default).
+#define LION					2	// Lion (the default).
 #define MOUNTAIN_LION			6	// Mountain Lion (includes Lion changes).
 
 //------------------------------------------------------------------------------
@@ -111,11 +111,19 @@ typedef struct _PlatformInfo_t
 
 	char *				KernelCachePath;			// Initialized in platform.c and used in boot.c, driver.c
 
+#if PRE_LINKED_KERNEL_SUPPORT
+	bool				KernelCacheSpecified;		// Set to indicate that a full path is specified.
+#endif
+
 	int					BIOSDevice;					// Initialized in platform.c (formely know as gBIOSDev).
 
 	BVRef				BootVolume;					// Initialized in disk.c
 	BVRef				BootPartitionChain;			// Initialized in sys.c
 	BVRef				RootVolume;					// Initialized in disk.c (used in sys.c).
+
+	bool				BootRecoveryHD;				//
+
+	uint32_t			allocatedVRAM;				// Amount of allocated graphics memory (UEFI-BIOS settings).
 
 	struct ACPI										// Used in acpi_patcher.h
 	{
