@@ -185,7 +185,7 @@ void initEFITree(void)
 #endif
 
 	_EFI_DEBUG_DUMP("Exiting initEFITree()\n");
-	_EFI_DEBUG_SLEEP(10);
+	_EFI_DEBUG_SLEEP(5);
 }
 
 
