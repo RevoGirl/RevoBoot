@@ -179,11 +179,13 @@ void initEFITree(void)
 		STATIC_EFI_DEVICE_PROPERTIES
 	};
 
+	_EFI_DEBUG_DUMP("Injecting EFI device-properties\n");
+
 	DT__AddProperty(efiNode, "device-properties", sizeof(EFI_DEVICE_PROPERTIES), (EFI_CHAR8*) &EFI_DEVICE_PROPERTIES);
 #endif
 
 	_EFI_DEBUG_DUMP("Exiting initEFITree()\n");
-	_EFI_DEBUG_SLEEP(5);
+	_EFI_DEBUG_SLEEP(10);
 }
 
 
