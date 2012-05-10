@@ -162,12 +162,13 @@ void boot(int biosdev)
 	bool	haveCABootPlist	= false;
     bool	quietBootMode	= true;
 
-	void *binary = (void *)kLoadAddr;
+	void *fileLoadBuffer = (void *)kLoadAddr;
 
-	char bootFile[128];
+	char bootFile[256];
 	char rootUUID[37];
 
 	char * kernelFlags = NULL;
+	// char * kernelCachePath = NULL;
 
 	const char * val;
 
@@ -188,10 +189,11 @@ void boot(int biosdev)
 #if DEBUG_STATE_ENABLED
 	// Don't switch graphics mode / show boot logo when DEBUG is set to 1.
 	printf("\ngArchCPUType (CPU): %s\n", (gArchCPUType == CPU_TYPE_X86_64) ? "x86_64" : "i386");
-	sleep(1); // Silent sleep.
+	sleep(3); // Silent sleep.
 #else
 	showBootLogo();
 #endif
+
 	// A bit ugly maybe, but this will be changed sometime soon.
 	while (readKeyboardStatus())
 	{
@@ -218,9 +220,10 @@ void boot(int biosdev)
 
 		// Check the value of <key>Kernel Flags</key> for stuff we are interested in.
 		// Note: We need to know about: arch= and the boot flags: -s, -v, -f and -x
+
 		if (getValueForKey(kKernelFlagsKey, &val, &kernelFlagsLength, &bootInfo->bootConfig))
 		{
-			// Got it. Do we have anything to work with?
+			// "Kernel Flags" key found. Check length to see if we have anything to work with.
 			if (kernelFlagsLength)
 			{
 				kernelFlagsLength++;
@@ -230,7 +233,7 @@ void boot(int biosdev)
 				strlcpy(kernelFlags, val, kernelFlagsLength);
 
 				// Is 'arch=<i386/x86_64>' specified as kernel flag?
-				if (getValueForBootKey((const char *)kernelFlags, "arch", &val, &length)) //  && len >= 4)
+				if (getValueForBootKey(kernelFlags, "arch", &val, &length)) //  && len >= 4)
 				{
 					gArchCPUType = (strncmp(val, "x86_64", 6) == 0) ? CPU_TYPE_X86_64 : CPU_TYPE_I386;
 
@@ -238,8 +241,8 @@ void boot(int biosdev)
 				}
 				
 				// Check for -v (verbose) and -s (single user mode) flags.
-				gVerboseMode =	getValueForBootKey((const char *)kernelFlags, kVerboseModeFlag, &val, &length) || 
-								getValueForBootKey((const char *)kernelFlags, kSingleUserModeFlag, &val, &length);
+				gVerboseMode =	getValueForBootKey(kernelFlags, kVerboseModeFlag, &val, &length) || 
+								getValueForBootKey(kernelFlags, kSingleUserModeFlag, &val, &length);
 				
 				if (gVerboseMode)
 				{
@@ -249,18 +252,25 @@ void boot(int biosdev)
 				}
 
 				// Check for -x (safe) and -f (flush cache) flags.
-				if (getValueForBootKey((const char *)kernelFlags, kSafeModeFlag, &val, &length) || 
-					getValueForBootKey((const char *)kernelFlags, kIgnoreCachesFlag, &val, &length))
+				if (getValueForBootKey(kernelFlags, kSafeModeFlag, &val, &length) || 
+					getValueForBootKey(kernelFlags, kIgnoreCachesFlag, &val, &length))
 				{
 					gBootMode = kBootModeSafe;
 				}
 
 				// Is 'boot-uuid=<value>' specified as kernel flag?
-				if (getValueForBootKey((const char *)kernelFlags, kBootUUIDKey, &val, &length) && length == 36)
+				if (getValueForBootKey(kernelFlags, kBootUUIDKey, &val, &length) && length == 36)
 				{
+					_BOOT_DEBUG_DUMP("Target boot-uuid=<%s>\n", val);
+
 					// Yes. Copy its value into rootUUID.
 					strlcpy(rootUUID, val, 37);
 				}
+				/* else
+				{
+					strlcpy(rootUUID, "3453E0E5-017B-38AD-A0AA-D0BBD8565D6", 37);
+					_BOOT_DEBUG_DUMP("Target boot-uuid=<%s>\n", rootUUID);
+				} */
 			}
 		}
 
@@ -325,7 +335,7 @@ void boot(int biosdev)
 			{
 				_BOOT_DEBUG_DUMP("Success [%s]\n", rootUUID);
 
-				// gPlatform.RootVolume = rootVolume;
+				gPlatform.RootVolume = rootVolume;
 			}
 		}
 
@@ -388,7 +398,13 @@ void boot(int biosdev)
 		 * Note: Not following this word of advise will render your system incapable of booting!
 		 */
 		
-		if (mayUseKernelCache)
+		if (!mayUseKernelCache && gPlatform.KernelCacheSpecified)
+		{
+			_BOOT_DEBUG_DUMP("Kernel Cache ignored, loading mach_kernel!\n");
+
+			sprintf(bootFile, "%s", bootInfo->bootFile);
+		}
+		else
 		{
 			_BOOT_DEBUG_DUMP("Kernelcache path: %s\n", gPlatform.KernelCachePath);
 
@@ -400,17 +416,13 @@ void boot(int biosdev)
 			 *       in com.apple.Boot.plist (checked earlier already).
 			 */
 
-#if PRE_LINKED_KERNEL_SUPPORT
-			if (gPlatform.KernelCacheSpecified || (GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0))
-#else
-			if (GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0)
-#endif
+			if (gPlatform.KernelCacheSpecified || GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0)
 			{
+
 #if ((MAKE_TARGET_OS & LION) == LION) // Also for Mountain Lion, which has bit 2 set like Lion.
 
 				_BOOT_DEBUG_DUMP("Checking for kernelcache...\n");
 
-#if PRE_LINKED_KERNEL_SUPPORT
 				/*
 				 * Starting with Lion, we can take a shortcut by simply pointing 
 				 * the 'bootFile' to the kernel cache and we are done.
@@ -421,11 +433,8 @@ void boot(int biosdev)
 				{
 					sprintf(bootFile, "%s", gPlatform.KernelCachePath);
 				}
-				else 
-#endif
-				if (GetFileInfo(gPlatform.KernelCachePath, (char *)kKernelCache, &flags, &cachetime) == 0)
+				else if (GetFileInfo(gPlatform.KernelCachePath, (char *)kKernelCache, &flags, &cachetime) == 0)
 				{
-
 					// The 'Kernel Cache' flag was not specified (set path now).
 					sprintf(bootFile, "%s/%s", gPlatform.KernelCachePath, kKernelCache);
 
@@ -437,7 +446,7 @@ void boot(int biosdev)
 
 			_BOOT_DEBUG_ELSE_DUMP("Failed to locate the cache directory!\n");
 		}
-#else // Not for Lion, go easy with the Snow Leopard.
+#else // Not for (Mountain) Lion, go easy with the Snow Leopard.
 
 				static char preLinkedKernelPath[128];
 				static char adler32Key[PLATFORM_NAME_LEN + ROOT_PATH_LEN];
@@ -473,7 +482,7 @@ void boot(int biosdev)
 					if (LoadFile((const char *)preLinkedKernelPath))
 					{
 						retStatus = 1;
-						binary = (void *)kLoadAddr;
+						fileLoadBuffer = (void *)kLoadAddr;
 						bootFile[0] = 0;
 					}
 
@@ -496,7 +505,7 @@ void boot(int biosdev)
 
 		if (strlen(bootFile))
 		{
-			retStatus = LoadThinFatFile(bootFile, &binary);
+			retStatus = LoadThinFatFile(bootFile, &fileLoadBuffer);
 
 			if (retStatus <= 0 && gArchCPUType == CPU_TYPE_X86_64)
 			{
@@ -504,7 +513,7 @@ void boot(int biosdev)
 
 				gArchCPUType = CPU_TYPE_I386;
 
-				retStatus = LoadThinFatFile(bootFile, &binary);
+				retStatus = LoadThinFatFile(bootFile, &fileLoadBuffer);
 			}
 
 			_BOOT_DEBUG_DUMP("LoadStatus(%d): %s\n", retStatus, bootFile);
@@ -528,7 +537,7 @@ void boot(int biosdev)
 			
 			_BOOT_DEBUG_DUMP("execKernel-1\n");
 			
-			if (decodeKernel(binary, &kernelEntry, (char **) &bootArgs->kaddr, (int *)&bootArgs->ksize) != 0)
+			if (decodeKernel(fileLoadBuffer, &kernelEntry, (char **) &bootArgs->kaddr, (int *)&bootArgs->ksize) != 0)
 			{
 				stop("DecodeKernel() failed!");
 			}
