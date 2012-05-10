@@ -644,7 +644,7 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 										}
 #endif
 
-#if APPLE_RAID_SUPPORT || APPLE_RAID_SUPPORT
+#if LION_RECOVERY_SUPPORT || APPLE_RAID_SUPPORT
 										else if (efi_guid_compare(&GPT_BOOT_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
 											_DISK_DEBUG_DUMP("Matched: GPT_BOOT_GUID\n");
