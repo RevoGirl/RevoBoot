@@ -325,8 +325,8 @@ int loadSystemConfig(config_file_t *config)
 
 #if LION_INSTALL_SUPPORT
 		".IABootFiles", 
-		"OS X Install Data"
-		"Mac OS X Install Data"
+		"OS X Install Data",
+		"Mac OS X Install Data",
 #endif
 		"Library/Preferences/SystemConfiguration" // The default.
 
@@ -335,6 +335,7 @@ int loadSystemConfig(config_file_t *config)
 		 * This is a temporarily change to test RAID support, but it 
 		 * will be rewritten right after Bryan confirms that it works.
 		 */
+		,
 		"com.apple.boot.P/Library/Preferences/SystemConfiguration",
 		"com.apple.boot.R/Library/Preferences/SystemConfiguration",
 		"com.apple.boot.S/Library/Preferences/SystemConfiguration"
