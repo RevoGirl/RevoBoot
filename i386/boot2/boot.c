@@ -192,6 +192,16 @@ void boot(int biosdev)
 #else
 	showBootLogo();
 #endif
+	// A bit ugly maybe, but this will be changed sometime soon.
+	while (readKeyboardStatus())
+	{
+		int key = (bgetc() & 0xff);
+
+		if ((key |= 0x20) == 'r')
+		{
+			gPlatform.BootRecoveryHD = true;
+		}
+	}
 
 	initPartitionChain();
 
@@ -254,6 +264,29 @@ void boot(int biosdev)
 			}
 		}
 
+#if PRE_LINKED_KERNEL_SUPPORT
+		/* Look for 'Kernel Cache' key. */
+		if (getValueForKey(kKernelCacheKey, &val, &length, &bootInfo->bootConfig))
+		{
+			// _BOOT_DEBUG_DUMP("Kernel Cache Key <%s>\n", val);
+
+			// Key found. Check if the given filepath/name exists.
+			if (length && GetFileInfo(NULL, val, &flags, &cachetime) == 0)
+			{
+				// File located. Init kernelCacheFile so that we can use it as boot file.
+				gPlatform.KernelCachePath = strdup(val);
+
+				// Set flag to inform the load process to skip parts of the code.
+				gPlatform.KernelCacheSpecified = true;
+
+				_BOOT_DEBUG_DUMP("Kernel Cache = <%s>\n", gPlatform.KernelCachePath);
+			}
+
+			// _BOOT_DEBUG_ELSE_DUMP("Error: Kernel Cache not found!\n");
+		}
+
+		// _BOOT_DEBUG_ELSE_DUMP("Warning: Kernel Cache key not found!\n");
+#endif
 		/* Enable touching of a single BIOS device by setting 'Scan Single Drive' to yes.
 		if (getBoolForKey(kScanSingleDriveKey, &gScanSingleDrive, &bootInfo->bootConfig) && gScanSingleDrive)
 		{
@@ -362,22 +395,38 @@ void boot(int biosdev)
 			/*
 			 * We might have been fired up from a USB thumbdrive (kickstart boot) and 
 			 * thus we have to check the kernel cache path first (might not be there).
+			 *
+			 * Note: We skip the file check here when 'Kernel Cache' flag is specified
+			 *       in com.apple.Boot.plist (checked earlier already).
 			 */
 
+#if PRE_LINKED_KERNEL_SUPPORT
+			if (gPlatform.KernelCacheSpecified || (GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0))
+#else
 			if (GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0)
+#endif
 			{
 #if ((MAKE_TARGET_OS & LION) == LION) // Also for Mountain Lion, which has bit 2 set like Lion.
 
 				_BOOT_DEBUG_DUMP("Checking for kernelcache...\n");
 
-				// Do we have a kernelcache to work with?
+#if PRE_LINKED_KERNEL_SUPPORT
+				/*
+				 * Starting with Lion, we can take a shortcut by simply pointing 
+				 * the 'bootFile' to the kernel cache and we are done.
+				 */
+				
+				// True when 'Kernel Cache' is set in com.apple.Boot.plist
+				if (gPlatform.KernelCacheSpecified)
+				{
+					sprintf(bootFile, "%s", gPlatform.KernelCachePath);
+				}
+				else 
+#endif
 				if (GetFileInfo(gPlatform.KernelCachePath, (char *)kKernelCache, &flags, &cachetime) == 0)
 				{
-					/*
-					 * Starting with Lion, we can take a shortcut by simply pointing 
-					 * the 'bootFile' to the kernel cache and we are done.
-					 */
-					
+
+					// The 'Kernel Cache' flag was not specified (set path now).
 					sprintf(bootFile, "%s/%s", gPlatform.KernelCachePath, kKernelCache);
 
 					_BOOT_DEBUG_DUMP("Kernelcache found.\n");
