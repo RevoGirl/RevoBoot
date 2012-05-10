@@ -160,7 +160,7 @@ void boot(int biosdev)
 #endif
 
 	bool	haveCABootPlist	= false;
-    bool	quietBootMode	= true;
+	bool	quietBootMode	= true;
 
 	void *fileLoadBuffer = (void *)kLoadAddr;
 
@@ -168,7 +168,6 @@ void boot(int biosdev)
 	char rootUUID[37];
 
 	char * kernelFlags = NULL;
-	// char * kernelCachePath = NULL;
 
 	const char * val;
 
@@ -278,7 +277,7 @@ void boot(int biosdev)
 		/* Look for 'Kernel Cache' key. */
 		if (getValueForKey(kKernelCacheKey, &val, &length, &bootInfo->bootConfig))
 		{
-			// _BOOT_DEBUG_DUMP("Kernel Cache Key <%s>\n", val);
+			_BOOT_DEBUG_DUMP("Kernel Cache set to: %s\n", val);
 
 			// Key found. Check if the given filepath/name exists.
 			if (length && GetFileInfo(NULL, val, &flags, &cachetime) == 0)
@@ -289,13 +288,13 @@ void boot(int biosdev)
 				// Set flag to inform the load process to skip parts of the code.
 				gPlatform.KernelCacheSpecified = true;
 
-				_BOOT_DEBUG_DUMP("Kernel Cache = <%s>\n", gPlatform.KernelCachePath);
+				_BOOT_DEBUG_DUMP("kernelcache file found.\n");
 			}
 
-			// _BOOT_DEBUG_ELSE_DUMP("Error: Kernel Cache not found!\n");
+			_BOOT_DEBUG_ELSE_DUMP("Error: kernelcache file not found.\n");
 		}
 
-		// _BOOT_DEBUG_ELSE_DUMP("Warning: Kernel Cache key not found!\n");
+		// _BOOT_DEBUG_ELSE_DUMP("No 'Kernel Cache' key given.\n");
 #endif
 		/* Enable touching of a single BIOS device by setting 'Scan Single Drive' to yes.
 		if (getBoolForKey(kScanSingleDriveKey, &gScanSingleDrive, &bootInfo->bootConfig) && gScanSingleDrive)
@@ -372,10 +371,10 @@ void boot(int biosdev)
     // Parse args, load and start kernel.
     while (1)
     {
-        // Initialize globals.
+		// Initialize globals.
 
-        sysConfigValid = 0;
-        gErrors        = 0;
+		sysConfigValid = 0;
+		gErrors        = 0;
 
 		int retStatus = -1;
 
@@ -386,9 +385,13 @@ void boot(int biosdev)
 
 #if PRE_LINKED_KERNEL_SUPPORT
 
+		_BOOT_DEBUG_DUMP("gBootMode = %d\n", gBootMode);
+
 		// Preliminary checks to prevent us from doing useless things.
-        mayUseKernelCache = ((gBootMode & kBootModeSafe) == 0);
-		
+		mayUseKernelCache = ((gBootMode & kBootModeSafe) == 0);
+
+		_BOOT_DEBUG_DUMP("mayUseKernelCache = %s\n", mayUseKernelCache ? "true" : "false");
+
 		/* 
 		 * A pre-linked kernel, or kernelcache, requires you to have all essential kexts for your
 		 * configuration, including FakeSMC.kext in: /System/Library/Extensions/ 
@@ -398,53 +401,54 @@ void boot(int biosdev)
 		 * Note: Not following this word of advise will render your system incapable of booting!
 		 */
 		
-		if (!mayUseKernelCache && gPlatform.KernelCacheSpecified)
+		if (mayUseKernelCache == false)
 		{
-			_BOOT_DEBUG_DUMP("Kernel Cache ignored, loading mach_kernel!\n");
+			_BOOT_DEBUG_DUMP("Warning: kernelcache will be ignored!\n");
 
-			sprintf(bootFile, "%s", bootInfo->bootFile);
+			// True when 'Kernel Cache' is set in com.apple.Boot.plist
+			if (gPlatform.KernelCacheSpecified == true)
+			{
+				sprintf(bootFile, "%s", bootInfo->bootFile);
+			}
 		}
 		else
 		{
-			_BOOT_DEBUG_DUMP("Kernelcache path: %s\n", gPlatform.KernelCachePath);
+			// True when 'Kernel Cache' is set in com.apple.Boot.plist
+			if (gPlatform.KernelCacheSpecified == true)
+			{
+				_BOOT_DEBUG_DUMP("kernelcache: %s\n", gPlatform.KernelCachePath);
+
+				/*
+				 * Starting with Lion, we can take a shortcut by simply pointing 
+				 * the 'bootFile' to the kernel cache and we are done.
+				 */
+
+				sprintf(bootFile, "%s", gPlatform.KernelCachePath);
+			}
 
 			/*
 			 * We might have been fired up from a USB thumbdrive (kickstart boot) and 
 			 * thus we have to check the kernel cache path first (might not be there).
-			 *
-			 * Note: We skip the file check here when 'Kernel Cache' flag is specified
-			 *       in com.apple.Boot.plist (checked earlier already).
 			 */
 
-			if (gPlatform.KernelCacheSpecified || GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0)
+			else if (GetFileInfo(NULL, gPlatform.KernelCachePath, &flags, &cachetime) == 0)
 			{
 
 #if ((MAKE_TARGET_OS & LION) == LION) // Also for Mountain Lion, which has bit 2 set like Lion.
 
 				_BOOT_DEBUG_DUMP("Checking for kernelcache...\n");
 
-				/*
-				 * Starting with Lion, we can take a shortcut by simply pointing 
-				 * the 'bootFile' to the kernel cache and we are done.
-				 */
-				
-				// True when 'Kernel Cache' is set in com.apple.Boot.plist
-				if (gPlatform.KernelCacheSpecified)
+				if (GetFileInfo(gPlatform.KernelCachePath, (char *)kKernelCache, &flags, &cachetime) == 0)
 				{
-					sprintf(bootFile, "%s", gPlatform.KernelCachePath);
-				}
-				else if (GetFileInfo(gPlatform.KernelCachePath, (char *)kKernelCache, &flags, &cachetime) == 0)
-				{
-					// The 'Kernel Cache' flag was not specified (set path now).
 					sprintf(bootFile, "%s/%s", gPlatform.KernelCachePath, kKernelCache);
 
-					_BOOT_DEBUG_DUMP("Kernelcache found.\n");
+					_BOOT_DEBUG_DUMP("Kernelcache located.\n");
 				}
 
 				_BOOT_DEBUG_ELSE_DUMP("Failed to locate the kernelcache. Will load: %s!\n", bootInfo->bootFile);
 			}
 
-			_BOOT_DEBUG_ELSE_DUMP("Failed to locate the cache directory!\n");
+			_BOOT_DEBUG_ELSE_DUMP("Failed to locate the kernelcache (directory)!\n");
 		}
 #else // Not for (Mountain) Lion, go easy with the Snow Leopard.
 
@@ -593,9 +597,9 @@ void boot(int biosdev)
 			_BOOT_DEBUG_DUMP("execKernel-8\n");
 
 			startMachKernel(kernelEntry, bootArgs); // asm.s
-        }
+		}
 
 		_BOOT_DEBUG_ELSE_DUMP("Can't find: %s\n", bootFile);
 
-    } /* while(1) */
+	} /* while(1) */
 }
