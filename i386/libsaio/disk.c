@@ -115,17 +115,17 @@ static struct disk_blk0 * gBootSector = NULL;
  */
 
 // Apple_HFS
-EFI_GUID const GPT_HFS_GUID				= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
+EFI_GUID const GPT_HFS_GUID					= { 0x48465300, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
-#if LION_RECOVERY_SUPPORT
-	// Apple_Boot (helper partition and the 650 MB 'Recovery HD' partition.
+#if LION_RECOVERY_SUPPORT || APPLE_RAID_SUPPORT
+	// Apple_Boot (RAID helper partition and the 650 MB 'Recovery HD' partition).
 	EFI_GUID const GPT_BOOT_GUID			= { 0x426F6F74, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 #endif
 
 #if APPLE_RAID_SUPPORT
 	EFI_GUID const GPT_RAID_GUID			= { 0x52414944, 0x0000, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 
-	EFI_GUID const GPT_RAID_OFFLINE_GUID		= { 0x52414944, 0x5f4f, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
+	EFI_GUID const GPT_RAID_OFFLINE_GUID	= { 0x52414944, 0x5f4f, 0x11AA, { 0xAA, 0x11, 0x00, 0x30, 0x65, 0x43, 0xEC, 0xAC } };
 #endif
 
 /*
@@ -579,7 +579,7 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 										sleep(1);
 #endif
 
-#if EFI_SYSTEM_PARTITION_SUPPORT						// First check for the EFI partition.
+#if EFI_SYSTEM_PARTITION_SUPPORT		// First check for the EFI partition.
 										if (efi_guid_compare(&GPT_EFISYS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
 											_DISK_DEBUG_DUMP("Matched: EFI GUID, probing for HFS format...\n");
@@ -615,7 +615,7 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 										else
 #endif
 
-#if LION_FILEVAULT_SUPPORT							// Is this an encrypted boot partition?
+#if LION_FILEVAULT_SUPPORT				// Is this an encrypted boot partition?
 										if (efi_guid_compare(&GPT_CORESTORAGE_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
 											_DISK_DEBUG_DUMP("Matched: CoreStorage GUID\n");
@@ -624,12 +624,12 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 											
 											continue; // Start searching for the Recovery HD partition.
 										}
-										else if (!encryptedBootPartition &&
+										else if (!encryptedBootPartition && 
 #else
 										// Check for HFS+ partitions.
 										if (
 #endif
-										(efi_guid_compare(&GPT_HFS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0))
+										!gPlatform.BootRecoveryHD && (efi_guid_compare(&GPT_HFS_GUID, (EFI_GUID const *)gptMap->ent_type) == 0))
 										{
 											_DISK_DEBUG_DUMP("Matched: HFS+ GUID\n");
 
@@ -638,13 +638,13 @@ BVRef diskScanGPTBootVolumes(int biosdev, int * countPtr)
 #if APPLE_RAID_SUPPORT
 										else if (efi_guid_compare(&GPT_RAID_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
-											_DISK_DEBUG_DUMP("Matched: GPT_RAID_GUID\n");
+											_DISK_DEBUG_DUMP("Skipping: GPT_RAID_GUID\n");
 													 
-											bvrFlags = kBVFlagBooter;
+											continue;
 										}
 #endif
 
-#if LION_RECOVERY_SUPPORT
+#if APPLE_RAID_SUPPORT || APPLE_RAID_SUPPORT
 										else if (efi_guid_compare(&GPT_BOOT_GUID, (EFI_GUID const *)gptMap->ent_type) == 0)
 										{
 											_DISK_DEBUG_DUMP("Matched: GPT_BOOT_GUID\n");
