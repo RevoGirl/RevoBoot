@@ -202,6 +202,18 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 	{	"SMBboardManufacter",	"Apple Inc."				},
 	{	"SMBboardProduct",	"Mac-4B7AC7E43945597E"			}, */
 
+	/* Intel Core i7-3720QM @ 2.60 GHz - 4 cores / 8 threads.
+	{	"SMBbiosVendor",	"Apple Inc."				},
+	{	"SMBbiosVersion",	"MBP101.88Z.00EE.B00.1205101839"	},
+	{	"SMBbiosDate",		"10/05/12"				},
+	{	"SMBmanufacter",	"Apple Inc."				},
+	{	"SMBproductName",	"MacBookPro10,1"			},
+	{	"SMBsystemVersion",	"1.0"					},
+	{	"SMBserial",		STATIC_SMSERIALNUMBER			},
+	{	"SMBfamily",		"MacBook Pro"				},
+	{	"SMBboardManufacter",	"Apple Inc."				},
+	{	"SMBboardProduct",	"Mac-C3EC7CD22292981F"			}, */
+	
 	{	"", ""	}
 };
 // ------------------------------------------------------------
