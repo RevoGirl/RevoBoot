@@ -60,9 +60,9 @@ mountain-lion: all
 all: $(DIRS_NEEDED) boot
 
 boot: machOconv $(OBJS) $(LIBDEP)
-	$(LD) -static -Wl,-preload -Wl,-segaddr,__INIT,$(BOOT2ADDR) \
-	        -nostdlib -arch i386 -Wl,-segalign,20 \
-		-o $(SYMROOT)/boot.sys $(filter %.o,$^) $(LIBS) -lcc_kext
+	$(UTILDIR)/ld_classic -static -preload -segaddr __INIT $(BOOT2ADDR) \
+	        -arch i386 -segalign 20 \
+		-o $(SYMROOT)/boot.sys $(filter %.o,$^) $(LIBS) `find /usr/llvm-gcc-*/lib/gcc/*/*/ -name \libcc_kext.a`
 	machOconv $(SYMROOT)/boot.sys $(SYMROOT)/boot
 	size $(SYMROOT)/boot.sys
 	ls -l $(SYMROOT)/boot

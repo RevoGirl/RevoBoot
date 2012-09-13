@@ -48,17 +48,17 @@ installhdrs::
 .c.o .m.o:
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $(OBJROOT)/$*.o \
 	    -MD -dependency-file $(OBJROOT)/$*.d
-	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
+	$(SYMROOT)/md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
 
 $(OBJROOT)/%.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $(OBJROOT)/$*.o \
 	    -MD -dependency-file $(OBJROOT)/$*.d
-	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
+	$(SYMROOT)/md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
 
 $(OBJROOT)/%.o: %.m
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(DEFINES) -c $(INC) $< -o $(OBJROOT)/$*.o \
 	    -MD -dependency-file $(OBJROOT)/$*.d
-	md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
+	$(SYMROOT)/md -u $(OBJROOT)/Makedep -f -d $(OBJROOT)/$*.d
 
 .s.o:
 	$(CC) $(CPPFLAGS) -c $(INC) -arch i386 -o $(OBJROOT)/$(@F) $<

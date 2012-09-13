@@ -15,10 +15,10 @@ LOCALBIN = $(DSTROOT)/usr/local/bin
 OPTIM = -Os -Oz
 CFLAGS = $(RC_CFLAGS) $(OPTIM) -Wmost -Werror -g
 LDFLAGS =
-CFILES = machOconv.c
+CFILES = md.c machOconv.c
 ALLSRC = $(CFILES) $(MFILES) $(HFILES) $(EXPORT_HFILES)
 
-PROGRAMS = machOconv
+PROGRAMS = md machOconv
 
 OUTFILES = $(PROGRAMS)
 
@@ -26,10 +26,14 @@ DIRS_NEEDED = $(OBJROOT) $(SYMROOT) $(LANGDIR)
 
 lion: all
 
+mountain-lion: all
+
 all: $(DIRS_NEEDED) $(PROGRAMS)
 
 machOconv: machOconv.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(DEFINES) -o $(SYMROOT)/$(@F) machOconv.o
+md:
+	$(CC) -mdynamic-no-pic -Wall -dead_strip -arch i386 -mmacosx-version-min=10.5 md.c -o $(SYMROOT)/md
 
 include ../MakeInc.dir
 
