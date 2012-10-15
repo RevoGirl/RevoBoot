@@ -37,7 +37,7 @@ static const SMBPropertyData const iMac[] =
 {
 	{	"SMBbiosVendor",      "Apple Inc."				},
 	{	"SMBbiosVersion",     "IM121.88Z.0047.B1D.1110171110"		},
-	{	"SMBbiosDate",        "10/17/11"				},
+	{	"SMBbiosDate",        "10/17/2011"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "iMac12,2"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -48,7 +48,7 @@ static const SMBPropertyData const iMac[] =
 
 /*	{	"SMBbiosVendor",      "Apple Inc."				},
 	{	"SMBbiosVersion",     "IM111.88Z.0034.B00.0910301727"		},
-	{	"SMBbiosDate",        "10/30/09"				},
+	{	"SMBbiosDate",        "10/30/2009"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "iMac11,1"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -59,7 +59,7 @@ static const SMBPropertyData const iMac[] =
 
 /*	{	"SMBbiosVendor",      "Apple Inc."				},
 	{	"SMBbiosVersion",     "IM121.88Z.0047.B1D.1110171110"		},
-	{	"SMBbiosDate",        "10/17/11"				},
+	{	"SMBbiosDate",        "10/17/2011"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "iMac12,1"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -71,7 +71,7 @@ static const SMBPropertyData const iMac[] =
 	/* Intel Core i7-3770 @ 3.40 GHz - 4 Cores / 8 Threads.
 	{	"SMBbiosVendor",      "Apple Inc."				},
 	{	"SMBbiosVersion",     "IM131.88Z.00CE.B00.1203281326"		},
-	{	"SMBbiosDate",        "03/28/12"				},
+	{	"SMBbiosDate",        "03/28/2012"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "iMac13,2"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -114,7 +114,7 @@ static const SMBPropertyData const MacBookAir[] =
 	// Intel Core i7-2677M @ 1.8GHz (2 cores - 4 threads)
 	{	"SMBbiosVendor",      "Apple Inc."				},
 	{	"SMBbiosVersion",     "MBA41.88Z.0077.B08.1109011050"		},
-	{	"SMBbiosDate",        "09/01/11"				},
+	{	"SMBbiosDate",        "09/01/2011"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "MacBookAir4,2"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -127,7 +127,7 @@ static const SMBPropertyData const MacBookAir[] =
 	// Intel Core i7-2677M @ 1.8GHz (2 cores - 4 threads)
 /*	{	"SMBbiosVendor",      "Apple Inc."				},
 	{	"SMBbiosVersion",     "MBA41.88Z.0077.B08.1109011050"		},
-	{	"SMBbiosDate",        "09/01/11"				},
+	{	"SMBbiosDate",        "09/01/2011"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "MacBookAir4,1"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -159,7 +159,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 
 /*	{	"SMBbiosVendor",	"Apple Inc."				},
 	{	"SMBbiosVersion",	"MBP81.88Z.0047.B24.1110141131"		},
-	{	"SMBbiosDate",		"10/14/11"				},
+	{	"SMBbiosDate",		"10/14/2-11"				},
 	{	"SMBmanufacter",	"Apple Inc."				},
 	{	"SMBproductName",	"MacBookPro8,1"				},
 	{	"SMBsystemVersion",	"1.0"					},
@@ -170,7 +170,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 
 /*	{	"SMBbiosVendor",	"Apple Inc."				},
 	{	"SMBbiosVersion",	"MBP81.88Z.0047.B24.1110141131"		},
-	{	"SMBbiosDate",		"10/14/11"				},
+	{	"SMBbiosDate",		"10/14/2011"				},
 	{	"SMBmanufacter",	"Apple Inc."				},
 	{	"SMBproductName",	"MacBookPro8,2"				},
 	{	"SMBsystemVersion",	"1.0"					},
@@ -181,7 +181,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 
 	{	"SMBbiosVendor",	"Apple Inc."				},
 	{	"SMBbiosVersion",	"MBP81.88Z.0047.B24.1110141131"		},
-	{	"SMBbiosDate",		"10/14/11"				},
+	{	"SMBbiosDate",		"10/14/2011"				},
 	{	"SMBmanufacter",	"Apple Inc."				},
 	{	"SMBproductName",	"MacBookPro8,3"				},
 	{	"SMBsystemVersion",	"1.0"					},
@@ -193,7 +193,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 	/* Intel Core i7-3820QM @ 2.70 GHz - 4 cores / 8 threads.
 	{	"SMBbiosVendor",	"Apple Inc."				},
 	{	"SMBbiosVersion",	"MBP91.88Z.00D3.B00.1203211536"		},
-	{	"SMBbiosDate",		"21/03/12"				},
+	{	"SMBbiosDate",		"21/03/2012"				},
 	{	"SMBmanufacter",	"Apple Inc."				},
 	{	"SMBproductName",	"MacBookPro9,1"				},
 	{	"SMBsystemVersion",	"1.0"					},
@@ -205,7 +205,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 	/* Intel Core i7-3720QM @ 2.60 GHz - 4 cores / 8 threads.
 	{	"SMBbiosVendor",	"Apple Inc."				},
 	{	"SMBbiosVersion",	"MBP101.88Z.00EE.B00.1205101839"	},
-	{	"SMBbiosDate",		"10/05/12"				},
+	{	"SMBbiosDate",		"10/05/2012"				},
 	{	"SMBmanufacter",	"Apple Inc."				},
 	{	"SMBproductName",	"MacBookPro10,1"			},
 	{	"SMBsystemVersion",	"1.0"					},
@@ -225,8 +225,8 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 static const SMBPropertyData const Macmini[] =
 {	// Intel Core i7-2635QM @ 2.0GHz (4 cores - 8 threads)
 	{	"SMBbiosVendor",      "Apple Inc."				},
-	{	"SMBbiosVersion",     "MM51.88Z.0077.B0E.1110141154"		},
-	{	"SMBbiosDate",        "10/14/2011"				},
+	{	"SMBbiosVersion",     "MM51.88Z.0077.B10.1201241549"		},
+	{	"SMBbiosDate",        "01/24/2012"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "Macmini5,3"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -237,8 +237,8 @@ static const SMBPropertyData const Macmini[] =
 
 	// Intel Core i5-2520M @ 2.5GHz (2 cores - 4 threads)
 /*	{	"SMBbiosVendor",      "Apple Inc."				},
-	{	"SMBbiosVersion",     "MM51.88Z.0077.B0E.1110141154"		},
-	{	"SMBbiosDate",        "10/14/2011"				},
+	{	"SMBbiosVersion",     "MM51.88Z.0077.B10.1201241549"		},
+	{	"SMBbiosDate",        "01/24/2012"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "Macmini5,2"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -249,8 +249,8 @@ static const SMBPropertyData const Macmini[] =
 	
 	// Intel Core i5-2415M @ 2.3 GHz (2 cores - 4 theeads)
 /*	{	"SMBbiosVendor",      "Apple Inc."				},
-	{	"SMBbiosVersion",     "MM51.88Z.0077.B0E.1110141154"		},
-	{	"SMBbiosDate",        "10/14/2011"				},
+	{	"SMBbiosVersion",     "MM51.88Z.0077.B10.1201241549"		},
+	{	"SMBbiosDate",        "01/24/2012"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "Macmini5,1"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -271,7 +271,7 @@ static const SMBPropertyData const MacPro[] =
 {
 	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
 	{	"SMBbiosVersion",     "MP31.88Z.006C.B05.0802291410"		},
-	{	"SMBbiosDate",        "08/03/10"				},
+	{	"SMBbiosDate",        "08/03/2010"				},
 	{	"SMBmanufacter",      "Apple Computer, Inc."			},
 	{	"SMBproductName",     "MacPro3,1"				},
 	{	"SMBsystemVersion",   "1.0"					},
@@ -293,7 +293,7 @@ static const SMBPropertyData const MacPro[] =
 
 /*	{	"SMBbiosVendor",      "Apple Computer, Inc."			},
 	{	"SMBbiosVersion",     "MP51.88Z.007F.B03.1010071432"		},
-	{	"SMBbiosDate",        "10/07/10"				},
+	{	"SMBbiosDate",        "10/07/2010"				},
 	{	"SMBmanufacter",      "Apple Inc."				},
 	{	"SMBproductName",     "MacPro5,1"				},
 	{	"SMBsystemVersion",   "1.0"					},
