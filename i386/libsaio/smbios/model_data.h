@@ -159,7 +159,7 @@ static const SMBPropertyData const MacBookPro[] = // smc-version: 1.9.0027.0
 
 /*	{	"SMBbiosVendor",	"Apple Inc."				},
 	{	"SMBbiosVersion",	"MBP81.88Z.0047.B24.1110141131"		},
-	{	"SMBbiosDate",		"10/14/2-11"				},
+	{	"SMBbiosDate",		"10/14/2011"				},
 	{	"SMBmanufacter",	"Apple Inc."				},
 	{	"SMBproductName",	"MacBookPro8,1"				},
 	{	"SMBsystemVersion",	"1.0"					},
