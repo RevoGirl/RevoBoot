@@ -18,22 +18,40 @@ SYMDIR = $(SYMROOT)
 LIBSADIR = ../libsa
 LIBSAIODIR = ../libsaio
 UTILDIR = ../util
-#THEME = default
-#THEMEDIR = ../../artwork/themes/$(THEME)
+
 INC = -I. -I.. -I$(SYMDIR) -I$(LIBSADIR) -I$(LIBSAIODIR) -I$(UTILDIR)
+
 ifneq "" "$(wildcard /bin/mkdirs)"
   MKDIRS = /bin/mkdirs
 else
   MKDIRS = /bin/mkdir -p
 endif
+
 AS = as
 LD = gcc
-# LIBS= -lc_static
+
 LIBS= -L$(SYMDIR) -lsaio -lsa
 LIBDEP= $(SYMDIR)/libsaio.a $(SYMDIR)/libsa.a
 
-OTHER_FILES =
+#
+# build_gcc no longer builds libgcc.a and libcc_kext.a with 'all' target  
+# and thus we have to provide it, or people will have to build gcc.
+#
 
+LIBCC= $(UTILDIR)/libcc_kext.a
+
+#
+# Check ../util/ for a self compiled copy of libcc_kext.a
+#
+
+ifeq ($(wildcard $(LIBCC)),)
+  #
+  # Not found: Use Xcode supplied file.
+  #
+  LIBCC= `find /usr/llvm-gcc-*/lib/gcc/*/*/ -name \libcc_kext.a`
+endif
+
+OTHER_FILES =
 INSTALLDIR = $(DSTROOT)/usr/standalone/i386
 VPATH = $(OBJROOT):$(SYMROOT)
 
@@ -62,7 +80,7 @@ all: $(DIRS_NEEDED) boot
 boot: machOconv $(OBJS) $(LIBDEP)
 	$(UTILDIR)/ld_classic -static -preload -segaddr __INIT $(BOOT2ADDR) \
 	        -arch i386 -segalign 20 \
-		-o $(SYMROOT)/boot.sys $(filter %.o,$^) $(LIBS) `find /usr/llvm-gcc-*/lib/gcc/*/*/ -name \libcc_kext.a`
+		-o $(SYMROOT)/boot.sys $(filter %.o,$^) $(LIBS) $(LIBCC)
 	machOconv $(SYMROOT)/boot.sys $(SYMROOT)/boot
 	size $(SYMROOT)/boot.sys
 	ls -l $(SYMROOT)/boot
