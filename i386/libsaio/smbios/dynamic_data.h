@@ -8,6 +8,9 @@
  *			- Complete rewrite / overhaul by DHP in Februari 2011.
  *			- More work, including bug fixes by DHP in Februari 2011.
  *			- Do more with cleaner and faster code in less bytes (DHP in March 2012).
+ *			- SMBIOS data logic moved to preprocessor code (PikerAlpha, October 2012).
+ *			- SMBProperties changed for speed and simplicity (PikerAlpha, October 2012).
+ *			- Calls with SMBProperties.keyString cleaned up (PikerAlpha, October 2012).
  *
  * Credits:
  *			- Kabyl (see notes in source code)
@@ -37,9 +40,9 @@
 
 struct SMBStructure
 {
-    SMBByte	type;			// Structure type.
-    SMBByte	start;			// Turbo index (start location in properties array).
-    SMBByte	stop;			// Turbo index end (start + properties).
+	SMBByte	type;			// Structure type.
+	SMBByte	start;			// Turbo index (start location in properties array).
+	SMBByte	stop;			// Turbo index end (start + properties).
 	SMBBool	copyStrings;	// True for structures where string data should be copied.
 	SMBByte	hits;			// Number of located structures of a given type.
 };
@@ -49,11 +52,11 @@ struct SMBStructure
 
 struct SMBStructure requiredStructures[] =
 {
-    { kSMBTypeBIOSInformation		/*   0 */ ,		 0,		 5,		false,		0	},
-    { kSMBTypeSystemInformation		/*   1 */ ,		 6,		10,		false,		0	},
-    { kSMBTypeBaseBoard				/*   2 */ ,		11,		12,		false,		0	},
+	{ kSMBTypeBIOSInformation		/*   0 */ ,		 0,		 5,		false,		0	},
+	{ kSMBTypeSystemInformation		/*   1 */ ,		 6,		10,		false,		0	},
+	{ kSMBTypeBaseBoard				/*   2 */ ,		11,		12,		false,		0	},
 	{ kSMBUnused					/*   3 */ ,		 0,		 0,		false,		0	},
-    { kSMBTypeProcessorInformation	/*   4 */ ,		13,		14,		true,		0	},
+	{ kSMBTypeProcessorInformation	/*   4 */ ,		13,		14,		true,		0	},
 	{ kSMBUnused					/*   5 */ ,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   6 */ ,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*   7 */ ,		 0,		 0,		false,		0	},
@@ -66,7 +69,7 @@ struct SMBStructure requiredStructures[] =
 	{ kSMBUnused					/*  14 */ ,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  15 */ ,		 0,		 0,		false,		0	},
 	{ kSMBUnused					/*  16 */ ,		 0,		 0,		false,		0	},
-    { kSMBTypeMemoryDevice			/*  17 */ ,		15,		19,		true,		0	}
+	{ kSMBTypeMemoryDevice			/*  17 */ ,		15,		19,		true,		0	}
 };
 
 
@@ -76,11 +79,11 @@ struct SMBStructure requiredStructures[] =
 
 struct SMBProperty
 {
-    uint8_t		type;
+	uint8_t		type;
 
-    int			offset;
+	int			offset;
 
-    enum
+	enum
 	{
 		kSMBString,
 		kSMBByte,
@@ -89,68 +92,70 @@ struct SMBProperty
 		kSMBQWord
 	} valueType;
 	
-    const char	*keyString;
-
 	UInt8	(* getSMBByte)	(void);
 	UInt16	(* getSMBWord)	(void);
 	UInt32	(* getSMBDWord)	(void);
 	UInt64	(* getSMBQWord)	(void);
 
-	const char *(* getSMBString)	(const char * aKeyString);
+	const char *(* getSMBString)	(void);
+
+	const char *plainData;
 };
 
+#define APPLE_INC			"Apple Inc."
+#define SMB_SYSTEM_VERSION	"1.0"
 
 //------------------------------------------------------------------------------
 
 struct SMBProperty SMBProperties[] =
 {
-	//------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeBIOSInformation,		0x04,	kSMBString,		"SMBbiosVendor",		.getSMBString	= getOverrideString		},
-	{ kSMBTypeBIOSInformation,		0x05,	kSMBString,		"SMBbiosVersion",		.getSMBString	= getOverrideString		},
-	{ kSMBTypeBIOSInformation,		0x06,	kSMBWord,		"SMBbiosLocation",		.getSMBWord		= getBIOSLocation		},
-	{ kSMBTypeBIOSInformation,		0x08,	kSMBString,		"SMBbiosDate",			.getSMBString	= getOverrideString		},
-	{ kSMBTypeBIOSInformation,		0x0a,	kSMBQWord,		"SMBbiosFeatures",		.getSMBQWord	= getBIOSFeatures		},
-	{ kSMBTypeBIOSInformation,		0x12,	kSMBDWord,		"SMBbiosFeaturesEX",	.getSMBDWord	= getBIOSFeaturesEX		},
+	{ kSMBTypeBIOSInformation,		0x04,	kSMBString,		.plainData		= APPLE_INC				},
+	{ kSMBTypeBIOSInformation,		0x05,	kSMBString,		.plainData		= SMB_BIOS_VERSION		},
+	{ kSMBTypeBIOSInformation,		0x06,	kSMBWord,		.getSMBWord		= getBIOSLocation		},
+	{ kSMBTypeBIOSInformation,		0x08,	kSMBString,		.getSMBString	= getBIOSDate			},
+	{ kSMBTypeBIOSInformation,		0x0a,	kSMBQWord,		.getSMBQWord	= getBIOSFeatures		},
+	{ kSMBTypeBIOSInformation,		0x12,	kSMBDWord,		.getSMBDWord	= getBIOSFeaturesEX		},
 
-	//------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeSystemInformation,	0x04,	kSMBString,		"SMBmanufacter",		.getSMBString	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x05,	kSMBString,		"SMBproductName",		.getSMBString	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x06,	kSMBString,		"SMBsystemVersion",		.getSMBString	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x07,	kSMBString,		"SMBserial",			.getSMBString	= getOverrideString		},
-	{ kSMBTypeSystemInformation,	0x1a,	kSMBString,		"SMBfamily",			.getSMBString	= getOverrideString		},
+	{ kSMBTypeSystemInformation,	0x04,	kSMBString,		.plainData		= APPLE_INC				},
+	{ kSMBTypeSystemInformation,	0x05,	kSMBString,		.plainData		= SMB_PRODUCT_NAME		},
+	{ kSMBTypeSystemInformation,	0x06,	kSMBString,		.plainData		= SMB_SYSTEM_VERSION	},
+	{ kSMBTypeSystemInformation,	0x07,	kSMBString,		.plainData		= STATIC_SMSERIALNUMBER	},
+	{ kSMBTypeSystemInformation,	0x1a,	kSMBString,		.plainData		= SMB_FAMILY			},
 	
-	//------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeBaseBoard,			0x04,	kSMBString,		"SMBboardManufacter",	.getSMBString	= getOverrideString		},
-	{ kSMBTypeBaseBoard,			0x05,	kSMBString,		"SMBboardProduct",		.getSMBString	= getOverrideString		},
+	{ kSMBTypeBaseBoard,			0x04,	kSMBString,		.plainData		= APPLE_INC				},
+	{ kSMBTypeBaseBoard,			0x05,	kSMBString,		.plainData		= SMB_BOARD_PRODUCT		},
 	
-	//------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
 	
-	{ kSMBTypeProcessorInformation,	0x12,	kSMBWord,		"SMBexternalClock",		.getSMBWord		= getFSBFrequency		},
-	{ kSMBTypeProcessorInformation,	0x14,	kSMBWord,		"SMBmaximalClock",		.getSMBWord		= getCPUFrequency		},
+	{ kSMBTypeProcessorInformation,	0x12,	kSMBWord,		.getSMBWord		= getFSBFrequency		},
+	{ kSMBTypeProcessorInformation,	0x14,	kSMBWord,		.getSMBWord		= getCPUFrequency		},
 	
-	//------------------------------------------------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------------------------
 	
 #if DYNAMIC_RAM_OVERRIDE_SIZE
-	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		"SMBmemSize",			.getSMBWord		= getRAMSize			},
+	{ kSMBTypeMemoryDevice,			0x0c,	kSMBWord,		.getSMBWord		= getRAMSize			},
 #endif
 	
-	{ kSMBTypeMemoryDevice,			0x10,	kSMBString,		"SMBmemDevLoc",			.getSMBString	= NULL					},
-	{ kSMBTypeMemoryDevice,			0x11,	kSMBString,		"SMBmemBankLoc",		.getSMBString	= NULL					},
+	{ kSMBTypeMemoryDevice,			0x10,	kSMBString,		.getSMBString	= NULL					},
+	{ kSMBTypeMemoryDevice,			0x11,	kSMBString,		.getSMBString	= NULL					},
 
 #if DYNAMIC_RAM_OVERRIDE_TYPE
-	{ kSMBTypeMemoryDevice,			0x12,	kSMBByte,		"SMBmemType",			.getSMBByte		= getRAMType			},
+	{ kSMBTypeMemoryDevice,			0x12,	kSMBByte,		.getSMBByte		= getRAMType			},
 #endif
 
-#if DYNAMIC_RAM_OVERRIDE_FREQUENCY
-	{ kSMBTypeMemoryDevice,			0x15,	kSMBWord,		"SMBmemSpeed",			.getSMBWord		= getRAMFrequency		},
+#if DYNAMIC_RAM_OVERRIDE_FREQUENCY  
+	{ kSMBTypeMemoryDevice,			0x15,	kSMBWord,		.getSMBWord		= getRAMFrequency		},
 #endif
 
-	{ kSMBTypeMemoryDevice,			0x17,	kSMBString,		"SMBmemManufacter",		.getSMBString	= getRAMVendor			},
-	{ kSMBTypeMemoryDevice,			0x18,	kSMBString,		"SMBmemSerial",			.getSMBString	= getRAMSerialNumber	},
-	{ kSMBTypeMemoryDevice,			0x1a,	kSMBString,		"SMBmemPartNumber",		.getSMBString	= getRAMPartNumber		},
+	{ kSMBTypeMemoryDevice,			0x17,	kSMBString,		.getSMBString	= getRAMVendor			},
+	{ kSMBTypeMemoryDevice,			0x18,	kSMBString,		.getSMBString	= getRAMSerialNumber	},
+	{ kSMBTypeMemoryDevice,			0x1a,	kSMBString,		.getSMBString	= getRAMPartNumber		},
 };
 
 
@@ -190,13 +195,13 @@ void setupSMBIOS(void)
 	newEPS->minorVersion		= 4;
 	newEPS->maxStructureSize	= 0;		// Updated during this run.
 	newEPS->entryPointRevision	= 0;
-    
+
 	newEPS->formattedArea[0]	= 0;
 	newEPS->formattedArea[1]	= 0;
 	newEPS->formattedArea[2]	= 0;
 	newEPS->formattedArea[3]	= 0;
 	newEPS->formattedArea[4]	= 0;
-    
+
 	newEPS->dmi.anchor[0]		= 0x5f;		// _
 	newEPS->dmi.anchor[1]		= 0x44;		// D
 	newEPS->dmi.anchor[2]		= 0x4d;		// M
@@ -270,7 +275,7 @@ void setupSMBIOS(void)
 
 		if ((currentStructureType > 17) || (requiredStructures[currentStructureType].type == kSMBUnused))
 		{
-			_SMBIOS_DEBUG_DUMP("Dropping SMBIOS structure: %d\n", currentStructureType);
+			// _SMBIOS_DEBUG_DUMP("Dropping SMBIOS structure: %d\n", currentStructureType);
 
 			// Skip the formatted area of the structure.
 			structurePtr += factoryHeader->length;
@@ -283,8 +288,8 @@ void setupSMBIOS(void)
 			structurePtr += 2;
 
 #if DEBUG_SMBIOS
-			printf("currentStructureType: %d (length: %d)\n", currentStructureType, factoryHeader->length);
-			sleep(1); // Silent sleep (for debug only).
+			// printf("currentStructureType: %d (length: %d)\n", currentStructureType, factoryHeader->length);
+			// sleep(1); // Silent sleep (for debug only).
 #endif
 			continue;
 		}
@@ -406,31 +411,35 @@ void setupSMBIOS(void)
 					break;
 
 				case kSMBString:
-					if (SMBProperties[j].getSMBString)
+					// Newly added to support preprocessor data (for speed and simplicity).
+					if (SMBProperties[j].plainData)
 					{
-						str = SMBProperties[j].getSMBString(SMBProperties[j].keyString);
-					
-						int size = strlen(str);
-					
-						if (size)
-						{
-							memcpy(newtablesPtr, str, size);
-							newtablesPtr[size]	= 0;
-							newtablesPtr		+= size + 1;
-							*((uint8_t *)(((char *)newHeader) + SMBProperties[j].offset)) = ++numberOfStrings;
-						}
+						str = SMBProperties[j].plainData;
 					}
-					
+					else if (SMBProperties[j].getSMBString)
+					{
+						str = SMBProperties[j].getSMBString();
+					}
+
+					size_t size = strlen(str);
+
+					if (size)
+					{
+						memcpy(newtablesPtr, str, size);
+						newtablesPtr[size]	= 0;
+						newtablesPtr		+= size + 1;
+						*((uint8_t *)(((char *)newHeader) + SMBProperties[j].offset)) = ++numberOfStrings;
+					}
 					break;
 			}
 		}
-		
+	
 		if (numberOfStrings == 0)
 		{
 			newtablesPtr[0] = 0;
 			newtablesPtr++;
 		}
-		
+	
 		newtablesPtr[0] = 0;
 		newtablesPtr++;
 		requiredStructures[currentStructureType].hits++;
@@ -440,11 +449,11 @@ void setupSMBIOS(void)
 	// Add EndOfTable structure.
 
 	newHeader = (struct SMBStructHeader *) newtablesPtr;
-	
+
 	newHeader->type		= kSMBTypeEndOfTable;
 	newHeader->length	= 4;
 	newHeader->handle	= ++handle;
-	
+
 	newtablesPtr += 6;
 
 	// Update EPS
@@ -454,17 +463,17 @@ void setupSMBIOS(void)
 	//------------------------------------------------------------------------------
 
 	newEPS->dmi.tableLength = (newtablesPtr - (char *)newEPS->dmi.tableAddress);
-		
+
 	// Calculate new checksums.
 	newEPS->dmi.checksum	= 256 - checksum8(&newEPS->dmi, sizeof(newEPS->dmi));
 	newEPS->checksum		= 256 - checksum8(newEPS, sizeof(* newEPS));
 
 	_SMBIOS_DEBUG_DUMP("newEPS->dmi.structureCount: %d - tableLength: %d\n", newEPS->dmi.structureCount, newEPS->dmi.tableLength);
-		
+
 	// Used to update the EFI Configuration Table (in efi.c) which is 
 	// what AppleSMBIOS.kext reads to setup the SMBIOS table for OS X.
 	gPlatform.SMBIOS.BaseAddress = (uint32_t) newEPS;
-		
+
 	_SMBIOS_DEBUG_DUMP("New SMBIOS replacement setup.\n");
 	_SMBIOS_DEBUG_SLEEP(15);
 }
