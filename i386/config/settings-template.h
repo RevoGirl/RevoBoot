@@ -337,9 +337,17 @@
 												// Note: Defaults to n MB 1066 DDR3 when set to 0 (to prevent errors in Profile Manager).
 
 
-#define TARGET_MODEL						MACMINI	// Set to MACMINI by default.
-													// Supported models: IMAC, MACBOOK, MACBOOK_AIR, MACBOOK_PRO, MACMINI or MACPRO
-
+#define TARGET_MODEL						MACMINI	// Set to MACMINI by default. Supported models are:
+													//
+													// IMAC and IMAC_131, IMAC_122, IMAC_111, IMAC_121
+													// MACBOOK and MACBOOK_41
+													// MACBOOKAIR and MACBOOKAIR_42, MACBOOKAIR_41
+													// MACBOOKPRO and MACBOOKPRO_101, MACBOOKPRO_91, MACBOOKPRO_83, MACBOOKPRO_82,
+													// MACBOOKPRO_81, MACBOOKPRO_61
+													// MACMINI and MACMINI_53, MACMINI_52, MACMINI_51
+													// MACPRO and MACPRO_51, MACPRO_41, MACPRO_31
+													//
+													// Note: MACMINI (without _NNN) selects the default model (last one i.e. MACMINI_51).
 
 #define DEBUG_SMBIOS						0	// Set to 0 by default. Change this to 1 when things don't seem to work for you.
 
