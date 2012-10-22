@@ -1,14 +1,17 @@
-/***
+/*
  *
- *  platform.c
+ * platform.c
+ *
+ * Updates:
+ *
+ *			- STATIC_SMBIOS_MODEL_ID renamed to SMB_PRODUCT_NAME (PikerAlpha, October 2012).
  *
  */
 
 #include "bootstruct.h"
 #include "cpu/cpuid.h"
 
-// Global platform structure with everything we need.
-PlatformInfo_t	gPlatform;
+PlatformInfo_t	gPlatform;	// Global platform structure with everything we need.
 
 
 #if MUST_ENABLE_A20
@@ -17,8 +20,8 @@ PlatformInfo_t	gPlatform;
 
 static inline void flushKeyboardInputBuffer()
 {
-	#define PORT_B      0x64    // port B
-	#define KB_INFULL   0x2     // input buffer full.
+	#define PORT_B		0x64	// port B
+	#define KB_INFULL	0x2		// input buffer full.
 
 	unsigned char ret;
 
@@ -37,17 +40,17 @@ static inline void flushKeyboardInputBuffer()
 void enableA20()
 {
 	// keyboard controller (8042) I/O port addresses.
-	#define PORT_A      0x60    // port A
-	#define PORT_B      0x64    // port B
+	#define PORT_A		0x60	// port A
+	#define PORT_B		0x64	// port B
 	
 	// keyboard controller command.
-	#define CMD_WOUT    0xd1    // Write controller's output port.
+	#define CMD_WOUT	0xd1	// Write controller's output port.
 	
 	// keyboard controller status flags.
-	#define KB_INFULL   0x2     // input buffer full.
-	#define KB_OUTFULL  0x1     // output buffer full.
+	#define KB_INFULL	0x2		// input buffer full.
+	#define KB_OUTFULL	0x1		// output buffer full.
 	
-	#define KB_A20      0x9f	// enable A20, enable output buffer full interrupt
+	#define KB_A20		0x9f	// enable A20, enable output buffer full interrupt
 	// enable data line disable clock line.
 	
 	// Make sure that the input buffer is empty.
@@ -122,12 +125,12 @@ void enableHPET(void)
 
 void initPlatform(int biosDevice)
 {
-    memset(&gPlatform, 0, sizeof(gPlatform));
+	memset(&gPlatform, 0, sizeof(gPlatform));
 
 	// Copied from cpu/dynamic_data.h to make printf work this early on.
 #if DEBUG_CPU || DEBUG_PLATFORM
 	extern void setVideoMode(int mode);
-    setVideoMode(0); // Switch to VGA_TEXT_MODE
+	setVideoMode(0); // Switch to VGA_TEXT_MODE
 #endif
 
 #if ENABLE_HPET
@@ -175,7 +178,7 @@ void initPlatform(int biosDevice)
 #endif // INCLUDE_MP_TABLE
 
 	// Used in boot.c to verify the checksum (adler32) of a pre-linked kernel.
-	gPlatform.ModelID				= strdup(STATIC_MAC_PRODUCT_NAME);
+	gPlatform.ModelID				= SMB_PRODUCT_NAME;
 
 	// Determine system type based on product name. Used in
 	// acpi/patcher.h to update FADT->Preferred_PM_Profile
