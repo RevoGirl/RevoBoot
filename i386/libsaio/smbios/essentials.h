@@ -37,25 +37,25 @@ typedef UInt64 SMBQWord;
 
 struct DMIEntryPoint
 {
-    SMBByte    anchor[5];
-    SMBByte    checksum;
-    SMBWord    tableLength;
-    SMBDWord   tableAddress;
-    SMBWord    structureCount;
-    SMBByte    bcdRevision;
+    SMBByte		anchor[5];
+	SMBByte		checksum;
+	SMBWord		tableLength;
+	SMBDWord	tableAddress;
+	SMBWord		structureCount;
+	SMBByte		bcdRevision;
 } __attribute__((packed));
 
 struct SMBEntryPoint
 {
-    SMBByte    anchor[4];
-    SMBByte    checksum;
-    SMBByte    entryPointLength;
-    SMBByte    majorVersion;
-    SMBByte    minorVersion;
-    SMBWord    maxStructureSize;
-    SMBByte    entryPointRevision;
-    SMBByte    formattedArea[5];
-    struct DMIEntryPoint dmi;
+	SMBByte		anchor[4];
+	SMBByte		checksum;
+	SMBByte		entryPointLength;
+	SMBByte		majorVersion;
+	SMBByte		minorVersion;
+	SMBWord		maxStructureSize;
+	SMBByte		entryPointRevision;
+	SMBByte		formattedArea[5];
+	struct DMIEntryPoint dmi;
 } __attribute__((packed));
 
 #endif /* !__LIBSAIO_SMBIOS_ESSENTIALS_H */
