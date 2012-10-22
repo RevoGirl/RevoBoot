@@ -323,8 +323,6 @@ static const char * getBIOSDate(void)
 
 	const char * retValue = biosDate;
 
-	smbBIOSVersion = biosDate = NULL;
-
 	return retValue; // Example: "01/24/2012";
 }
 
