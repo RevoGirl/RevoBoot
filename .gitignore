@@ -3,3 +3,15 @@ data-hp.h
 data-asus.h
 settings-hp.h
 setting-asus.h
+
+i386/config/ACPI/data.h
+
+i386/config/settings.h
+
+i386/config/EFI/data.h
+
+i386/config/SMBIOS/data.h
+
+i386/util/libcc_kext.a
+
+i386/config/ACPI/data.h
