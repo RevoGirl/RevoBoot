@@ -8,6 +8,9 @@
  *			- Complete rewrite / overhaul by DHP in Februari 2011.
  *			- Coding style change by DHP in Februari 2011.
  *			- EFI fix for FSB speed added by DHP in June 2011 (tested by flaKed).
+ *			- Function getOverrideString removed (PikerAlpha, October 2012).
+ *			- Function getBIOSDate added (PikerAlpha, October 2012).
+ *			- Unused arguments removed (PikerAlpha, October 2012).
  *
  * Credits:
  *			- macerintel (see note in source code)
@@ -15,10 +18,10 @@
  */
 
 
-#define SMBIOS_SEARCH_BASE      0x000F0000
-#define SMBIOS_SEARCH_END       0x000FFFFF
-#define SMBIOS_ANCHOR           0x5f4d535f // '_SM_' in Little Endian.
-#define SMBIOS_MPS_ANCHOR       0x5f504d5f // '_MP_' in Little Endian. 
+#define SMBIOS_SEARCH_BASE		0x000F0000
+#define SMBIOS_SEARCH_END		0x000FFFFF
+#define SMBIOS_ANCHOR			0x5f4d535f	// '_SM_' in Little Endian.
+#define SMBIOS_MPS_ANCHOR		0x5f504d5f	// '_MP_' in Little Endian.
 
 #define NOT_AVAILABLE	"N/A"
 #define RAM_SLOT_EMPTY	""
@@ -86,64 +89,6 @@ static inline struct SMBEntryPoint * getEPSAddress(void)
 
 
 //==============================================================================
-// Originally developed, for the first SMBIOS patcher, by macerintel in 2008. 
-// Refactorized by DHP in Februari 2010 (also renamed in 2011).
-
-static const char * getOverrideString(const char * aKeyString)
-{
-	int i = 0;
-	const SMBPropertyData * keyValues;
-
-#if OVERRIDE_DYNAMIC_PRODUCT_DETECTION
-	keyValues = STATIC_DEFAULT_DATA;
-	
-	#if OVERRIDE_PRODUCT_NAME
-		if (!strcmp(aKeyString, "SMBproductName"))
-		{
-			return STATIC_MAC_PRODUCT_NAME;
-		},
-	#endif
-#else
-	if (gPlatform.CPU.Mobile)
-    {
-        if (gPlatform.CPU.NumCores > 1)
-		{
-			keyValues = MacBookPro;
-		}
-		else
-		{
-			keyValues = MacBook;
-		}
-	}
-	else
-	{
-		switch (gPlatform.CPU.NumCores)
-		{
-			case 1:		keyValues = Macmini;
-				break;
-			case 2:		keyValues = iMac;
-				break;
-			default:	keyValues = MacPro;
-				break;
-        }
-    }
-#endif
-	for (i = 0; keyValues[i].key[0]; i++)
-	{
-		if (!strcmp(keyValues[i].key, aKeyString))
-		{
-			return keyValues[i].value;
-		}
-	}
-
-	_SMBIOS_DEBUG_DUMP("Error: no default for '%s' known\n", aKeyString);
-	_SMBIOS_DEBUG_SLEEP(5);
-
-	return "";
-}
-
-
-//==============================================================================
 
 static SMBWord getFSBFrequency(void)
 {
@@ -171,7 +116,7 @@ static SMBWord getCPUFrequency(void)
 {
 	_SMBIOS_DEBUG_DUMP("In getCPUFrequency() = %d Hz\n", (gPlatform.CPU.CPUFrequency / 1000000));
 
-    return (gPlatform.CPU.CPUFrequency / 1000000);
+	return (gPlatform.CPU.CPUFrequency / 1000000);
 }
 
 
@@ -258,7 +203,7 @@ static SMBWord getRAMFrequency(void)
 
 //==============================================================================
 
-static const char * getRAMVendor(const char * aKeyString)
+static const char * getRAMVendor(void)
 {
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
@@ -289,7 +234,7 @@ static const char * getRAMVendor(const char * aKeyString)
 
 //==============================================================================
 
-static const char * getRAMSerialNumber(const char * aKeyString)
+static const char * getRAMSerialNumber(void)
 {
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
@@ -320,7 +265,7 @@ static const char * getRAMSerialNumber(const char * aKeyString)
 
 //==============================================================================
 
-static const char * getRAMPartNumber(const char * aKeyString)
+static const char * getRAMPartNumber(void)
 {
 #if OVERRIDE_DYNAMIC_MEMORY_DETECTION || DEBUG_SMBIOS
 	uint8_t structureIndex = requiredStructures[kSMBTypeMemoryDevice].hits;
@@ -348,6 +293,38 @@ static const char * getRAMPartNumber(const char * aKeyString)
 #endif
 }
 
+
+//==============================================================================
+// This function returns the BIOS date, extracted from SMB_BIOS_VERSION
+//==============================================================================
+
+static const char * getBIOSDate(void)
+{
+	//  0123456789 123456789 1234567
+	// "MM51.88Z.0077.B10.1201241549"
+	// "01/24/2012"
+
+	const char smbBIOSVersion[] = SMB_BIOS_VERSION;
+
+	size_t len = strlen(smbBIOSVersion);
+
+	char biosDate[len];
+
+	strncpy(biosDate,		smbBIOSVersion + (len -  8), 2);
+	strncpy(biosDate + 2,	"/", 1);
+	strncpy(biosDate + 3,	smbBIOSVersion + (len - 6), 2);
+	strncpy(biosDate + 5,	"/20", 3);
+	strncpy(biosDate + 8,	smbBIOSVersion + (len -  10), 2);
+
+	biosDate[10] = 0;
+
+	_SMBIOS_DEBUG_DUMP("biosData = %s\n", biosDate);
+	_SMBIOS_DEBUG_SLEEP(5);
+
+	const char * retValue = biosDate;
+
+	return retValue; // Example: "01/24/2012";
+}
 
 //==============================================================================
 

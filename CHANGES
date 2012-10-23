@@ -1,3 +1,21 @@
+RevoBoot v1.5.00
+================
+- RevoBoot project forked (PikerAlpha, October 2012).
+- 
+- Time to say goodbye to some of the legacy code.  Something I will do with the help of Sam's notes, 
+- but not everything is written in stone.  Unfortenately.  Meaning that I will have to experiment and 
+- improvise.  Hopefully achieving the same goals that she had in mind for you.
+-
+- Support for self compiled libcc_kext.a (Xcode 4.5.1 compatibility) added (PikerAlpha, October 2012).
+- SMBIOS legacy code removed (PikerAlpha, October 2012).
+- EFI/SMBIOS data logic moved to preprocessor code (PikerAlpha, October 2012).
+- RevoBoot/i386/config/settings.h stripped for simplicity (PikerAlpha, October 2012).
+- 
+- Note: If there is anything that doesn't work for you... let me know and I will look at it.
+-
+- Xcode 4.5.1 compatibility: Copy an older version of libcc_kext.a to RevoBoot/i386/util/
+
+
 RevoBoot v1.0.30
 ================
 - Getting ready for Mountain Lion (more work to be done).

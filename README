@@ -1,7 +1,6 @@
-Warning: We are making changes, in preparation for Mountain Lion, and thus things might get broken once in a while, and when that happens, then we want you to use: https://github.com/RevoGirl/RevoBoot/issues
-and let us know. Thank you!
+RevoBoot can now be build with Xcode 4.5.1 on Mountain Lion. See change log for instructions.
 
-RevoBoot can to be configured specifically for your hardware so please start by reading our WiKi at:
+Please note that RevoBoot must be configured for your hardware so start reading our WiKi. See also:
 
 https://github.com/blackosx/RevoBuilder/wiki/Using-RevoBuilder
 
@@ -12,7 +11,3 @@ https://github.com/RevoGirl/RevoBoot/blob/master/i386/config/README
 There's also RevoBuilder (a great tool for first starters) over at:
 
 https://github.com/blackosx/RevoBuilder/wiki/Using-RevoBuilder
-
-And brand-spanking-new (since early July 2011) the RevoGirl blog over at:
-
-http://revogirl.wordpress.com/ 

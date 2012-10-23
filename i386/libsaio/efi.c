@@ -24,13 +24,17 @@
  * additional changes by: Macerintel (2008), Master Chief (2009) and 
  * Rekursor in 2009. All rights reserved.
  *
- * EFI implementation for Revolution Copyright (c) 2010 by DHP.
- * All rights reserved.
+ * EFI implementation for Revolution Copyright (c) 2010 by DHP. All rights reserved.
+ *
+ * Updates:
+ *
+ *			- STATIC_MODEL_NAME moved over from settings.h (PikerAlpha, October 2012).
+ *			- STATIC_MODEL_NAME renamed to EFI_MODEL_NAME (PikerAlpha, October 2012).
+ *			- Now no longer includes platform.h (PikerAlpha, October 2012).
  *
  */
 
 
-#include "platform.h"
 #include "efi/fake_efi.h"
 
 #define INCLUDE_EFI_DATA	1
@@ -46,7 +50,7 @@ void initEFITree(void)
 	static char ACPI[] = "ACPI";
 
 	// The required information should be added to private_data.h
-	static EFI_CHAR16 const MODEL_NAME[]			= STATIC_MODEL_NAME;
+	static EFI_CHAR16 const MODEL_NAME[]			= EFI_MODEL_NAME;
 	static EFI_CHAR16 const SYSTEM_SERIAL_NUMBER[]	= STATIC_SYSTEM_SERIAL_NUMBER;
 
 	DT__Initialize(); // Add and initialize gPlatform.DT.RootNode
